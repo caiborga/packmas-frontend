@@ -1,0 +1,58 @@
+.background {
+    background: linear-gradient(246deg, #f80375, #045d99, #efd702);
+    background-size: 400% 400%; /* Animationsgröße */
+    height: 100vh; /* Volle Höhe des Bildschirms */
+    width: 100vw; /* Volle Breite des Bildschirms */
+    position: relative; /* Notwendig für absolute Positionierung der Overlay-Schicht */
+    overflow: hidden;
+    -webkit-animation: AnimationName 18s ease infinite;
+    animation: AnimationName 18s ease infinite;
+}
+
+/* Transparentes Bild als Overlay */
+.background-overlay {
+    background-image: url('/assets/mountains-3270710_1280.png');
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: 100% 60%; /* Breite 100%, Höhe 70% */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Hier kannst du die Höhe des Containers anpassen */
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Stellt sicher, dass das <router-outlet> über dem Bild ist */
+.router-outlet {
+    position: relative;
+    z-index: 3; /* Vorderste Ebene */
+}
+
+
+
+/* Keyframes für die Animation */
+@-webkit-keyframes AnimationName {
+    0% {
+        background-position: 0% 76%;
+    }
+    50% {
+        background-position: 100% 25%;
+    }
+    100% {
+        background-position: 0% 76%;
+    }
+}
+
+@keyframes AnimationName {
+    0% {
+        background-position: 0% 76%;
+    }
+    50% {
+        background-position: 100% 25%;
+    }
+    100% {
+        background-position: 0% 76%;
+    }
+}
