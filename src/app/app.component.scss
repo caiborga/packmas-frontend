@@ -9,6 +9,17 @@
     animation: AnimationName 18s ease infinite;
 }
 
+.background-success {
+    background: linear-gradient(180deg, #045d99, green );
+    background-size: 400% 400%; /* Animationsgröße */
+    height: 100vh; /* Volle Höhe des Bildschirms */
+    width: 100vw; /* Volle Breite des Bildschirms */
+    position: relative; /* Notwendig für absolute Positionierung der Overlay-Schicht */
+    overflow: hidden;
+    -webkit-animation: AnimationName 2s ease-out 1;
+    animation: AnimationName 2s ease-out 1;
+}
+
 /* Transparentes Bild als Overlay */
 .background-overlay {
     background-image: url('/assets/mountains-3270710_1280.png');
@@ -29,8 +40,6 @@
     position: relative;
     z-index: 3; /* Vorderste Ebene */
 }
-
-
 
 /* Keyframes für die Animation */
 @-webkit-keyframes AnimationName {
@@ -54,5 +63,15 @@
     }
     100% {
         background-position: 0% 76%;
+    }
+}
+
+/* Keyframes für die Animation */
+@keyframes greenSpread {
+    0% {
+        background: green; /* Startfarbe */
+    }
+    100% {
+        background: radial-gradient(circle, green 0%, blue 100%);
     }
 }

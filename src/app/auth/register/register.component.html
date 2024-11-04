@@ -1,37 +1,32 @@
-<div class="h-screen flex items-center justify-center">
+<div class="h-screen flex flex-col justify-center items-center relative">
     <div class="card bg-base-100 max-w-sm shrink-0 shadow-2xl">
         <form class="card-body">
             <div class="form-control">
                 <label class="label">
-                    <span class="label-text">Email</span>
+                    <span class="label-text">Gruppenname</span>
                 </label>
                 <input
-                    type="email"
-                    placeholder="email"
+                    type="text"
+                    placeholder="Die Woodys"
                     class="input input-bordered"
+                    [(ngModel)]="groupName"
+                    name="groupName"
                     required
                 />
-            </div>
-            <div class="form-control">
-                <label class="label">
-                    <span class="label-text">Password</span>
-                </label>
-                <input
-                    type="password"
-                    placeholder="password"
-                    class="input input-bordered"
-                    required
-                />
-                <label class="label">
-                    <a href="#" class="label-text-alt link link-hover"
-                        >Forgot password?</a
-                    >
-                </label>
             </div>
             <div class="form-control mt-6">
-                <button class="btn btn-primary">Login</button>
+                <button class="btn btn-primary" (click)="registerGroup()">
+                    Neue Gruppe erstellen
+                </button>
             </div>
         </form>
     </div>
-</div>
 
+
+    <ul class="steps steps-horizontal fixed bottom-0 left-1/2 transform -translate-x-1/2 mb-4">
+        <li class="step text-primary">Gruppe erstellen</li>
+        <li class="step text-primary">Link teilen</li>
+        <li data-content="✓" class="step text-primary">Tour planen</li>
+        <li data-content="✕" class="step text-primary">Los geht's!</li>
+      </ul>
+</div>
