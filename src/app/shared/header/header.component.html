@@ -1,0 +1,21 @@
+<div class="breadcrumbs text-sm text-white">
+    <ul>
+        @for(breadCrumb of breadCrumbs; track breadCrumb; let idx = $index) {
+            @if (breadCrumbs.length === 1) {
+                <li>{{breadCrumbs[0]}}</li>
+            } @else {
+                @if (idx + 1 < breadCrumbs.length ){
+                    <li><a>{{breadCrumbs[idx]}}</a></li>
+                } @else {
+                    <li>Add Document</li>
+                }
+            }
+        } @empty {
+            <li class="text-red-500">No Breadcrumbs Data</li>
+        }
+
+    </ul>
+</div>
+
+<div class="font-bold text-3xl text-white">{{title}}</div>
+<div class="text-white text-base mb-5">{{subTitle}}</div>

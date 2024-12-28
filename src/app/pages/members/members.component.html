@@ -1,0 +1,173 @@
+<app-header
+    [title]="'Teilnehmerliste'"
+    [subTitle]="'Verwalte Deine Mitstreiter'"
+    [breadCrumbs]="['Teilnehmer']"
+>
+</app-header>
+
+<div class="drawer drawer-end">
+    <input #drawer id="my-drawer-4" type="checkbox" class="drawer-toggle" />
+    <div class="drawer-content">
+        <p-table
+            class="opacity-90"
+            [value]="members"
+            [loading]="loadingData"
+            [paginator]="true"
+            [rows]="5"
+            [tableStyle]="{ 'min-width': '50rem' }"
+            [rowsPerPageOptions]="[5, 10, 20]"
+        >
+            <ng-template #header>
+                <tr>
+                    <th style="width: 100%">Name</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-member>
+                <tr>
+                    <td class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="avatar">
+                                <div class="mask mask-squircle w-8">
+                                    <img
+                                        [src]="
+                                            'assets/images/avatars/' +
+                                            member.avatar +
+                                            'thumbnail.jpg'
+                                        "
+                                    />
+                                </div>
+                            </div>
+                            {{ member.name }}
+                        </div>
+                        <div class="flex gap-1">
+                            <button class="btn btn-circle btn-xs btn-primary" (click)="editMember()">
+                                <mat-icon
+                                    aria-hidden="false"
+                                    aria-label="Example home icon"
+                                    class="text-sm"
+                                    fontIcon="edit"
+                                ></mat-icon>
+                            </button>
+                            <button class="btn btn-secondary btn-circle btn-xs">
+                                <mat-icon
+                                    aria-hidden="false"
+                                    aria-label="Example home icon"
+                                    class="text-sm"
+                                    fontIcon="delete"
+                                ></mat-icon>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="7">Bisher keine Teilnehmer erstellt</td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <label
+            for="my-drawer-4"
+            class="button btn btn-circle btn-primary fixed bottom-16 left-1/2"
+        >
+            <mat-icon
+                aria-hidden="false"
+                aria-label="Example home icon"
+                fontIcon="add"
+            ></mat-icon>
+        </label>
+    </div>
+    <div class="drawer-side">
+        <label
+            for="my-drawer-4"
+            aria-label="close sidebar"
+            class="drawer-overlay"
+        ></label>
+
+        <ul class="menu bg-white text-base-content min-h-full w-80 p-4 my-16">
+            <div class="text-2xl font-bold">Neuer Teilnehmer</div>
+            <div class="text-sm mb-2">Habe die Ehre</div>
+
+            <form [formGroup]="memberForm" class="w-100">
+                <!-- NAME -->
+                <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                        <span class="font-bold text-base">Name</span>
+                    </div>
+                    <label class="input input-bordered flex items-center gap-2">
+                        <input
+                            formControlName="name"
+                            type="text"
+                            class="grow"
+                            placeholder="Search"
+                        />
+                        <div class="avatar">
+                            <div class="mask mask-squircle w-8">
+                                <img
+                                    [src]="
+                                        'assets/images/avatars/' +
+                                        selectedAvatar.fileName
+                                    "
+                                />
+                            </div>
+                        </div>
+                    </label>
+                </label>
+                <!-- AVATAR SELECTION -->
+                <label class="form-control w-full max-w-xs mb-2">
+                    <div class="label">
+                        <span class="font-bold text-base">Avatar</span>
+                    </div>
+                    <div class="card bg-base-100 rounded-lg border-2">
+                        <div class="card-body">
+                            <div
+                                class="flex justify-between items-center"
+                            ></div>
+
+                            <div class="grid grid-cols-4 gap-3">
+                                @for (avatar of avatars; track avatar) {
+                                <div
+                                    class="avatar"
+                                    (click)="selectAvatar(avatar)"
+                                >
+                                    <div class="mask mask-squircle w-24">
+                                        <img
+                                            [src]="
+                                                'assets/images/avatars/' +
+                                                avatar.fileName
+                                            "
+                                            [class.hover:opacity-80]="
+                                                !isSelected(avatar)
+                                            "
+                                            [class.border-4]="
+                                                selectedAvatar === avatar
+                                            "
+                                            [class.ring-primary]="
+                                                selectedAvatar === avatar
+                                            "
+                                            class="transition-all cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </label>
+            </form>
+            <!-- BUTTON -->
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn btn-primary" (click)="addMember()">
+                    Erstellen
+                </button>
+                <button
+                    class="btn btn-secondary btn-outline"
+                    (click)="drawer.checked = false"
+                >
+                    Abbrechen
+                </button>
+            </div>
+        </ul>
+    </div>
+</div>

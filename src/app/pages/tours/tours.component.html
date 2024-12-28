@@ -1,0 +1,122 @@
+<app-header
+    [title]="'Tourenliste'"
+    [subTitle]="'Was haben wir nicht schon alles erlebt?'"
+    [breadCrumbs]="['Touren']"
+>
+</app-header>
+<div class="drawer drawer-end">
+    <input #drawer id="my-drawer-4" type="checkbox" class="drawer-toggle" />
+    <div class="drawer-content">
+        @if(loadingData){
+        <span class="loading loading-spinner text-primary"></span>
+        } @else {
+        <div [@tourCardsAnimation] class="flex flex-wrap gap-4 m-4">
+            @for(item of tours; track item){
+            <app-tour-card></app-tour-card>
+            }
+        </div>
+        }
+
+        <div
+            class="fixed bottom-16 left-1/2 transform -translate-x-1/2 z-10"
+        ></div>
+        <!-- DRAWER -->
+        <label
+            for="my-drawer-4"
+            class="button btn btn-circle btn-primary fixed bottom-16 left-1/2"
+        >
+            <mat-icon
+                aria-hidden="false"
+                aria-label="Example home icon"
+                fontIcon="add"
+            ></mat-icon>
+        </label>
+    </div>
+    <div class="drawer-side">
+        <label
+            for="my-drawer-4"
+            aria-label="close sidebar"
+            class="drawer-overlay"
+        ></label>
+        <ul class="menu bg-white text-base-content min-h-full w-80 p-4 my-16">
+            <div class="text-2xl font-bold">Neue Tour</div>
+            <div class="text-sm mb-2">Auf ins nächste Abentuer</div>
+            <form [formGroup]="tourForm">
+                <!-- NAME -->
+                <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                        <span class="font-bold text-base">Ziel</span>
+                    </div>
+                    <label class="input input-bordered flex items-center gap-2">
+                        <input
+                            formControlName="name"
+                            type="text"
+                            class="grow"
+                            placeholder="Stubaier Rundweg"
+                        />
+                    </label>
+                </label>
+                <!-- DATE -->
+                <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                        <span class="font-bold text-base">Datum</span>
+                    </div>
+                    <p-datepicker
+                        selectionMode="range"
+                        [readonlyInput]="true"
+                        dateFormat="dd.mm.yy"
+                    />
+                </label>
+                <!-- MEMEBERS -->
+                <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                        <span class="font-bold text-base">Teilnehmer</span>
+                    </div>
+                    <p-multiselect
+                        [options]="allMembers"
+                        placeholder="Select Cities"
+                        optionLabel="name"
+                        optionValue="id"
+                        display="chip"
+                    >
+                        <ng-template let-member #item>
+                            <div class="flex items-left gap-2">
+                                <div class="avatar">
+                                    <div class="mask mask-squircle">
+                                        <img
+                                            [src]="
+                                                'assets/images/avatars/' +
+                                                member.avatar +
+                                                'thumbnail.jpg'
+                                            "
+                                            style="width: 18px"
+                                        />
+                                    </div>
+                                </div>
+                                <div>{{ member.name }}</div>
+                            </div>
+                        </ng-template>
+                        <ng-template #header>
+                            <div class="font-medium px-3 py-2">
+                                Teilnehmer wählen
+                            </div>
+                        </ng-template>
+                        <ng-template #dropdownicon>
+                            <i class="pi pi-map"></i>
+                        </ng-template>
+                    </p-multiselect>
+                </label>
+            </form>
+            <!-- BUTTON -->
+            <div class="grid grid-cols-2 gap-2 mt-4">
+                <button class="btn btn-primary">Erstellen</button>
+                <button
+                    class="btn btn-secondary btn-outline"
+                    (click)="drawer.checked = false"
+                >
+                    Abbrechen
+                </button>
+            </div>
+        </ul>
+    </div>
+</div>

@@ -2,17 +2,19 @@ import { Routes } from '@angular/router';
 
 //Componentes
 // import { HomeComponent } from './pages/home/home.component';
-// import { ParticipantsComponent } from './pages/participants/participants.component';
 // import { PlannerComponent } from './pages/planner/planner.component';
 // import { ThingsComponent } from './pages/things/things.component';
 import { RegisterComponent } from './auth/register/register.component';
 // import { NotfoundComponent } from './pages/notfound/notfound.component';
 import { AuthGuard } from './core/guards/auth-guard.guard';
-
+import { ToursComponent } from './pages/tours/tours.component';
+import { AditTourComponent } from './pages/adit-tour/adit-tour.component';
+import { MembersComponent } from './pages/members/members.component';
 export const routes: Routes = [
-    // { path: 'home/:id', component: HomeComponent },
+    { path: 'tours/add', component: AditTourComponent },
+    { path: 'tours', component: ToursComponent },
     // { path: 'home', component: HomeComponent },
-    // { path: 'participants', component: ParticipantsComponent, canActivate: [AuthGuard] },
+    { path: 'members', component: MembersComponent, canActivate: [AuthGuard] },
     // { path: 'planner', component: PlannerComponent, canActivate: [AuthGuard] },
     // { path: 'planner/:id', component: PlannerComponent, canActivate: [AuthGuard] },
     // { path: 'things', component: ThingsComponent, canActivate: [AuthGuard] },

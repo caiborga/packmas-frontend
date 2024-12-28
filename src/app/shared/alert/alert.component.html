@@ -1,0 +1,19 @@
+<div
+    [@pulseAnimation]
+    *ngIf="isVisible"
+    role="alert"
+    class="alert fixed top-20 w-auto left-1/2 transform -translate-x-1/2 z-50 shadow-lg"
+    [ngClass]="{
+        'alert-success': type === 'success',
+        'alert-warning': type === 'warning',
+        'alert-error': type === 'error'
+    }"
+>
+    <mat-icon
+        aria-hidden="false"
+        aria-label="Example home icon"
+        [fontIcon]="icon"
+    ></mat-icon>
+    <span>{{ message }}</span>
+</div>
+<button (click)="toggleVisibility()">Ein/Ausblenden</button>

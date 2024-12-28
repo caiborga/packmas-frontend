@@ -1,23 +1,32 @@
 .background {
-    background: linear-gradient(246deg, #f80375, #045d99, #efd702);
-    background-size: 400% 400%; /* Animationsgröße */
+    display: flex;
+    flex-direction: column; /* Stellt sicher, dass Elemente vertikal gestapelt werden */
+    justify-content: space-between; /* Platz zwischen Topbar, Content und Footer */
     height: 100vh; /* Volle Höhe des Bildschirms */
     width: 100vw; /* Volle Breite des Bildschirms */
     position: relative; /* Notwendig für absolute Positionierung der Overlay-Schicht */
     overflow: hidden;
+    background: linear-gradient(246deg, #f80375, #045d99, #efd702);
+    background-size: 400% 400%;
     -webkit-animation: AnimationName 18s ease infinite;
     animation: AnimationName 18s ease infinite;
 }
 
 .background-success {
-    background: linear-gradient(180deg, #045d99, green );
+    display: flex;
+    flex-direction: column; /* Stellt sicher, dass Elemente vertikal gestapelt werden */
+    background: linear-gradient(275deg,deepskyblue,#17c40f);
     background-size: 400% 400%; /* Animationsgröße */
+    justify-content: space-between; /* Platz zwischen Topbar, Content und Footer */
+
     height: 100vh; /* Volle Höhe des Bildschirms */
     width: 100vw; /* Volle Breite des Bildschirms */
     position: relative; /* Notwendig für absolute Positionierung der Overlay-Schicht */
     overflow: hidden;
-    -webkit-animation: AnimationName 2s ease-out 1;
-    animation: AnimationName 2s ease-out 1;
+    -webkit-animation: success 1s ease infinite;
+    animation: success 1s ease infinite;
+    
+
 }
 
 /* Transparentes Bild als Overlay */
@@ -33,12 +42,23 @@
     height: 100%; /* Hier kannst du die Höhe des Containers anpassen */
     z-index: 2;
     pointer-events: none;
+    transition: filter 0.5s ease; /* Animationsdauer und Übergangsart */
+}
+
+.background-overlay-blur {
+    filter: grayscale(0.6) blur(6px);
 }
 
 /* Stellt sicher, dass das <router-outlet> über dem Bild ist */
 .router-outlet {
-    position: relative;
-    z-index: 3; /* Vorderste Ebene */
+    flex: 1; /* Nimmt den verfügbaren Platz zwischen Topbar und Footer ein */
+    z-index: 3;
+    overflow-x: auto;
+    max-width: 1200px; /* Maximale Breite des Inhalts */
+    margin: 0 auto; /* Zentriert den Inhalt horizontal */
+    width: 100%; /* Stellt sicher, dass es auf kleineren Bildschirmen flexibel bleibt */
+    padding: 1rem; /* Optional: Padding für etwas Abstand */
+    box-sizing: border-box; /* Bezieht Padding in die Gesamtbreite ein */
 }
 
 /* Keyframes für die Animation */
@@ -65,13 +85,15 @@
         background-position: 0% 76%;
     }
 }
-
 /* Keyframes für die Animation */
-@keyframes greenSpread {
+@keyframes success {
     0% {
-        background: green; /* Startfarbe */
-    }
-    100% {
-        background: radial-gradient(circle, green 0%, blue 100%);
-    }
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
 }

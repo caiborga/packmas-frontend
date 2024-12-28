@@ -1,6 +1,11 @@
+<!-- [ngClass]="{'background-success': backgroundBlurred} -->
 <div class="background">
-    <div class="background-overlay"></div> <!-- Transparentes Bild -->
+    <app-topbar [@slideTopbar]="topbarState" class="z-10"></app-topbar>
+    <div class="background-overlay" [ngClass]="{'background-overlay-blur': backgroundBlurred}"></div>
     <div class="router-outlet">
+        <app-alert></app-alert>
         <router-outlet></router-outlet>
     </div>
+    <app-footer [@slideFooter]="footerState" class="z-10"></app-footer>
 </div>
+
