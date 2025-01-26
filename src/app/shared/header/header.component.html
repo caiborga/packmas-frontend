@@ -1,13 +1,15 @@
 <div class="breadcrumbs text-sm text-white">
     <ul>
+        <li>Pack Mas</li>
         @for(breadCrumb of breadCrumbs; track breadCrumb; let idx = $index) {
             @if (breadCrumbs.length === 1) {
                 <li>{{breadCrumbs[0]}}</li>
             } @else {
                 @if (idx + 1 < breadCrumbs.length ){
-                    <li><a>{{breadCrumbs[idx]}}</a></li>
+                    <!-- <li><a>{{breadCrumbs[idx]}}</a></li> -->
+                    <li>{{breadCrumbs[idx]}}</li>
                 } @else {
-                    <li>Add Document</li>
+                    <li>{{breadCrumbs[idx]}}</li>
                 }
             }
         } @empty {

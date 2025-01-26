@@ -10,5 +10,5 @@ import { Component, Input } from '@angular/core';
 export class HeaderComponent {
     @Input() breadCrumbs: String[] = []
     @Input() title: String = 'no title'
-    @Input() subTitle: string = 'no subtitle'  
+    @Input() subTitle: string = 'no subtitle'
 }

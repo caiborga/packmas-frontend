@@ -1,17 +1,17 @@
 <!-- HEADER -->
 <app-header
-    [title]="'Teilnehmerliste'"
-    [subTitle]="'Verwalte Deine Mitstreiter'"
-    [breadCrumbs]="['Teilnehmer']"
+    [title]="'Gepäckliste'"
+    [subTitle]="'Verwalte Dein Gepäck'"
+    [breadCrumbs]="['Gepäck']"
 >
 </app-header>
 
 <!-- DELETE MODAL -->
 <dialog #deleteModal class="modal">
     <div class="modal-box">
-        <h3 class="text-lg font-bold">Teilnehmer löschen?</h3>
+        <h3 class="text-lg font-bold">Gepäck löschen?</h3>
         <p class="py-4">
-            Bitte bestätigen Sie, dass <b>{{ memberToDelete.name }}</b> gelöscht
+            Bitte bestätigen Sie, dass <b>{{ thingToDelete.name }}</b> gelöscht
             werden soll.
         </p>
         <div class="modal-action">
@@ -19,9 +19,9 @@
                 <div class="flex gap-1">
                     <button
                         class="btn btn-primary"
-                        (click)="deleteMember(memberToDelete.id)"
+                        (click)="deleteThing(thingToDelete.id)"
                     >
-                        {{ memberToDelete.name }} ist fällig
+                        {{ thingToDelete.name }}, muss weg
                     </button>
                     <button class="btn btn-secondary">Abbrechen</button>
                 </div>
@@ -34,12 +34,13 @@
 <div class="drawer drawer-end">
     <input #drawer id="my-drawer-4" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
+
         <label class="input input-bordered rounded-2xl flex items-center mb-2">
             <input
                 #searchBox
                 type="text"
                 class="grow"
-                placeholder="Teilnehmer suchen"
+                placeholder="Gepäck suchen"
                 (input)="onSearchChange($event)"
             />
             @if(loadingData){
@@ -54,7 +55,7 @@
         </label>
 
         <p-table
-            [value]="members"
+            [value]="things"
             [loading]="loadingData"
             [paginator]="true"
             [first]="pagination.offset"
@@ -69,32 +70,58 @@
                     <th style="height: 70px; background-color: #f4f4f9">
                         Name
                     </th>
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        Kategorie
+                    </th>
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        Einheit
+                    </th>
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        Gewicht
+                    </th>
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        
+                    </th>
                 </tr>
             </ng-template>
-            <ng-template #body let-member>
+            <ng-template #body let-thing>
                 <tr>
+                    <td
+                        style="height: 60px; background-color: #ffffff"
+                    >
+                        <div class="flex items-center gap-3">
+                            {{ thing.name }}
+                        </div>
+                    </td>
+                    <td
+                        style="height: 60px; background-color: #ffffff"
+                    >
+                        <div class="flex items-center gap-3">
+                            {{ thing.category }}
+                        </div>
+                    </td>
+                    <td
+                        style="height: 60px; background-color: #ffffff"
+                    >
+                        <div class="flex items-center gap-3">
+                            {{ thing.unit_id }}
+                        </div>
+                    </td>
+                    <td
+                        style="height: 60px; background-color: #ffffff"
+                    >
+                        <div class="flex items-center gap-3">
+                            {{ thing.weight }}
+                        </div>
+                    </td>
                     <td
                         style="height: 60px; background-color: #ffffff"
                         class="flex items-center justify-between"
                     >
-                        <div class="flex items-center gap-3">
-                            <div class="avatar">
-                                <div class="mask mask-squircle w-8">
-                                    <img
-                                        [src]="
-                                            'assets/images/avatars/' +
-                                            member.avatar +
-                                            'thumbnail.jpg'
-                                        "
-                                    />
-                                </div>
-                            </div>
-                            {{ member.name }}
-                        </div>
                         <div class="flex gap-1">
                             <button
                                 class="btn btn-circle btn-xs btn-primary"
-                                (click)="onEditMember(member)"
+                                (click)="onEditThing(thing)"
                             >
                                 <mat-icon
                                     aria-hidden="false"
@@ -105,7 +132,7 @@
                             </button>
                             <button
                                 class="btn btn-secondary btn-circle btn-xs"
-                                (click)="showDeleteModal(member)"
+                                (click)="showDeleteModal(thing)"
                             >
                                 <mat-icon
                                     aria-hidden="false"
@@ -120,11 +147,11 @@
             </ng-template>
             <ng-template #emptymessage>
                 <tr>
-                    @if(searchBox.value){
+                    @if(searchBox.value && !loadingData){
                         <td colspan="7">Keine Ergebnisse</td>
 
                     } @else {
-                        <td colspan="7">Bisher keine Teilnehmer erstellt</td>
+                        <td colspan="7">Bisher kein Gepäck erstellt</td>
                     }
                 </tr>
             </ng-template>
@@ -136,14 +163,12 @@
         </p-table>
 
         <!-- BUTTONS -->
-        <div
-            class="fixed bottom-16 flex justify-center gap-1 left-1/2 transform -translate-x-1/2"
-        >
+        <div class="fixed bottom-16 flex justify-center gap-1 left-1/2 transform -translate-x-1/2">
             <!-- ADIT MEMBER -->
             <label
                 for="my-drawer-4"
                 class="button btn btn-circle btn-primary"
-                (click)="onNewMember()"
+                (click)="onNewThing()"
             >
                 <mat-icon
                     aria-hidden="false"
@@ -160,13 +185,12 @@
             class="drawer-overlay"
         ></label>
 
-        <ul class="menu bg-white text-base-content min-h-full w-80 p-4 my-16">
+        <ul class="menu bg-white text-base-content min-h-full w-80 p-4 my-16 gap-3">
             <div class="text-2xl font-bold">
-                {{ editMode ? "Teilnehmer ändern" : "Teilnehmer hinzufügen" }}
+                {{ editMode ? "Gepäck ändern" : "Gepäck hinzufügen" }}
             </div>
-            <div class="text-sm mb-2">Habe die Ehre</div>
-
-            <form [formGroup]="memberForm" class="w-100">
+            <div class="text-sm mb-2">Ein jeder hat sein Päckchen zu tragen</div>
+            <form [formGroup]="thingForm" class="w-100">
                 <!-- NAME -->
                 <label class="form-control w-full max-w-xs">
                     <div class="label">
@@ -177,70 +201,51 @@
                             formControlName="name"
                             type="text"
                             class="grow"
-                            placeholder="Search"
                         />
-                        <div class="avatar">
-                            <div class="mask mask-squircle w-8">
-                                <img
-                                    [src]="
-                                        'assets/images/avatars/' +
-                                        selectedAvatar.fileName
-                                    "
-                                />
-                            </div>
-                        </div>
                     </label>
                 </label>
-                <!-- AVATAR SELECTION -->
-                <label class="form-control w-full max-w-xs mb-2">
+                <!-- CATEGORY -->
                     <div class="label">
-                        <span class="font-bold text-base">Avatar</span>
+                        <span class="font-bold text-base">Kategorie</span>
                     </div>
-                    <div class="card bg-base-100 rounded-lg border-2">
-                        <div class="card-body">
-                            <div
-                                class="flex justify-between items-center"
-                            ></div>
-
-                            <div class="grid grid-cols-4 gap-3">
-                                @for (avatar of avatars; track avatar) {
-                                <div
-                                    class="avatar"
-                                    (click)="selectAvatar(avatar)"
-                                >
-                                    <div class="mask mask-squircle w-24">
-                                        <img
-                                            [src]="
-                                                'assets/images/avatars/' +
-                                                avatar.fileName
-                                            "
-                                            [class.hover:opacity-80]="
-                                                !isSelected(avatar)
-                                            "
-                                            [class.border-4]="
-                                                selectedAvatar === avatar
-                                            "
-                                            [class.ring-primary]="
-                                                selectedAvatar === avatar
-                                            "
-                                            class="transition-all cursor-pointer"
-                                        />
-                                    </div>
-                                </div>
-                                }
-                            </div>
-                        </div>
+                        <select formControlName="category" class="select select-bordered w-full max-w-xs grow">
+                            <option [value]="1">Nahrungsmittel</option>
+                            <option [value]="2">Verbrauchsmaterial</option>
+                            <option [value]="3">Sonstiges</option>
+                        </select>
+                <!-- UNIT -->
+                <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                        <span class="font-bold text-base">Einheit</span>
                     </div>
+                        <select formControlName="unit" class="select select-bordered w-full max-w-xs grow" >
+                            <option [value]="1">Packung</option>
+                            <option [value]="2">Gramm</option>
+                            <option [value]="3">Glas</option>
+                        </select>
+                </label>
+                <!-- WEIGHT -->
+                <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                        <span class="font-bold text-base">Gewicht</span>
+                    </div>
+                    <label class="input input-bordered flex items-center gap-2">
+                        <input
+                            formControlName="weight"
+                            type="number"
+                            class="grow"
+                        />
+                    </label>
                 </label>
             </form>
             <!-- BUTTON -->
             <div class="grid grid-cols-2 gap-2">
                 @if ( !editMode ){
-                <button class="btn btn-primary" (click)="addMember()">
+                <button class="btn btn-primary" (click)="addThing()">
                     Erstellen
                 </button>
                 } @else {
-                <button class="btn btn-primary" (click)="editMember()">
+                <button class="btn btn-primary" (click)="editThing()">
                     Ändern
                 </button>
                 }

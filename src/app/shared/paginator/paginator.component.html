@@ -1,0 +1,31 @@
+@if(pages.length > 0) {
+<div
+    class="flex items-center justify-center rounded-full h-12 gap-1 px-2 border border-white"
+>
+    <span class="text-white text-xs">Zeige: </span>
+    <select
+        [(ngModel)]="pagination.limit"
+        class="select select-bordered select-xs"
+        (change)="onLimitChange()"
+    >
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="50">50</option>
+    </select>
+    <span>pro Seite</span>
+    <div class="join">
+        @if(pages.length < 4){ @for (page of pages; track page; let i = $index) {
+        <button
+            (click)="pagination.page = i"
+            [ngClass]="{ 'btn-active': pagination.page === i}"
+            class="join-item btn btn-xs"
+        >
+            {{i+1}}
+        </button>
+        } }
+    </div>
+    <div>
+        ({{pagination.limit}} / {{pagination.total}})
+    </div>
+</div>
+}

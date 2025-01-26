@@ -1,3 +1,27 @@
+<!-- DELETE MODAL -->
+<dialog #deleteModal class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Tour löschen?</h3>
+        <p class="py-4">
+            Bitte bestätigen Sie, dass <b>{{ tourToDelete.tour_data.name }}</b> gelöscht
+            werden soll.
+        </p>
+        <div class="modal-action">
+            <form method="dialog">
+                <div class="flex gap-1">
+                    <button
+                        class="btn btn-primary"
+                        (click)="deleteTour(tourToDelete.id)"
+                    >
+                        {{ tourToDelete.tour_data.name }} hat kein Potenzial
+                    </button>
+                    <button class="btn btn-secondary">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</dialog>
+
 <app-header
     [title]="'Tourenliste'"
     [subTitle]="'Was haben wir nicht schon alles erlebt?'"
@@ -9,12 +33,14 @@
     <div class="drawer-content">
         @if(loadingData){
         <span class="loading loading-spinner text-primary"></span>
-        } @else {
-        <div [@tourCardsAnimation] class="flex flex-wrap gap-4 m-4">
-            @for(item of tours; track item){
-            <app-tour-card></app-tour-card>
+        } @else { 
+            @if(tours.length > 0) {
+                <div [@tourCardsAnimation] class="flex flex-wrap gap-4 m-4">
+                    @for(tour of tours; track tour){
+                        <app-tour-card [tour]="tour" (onDelete)="showDeleteModal($event)"></app-tour-card>
+                    }
+                </div>
             }
-        </div>
         }
 
         <div
@@ -52,7 +78,6 @@
                             formControlName="name"
                             type="text"
                             class="grow"
-                            placeholder="Stubaier Rundweg"
                         />
                     </label>
                 </label>
@@ -62,6 +87,7 @@
                         <span class="font-bold text-base">Datum</span>
                     </div>
                     <p-datepicker
+                        formControlName="start"
                         selectionMode="range"
                         [readonlyInput]="true"
                         dateFormat="dd.mm.yy"
@@ -74,13 +100,12 @@
                     </div>
                     <p-multiselect
                         [options]="allMembers"
-                        placeholder="Select Cities"
                         optionLabel="name"
                         optionValue="id"
                         display="chip"
+                        formControlName="members"
                     >
                         <ng-template let-member #item>
-                            <div class="flex items-left gap-2">
                                 <div class="avatar">
                                     <div class="mask mask-squircle">
                                         <img
@@ -94,22 +119,15 @@
                                     </div>
                                 </div>
                                 <div>{{ member.name }}</div>
-                            </div>
-                        </ng-template>
-                        <ng-template #header>
-                            <div class="font-medium px-3 py-2">
-                                Teilnehmer wählen
-                            </div>
-                        </ng-template>
-                        <ng-template #dropdownicon>
-                            <i class="pi pi-map"></i>
                         </ng-template>
                     </p-multiselect>
                 </label>
             </form>
             <!-- BUTTON -->
             <div class="grid grid-cols-2 gap-2 mt-4">
-                <button class="btn btn-primary">Erstellen</button>
+                <button class="btn btn-primary" (click)="onNewTour()">
+                    Erstellen
+                </button>
                 <button
                     class="btn btn-secondary btn-outline"
                     (click)="drawer.checked = false"

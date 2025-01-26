@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AditTourComponent } from './adit-tour.component';
+import { AditTourComponent } from './tour.component';
 
 describe('AditTourComponent', () => {
   let component: AditTourComponent;

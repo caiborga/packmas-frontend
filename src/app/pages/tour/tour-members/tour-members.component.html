@@ -1,0 +1,139 @@
+<!-- DELETE MODAL -->
+<dialog #deleteModal class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Teilnehmer entfernen?</h3>
+        <p class="py-4">
+            Bitte bestätigen Sie, dass <b>{{ memberToDelete.name }}</b> eine
+            Couch Potatoe ist.
+        </p>
+        <div class="modal-action">
+            <form method="dialog">
+                <div class="flex gap-1">
+                    <button
+                        class="btn btn-primary"
+                        (click)="onRemoveMember(memberToDelete)"
+                    >
+                        {{ memberToDelete.name }} ist eine Kartoffel
+                    </button>
+                    <button class="btn btn-secondary">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</dialog>
+
+<!-- SEARCH BOX -->
+<div class="flex items-center justify-center gap-2 w-full mb-4">
+    <div class="flex-grow">
+        <p-autocomplete
+            #memberSearch
+            [suggestions]="searchedMembers"
+            [forceSelection]="true"
+            [placeholder]="'Teilnehmer suchen'"
+            (input)="onSearchChange($event)"
+            optionLabel="name"
+            class="w-full"
+        >
+            <ng-template let-member #item>
+                <div class="flex justify-start gap-2">
+                    <div class="avatar">
+                        <div class="w-6 rounded-xl">
+                            <img
+                                [src]="
+                                    'assets/images/avatars/' +
+                                    member.avatar +
+                                    'thumbnail.jpg'
+                                "
+                            />
+                        </div>
+                    </div>
+                    <span class="text-sm">{{ member.name }}</span>
+                </div>
+            </ng-template>
+        </p-autocomplete>
+    </div>
+
+    <!-- ADD MEMBER -->
+    <button
+        class="btn btn-sm btn-circle btn-primary"
+        (click)="onAddMember(memberSearch.value.id, memberSearch)"
+        [disabled]="!memberSearch.value"
+        title="Mitglied hinzufügen"
+    >
+        <mat-icon
+            aria-hidden="false"
+            aria-label="Add member"
+            fontIcon="add"
+        ></mat-icon>
+    </button>
+</div>
+
+@for (member of members.ids; track member) {
+
+<details 
+    pDroppable
+    class="collapse bg-base-200"
+    (onDrop)="onDropElement(members.data[member])"
+>
+    <!-- INFO -->
+    <summary class="collapse-title text-xl font-medium">
+        <div class="flex items-center justify-between">
+            <!-- AVATAR / NAME -->
+            <div class="flex items-center space-x-3">
+                <div class="avatar indicator">
+                    <span class="indicator-item badge badge-secondary badge-xs"
+                        ><div class="text-xs">
+                            {{
+                                members.data[member].burden
+                                    ? members.data[member].burden!.length
+                                    : 0
+                            }}
+                        </div></span
+                    >
+                    <div class="w-6 rounded-xl">
+                        <img
+                            [src]="
+                                'assets/images/avatars/' +
+                                members.data[member].avatar +
+                                'thumbnail.jpg'
+                            "
+                            alt="Avatar"
+                        />
+                    </div>
+                </div>
+                <span class="text-sm">{{ members.data[member].name }}</span>
+                <mat-icon
+                    aria-hidden="false"
+                    aria-label="Edit member"
+                    class="text-sm"
+                    fontIcon="stones"
+                ></mat-icon>
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="flex space-x-1">
+                <button
+                    class="btn btn-secondary btn-circle btn-xs"
+                    (click)="showDeleteModal(members.data[member])"
+                >
+                    <mat-icon
+                        aria-hidden="false"
+                        aria-label="Delete member"
+                        class="text-sm"
+                        fontIcon="delete"
+                    ></mat-icon>
+                </button>
+            </div>
+        </div>
+    </summary >
+    <!-- BURDENS -->
+    <div class="collapse-content">
+        @for (burden of members.data[member].burden; track burden) {
+        <div class="card">
+            {{ burden.name }}
+        </div>
+        } @empty { Bisher kein Gepäck zugewiesen }
+    </div>
+</details >
+
+} @empty { Bisher wurden keine Teilnehmer hinzugefügt }

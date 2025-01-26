@@ -1,49 +1,78 @@
 import { Component, inject, ElementRef, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import {
+    FormGroup,
+    FormControl,
+    FormsModule,
+    Validators,
+} from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
-
+import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { LayoutService } from '../../core/services/layout.service';
 import { PaginatorModule } from 'primeng/paginator';
 import { Avatar, AVATAR_LIST } from '../../core/avatars/avatars';
 import { TableModule } from 'primeng/table';
 import { ToursService } from '../../core/services/tours.service';
-import { HeaderComponent } from "../../shared/header/header.component";
+import { HeaderComponent } from '../../shared/header/header.component';
 import { AlertService } from '../../core/services/alert.service';
-
-interface PageEvent {
-    first: number;
-    rows: number;
-    page: number;
-    pageCount: number;
-}
+import { Member } from '../../core/models/member';
+import { Pagination } from '../../core/models/pagination';
+import { PaginatorComponent } from '../../shared/paginator/paginator.component';
 
 @Component({
     selector: 'app-members',
     standalone: true,
-    imports: [MatIconModule,ReactiveFormsModule, PaginatorModule, TableModule, HeaderComponent],
+    imports: [
+        FormsModule,
+        MatIconModule,
+        NgClass,
+        ReactiveFormsModule,
+        PaginatorModule,
+        TableModule,
+        HeaderComponent,
+        PaginatorComponent,
+    ],
     templateUrl: './members.component.html',
     styleUrl: './members.component.scss',
 })
 export class MembersComponent {
-
     @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
+    @ViewChild('deleteModal') deleteModal!: ElementRef<HTMLDialogElement>;
 
-    alertService = inject(AlertService)
+    alertService = inject(AlertService);
     layoutService = inject(LayoutService);
-    tourService = inject(ToursService)
+    tourService = inject(ToursService);
 
     avatars: Avatar[] = AVATAR_LIST;
-    members: String[] = [];
+    editMode: boolean = false;
+    members: Member[] = [];
+    memberToDelete: Member = { name: '', id: 0, avatar: '' };
     loadingData: boolean = false;
-    selectedAvatar: Avatar = { fileName: 'default.jpg', id: 0};
+    selectedAvatar: Avatar = { fileName: 'default.jpg', id: '0' };
+    showFilter: boolean = false;
+
+    pagination: Pagination = { limit: 10, offset: 0, page: 1 };
 
     memberForm = new FormGroup({
-        avatar: new FormControl(0),
-        id: new FormControl(''),
+        avatar: new FormControl(''),
+        id: new FormControl(0),
         name: new FormControl('', Validators.required),
     });
+
+    private searchSubject = new Subject<string>();
+
+    constructor() {
+        this.searchSubject
+            .pipe(debounceTime(300), distinctUntilChanged())
+            .subscribe((searchTerm) => {
+                this.loadingData = true;
+                this.pagination.filter = searchTerm;
+                this.getMembers();
+            });
+    }
 
     ngOnInit() {
         this.getMembers();
@@ -52,10 +81,26 @@ export class MembersComponent {
         this.layoutService.setBackgroundBlurred(true);
     }
 
+    getMembers() {
+        this.loadingData = true;
+        this.tourService
+            .get('participants', this.pagination)
+            .toPromise()
+            .then((response) => {
+                this.members = response.participants;
+                this.loadingData = false;
+                this.pagination = response.pagination;
+                console.log('getMmembers - success', this.members);
+            })
+            .catch((error) => {
+                this.loadingData = false;
+                console.error('getMmembers - error', error);
+            });
+    }
+
     selectAvatar(avatar: Avatar): void {
         if (this.selectedAvatar.id === avatar.id) {
-            // Wenn der Avatar bereits ausgewählt ist, abwählen
-            this.selectedAvatar = { fileName: 'default.jpg', id: 0};
+            this.selectedAvatar = { fileName: 'default.jpg', id: '0' };
         } else {
             this.selectedAvatar = avatar;
         }
@@ -65,59 +110,108 @@ export class MembersComponent {
         return this.selectedAvatar.id === avatar.id;
     }
 
-    addMember() {
-        this.memberForm.get('avatar')?.setValue(this.selectedAvatar.id) 
-        this.loadingData = true;
-        this.tourService.post('participants', this.memberForm.value)
-        .toPromise()
-        .then((response) => {
-            console.log('addParticipant - success', response);
-            this.drawer.nativeElement.checked = false;
-            this.alertService.triggerAlertCall();
-            this.getMembers();
-        })
-        .catch((error) => {
-            this.loadingData = false;
-            console.error('addParticipant - error', error);
-        });
+    onNewMember() {
+        this.memberForm.reset();
+        this.selectedAvatar = { fileName: 'default.jpg', id: '0' };
+        this.editMode = false;
     }
 
-    deleteMember(id: string) {
-        this.tourService.delete('participants/' + id)
-        .toPromise()
-        .then((response) => {
-            this.getMembers()
-            console.log('Delete member - success', response);
-        })
-        .catch((error) => {
-            console.error('Delete member - error', error);
-        });
+    addMember() {
+        this.memberForm.get('avatar')?.setValue(this.selectedAvatar.id);
+        this.loadingData = true;
+        this.tourService
+            .post('participants', this.memberForm.value)
+            .toPromise()
+            .then((response) => {
+                console.log('addParticipant - success', response);
+                this.drawer.nativeElement.checked = false;
+                this.alertService.showAlertMessage({
+                    type: 'success',
+                    message: 'Neuer Teilnehmer erfolgreich hinzugefügt',
+                });
+                this.getMembers();
+            })
+            .catch((error) => {
+                this.loadingData = false;
+                this.alertService.showAlertMessage({
+                    type: 'error',
+                    message: 'Teilnehmer konnte nicht hinzugefügt werden',
+                });
+                console.error('addParticipant - error', error);
+            });
+    }
+
+    showDeleteModal(member: Member) {
+        if (member) {
+            this.memberToDelete = member;
+            this.deleteModal.nativeElement.showModal();
+        }
+    }
+
+    deleteMember(id: number) {
+        this.tourService
+            .delete('participants/' + id)
+            .toPromise()
+            .then((response) => {
+                this.getMembers();
+                this.alertService.showAlertMessage({
+                    type: 'success',
+                    message: 'Teilnehmer erfolgreich entfernt',
+                });
+                console.log('Delete member - success', response);
+            })
+            .catch((error) => {
+                this.alertService.showAlertMessage({
+                    type: 'error',
+                    message: 'Teilnehmer konnte nicht entfernt werden',
+                });
+                console.error('Delete member - error', error);
+            });
+    }
+
+    onEditMember(member: Member) {
+        const avatar = AVATAR_LIST.find(
+            (avatar) => avatar.id === member.avatar
+        );
+        this.editMode = true;
+        this.memberForm.patchValue(member);
+        if (avatar) {
+            this.selectedAvatar = avatar;
+        } else {
+            this.selectedAvatar = { fileName: 'default.jpg', id: '0' };
+        }
+        this.drawer.nativeElement.checked = true;
     }
 
     editMember() {
-        console.log(this.memberForm)
-        this.tourService.put('participants/' + this.memberForm.get('id')!.value, this.memberForm.value)
-        .toPromise()
-        .then((response) => {
-            console.log('Edit member - success', response);
-        })
-        .catch((error) => {
-            console.error('Edit member - error', error);
-        });
+        this.memberForm.get('avatar')?.setValue(this.selectedAvatar.id);
+        console.log(this.memberForm);
+        this.tourService
+            .put(
+                'participants/' + this.memberForm.get('id')!.value,
+                this.memberForm.value
+            )
+            .toPromise()
+            .then((response) => {
+                this.drawer.nativeElement.checked = false;
+                this.alertService.showAlertMessage({
+                    type: 'success',
+                    message: 'Änderung gespeichert',
+                });
+                this.getMembers();
+                console.log('Edit member - success', response);
+            })
+            .catch((error) => {
+                this.alertService.showAlertMessage({
+                    type: 'error',
+                    message: 'Änderung konnte nicht gespeichert werden',
+                });
+                console.error('Edit member - error', error);
+            });
     }
 
-    getMembers() {
-        this.loadingData = true;
-        this.tourService.get('participants')
-        .toPromise()
-        .then((response) => {
-            this.members = response.participants;
-            this.loadingData = false;
-            console.log('getMmembers - success', this.members);
-        })
-        .catch((error) => {
-            this.loadingData = false;
-            console.error('getMmembers - error', error);
-        });
+    onSearchChange(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        this.searchSubject.next(input.value);
     }
 }

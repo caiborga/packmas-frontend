@@ -1,5 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { backendUrl } from '../../../../environment';
 
@@ -16,9 +15,17 @@ export class ToursService {
         return this.httpClient.post(url, data);
     }
 
-    get(endpoint: string): Observable<any> {
+    get(endpoint: string, params?: { [key: string]: any }): Observable<any> {
         const url = `${this.apiUrl}/${endpoint}`;
-        return this.httpClient.get(url);
+
+        let httpParams = new HttpParams();
+        if (params) {
+            Object.keys(params).forEach((key) => {
+                httpParams = httpParams.set(key, params[key]);
+            });
+        }
+
+        return this.httpClient.get(url, { params: httpParams });
     }
 
     put(endpoint: string, data: any): Observable<any> {

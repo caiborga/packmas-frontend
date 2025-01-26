@@ -1,14 +1,20 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { Warning } from '../../shared/alert/alert.component';
+
+export interface Alert {
+    type: Warning,
+    message: string
+}
 
 @Injectable({
     providedIn: 'root',
 })
 export class AlertService {
-    private callShowAlert = new Subject<void>();
-    onCallAlert = this.callShowAlert.asObservable();
+    private showAlert = new Subject<Alert>();
+    onShowAlert = this.showAlert.asObservable();
 
-    triggerAlertCall() {
-        this.callShowAlert.next();
+    showAlertMessage(alert: Alert) {
+        this.showAlert.next(alert);
     }
 }

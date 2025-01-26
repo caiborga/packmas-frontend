@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { AuthService } from '../../core/services/auth-service.service';
 import { Router, RouterLink } from '@angular/router';
 import { RouterModule } from '@angular/router';
@@ -15,6 +15,10 @@ import { TourCardComponent } from './tour-card/tour-card.component';
 import { LayoutService } from '../../core/services/layout.service';
 import { HeaderComponent } from "../../shared/header/header.component";
 import { tourCardsSlideIn } from '../../core/animations/layout';
+import { Tour, initializeTour } from '../../core/models/tour';
+import { Pagination } from '../../core/models/pagination';
+import { Member } from '../../core/models/member';
+import { AlertService } from '../../core/services/alert.service';
 
 @Component({
     selector: 'app-tours',
@@ -26,8 +30,12 @@ import { tourCardsSlideIn } from '../../core/animations/layout';
 })
 export class ToursComponent {
 
+    @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
+    @ViewChild('deleteModal') deleteModal!: ElementRef<HTMLDialogElement>;
+    
     layoutService = inject(LayoutService);
     authService = inject(AuthService);
+    alertService = inject(AlertService);
     route = inject(ActivatedRoute);
     router = inject(Router);
     localStorageService = inject(LocalStorageService);
@@ -36,15 +44,16 @@ export class ToursComponent {
     groupIdFromLink: string = '';
     groupIdFromStorage: string | null = '';
     isMenuOpen: boolean = false;
-    loadingData: boolean = false;
+    loadingData: boolean = true;
     newThings: Array<any> = [];
-    tours: Array<any> = [];
+    tours: Array<Tour> = [];
+    tourToDelete: Tour = initializeTour();
 
     allMembers: Number[] = [];
-    tourMembers: Number[] = [];
 
     tourForm = new FormGroup({
         destination: new FormControl(''),
+        members: new FormControl<Member[]>([]),
         name: new FormControl('', Validators.required),
         start: new FormControl('', Validators.required),
         end: new FormControl('', Validators.required),
@@ -137,17 +146,12 @@ export class ToursComponent {
             .toPromise()
             .then((response) => {
                 this.tours = response.tours;
-                // console.log('getTours - success:', this.tours);
+                console.log('getTours raw - success:', this.tours);
                 for (let tour in this.tours) {
-                    let participants = JSON.parse(
-                        this.tours[tour].tour_participants
-                    );
-                    let tourData = JSON.parse(this.tours[tour].tour_data);
-                    this.tours[tour].participants = participants;
-                    this.tours[tour].tourData = tourData;
+                    let tourData = JSON.parse(response.tours[tour].tour_data);
+                    this.tours[tour].tour_data = tourData;
                 }
                 this.loadingData = false;
-                this.tours = [1, 2, 3, 4, 5, 5, 6,7,8,9];
                 console.log('getTours - success:', this.tours);
             })
             .catch((error) => {
@@ -156,7 +160,45 @@ export class ToursComponent {
             });
     }
 
-    deleteTour(tourID: string) {
+    onNewTour() {
+        this.loadingData = true;
+        const data = {
+            tourCars: JSON.stringify([]),
+            tourData: JSON.stringify(this.tourForm.value),
+            tourThings: JSON.stringify([]),
+            tourMembers: JSON.stringify(this.tourForm.value.members),
+        };
+
+        this.tourService.post('tours', data)
+        .toPromise()
+        .then((response) => {
+            this.drawer.nativeElement.checked = false;
+            this.loadingData = false;
+            this.getTours();
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Neuer Tour erfolgreich hinzugefügt',
+            });
+            console.log('newTour - success', response);
+        })
+        .catch((error) => {
+            this.loadingData = false;
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Da hat was nicht geklappt',
+            });
+            console.error('newTour - error', error);
+        });
+    }
+
+    showDeleteModal(tour: Tour) {
+        if (tour) {
+            this.tourToDelete = tour;
+            this.deleteModal.nativeElement.showModal();
+        }
+    }
+
+    deleteTour(tourID: number) {
         this.tourService
             .delete('tours/' + tourID)
             .toPromise()
@@ -192,21 +234,4 @@ export class ToursComponent {
     //         console.log(this.newParticipants)
     //     }
     // }
-
-    addTour() {
-        const data = {
-            tourCars: JSON.stringify([]),
-            tourData: JSON.stringify(this.tourForm.value),
-            tourThings: JSON.stringify([]),
-            tourParticipants: JSON.stringify([]),
-        };
-        this.tourService.post('tours', data)
-        .toPromise()
-        .then((response) => {
-            console.log('newTour - success', response);
-        })
-        .catch((error) => {
-            console.error('newTour - error', error);
-        });
-    }
 }

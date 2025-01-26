@@ -1,4 +1,3 @@
-// import {Component, HostBinding} from '@angular/core';
 import {
     keyframes,
     trigger,
@@ -35,7 +34,7 @@ export const alertAnimation = trigger('pulseAnimation', [
     ]),
     transition(':leave', [
         animate(
-            '0.5  s ease-in-out',
+            '0.5s ease-in-out',
             keyframes([
                 style({ transform: 'scale(1)', opacity: 1, offset: 0 }),
                 style({ transform: 'scale(1.1)', opacity: 0.5, offset: 0.5 }),
@@ -47,17 +46,14 @@ export const alertAnimation = trigger('pulseAnimation', [
 
 export const tourCardsSlideIn = trigger('tourCardsAnimation', [
     transition(':enter', [
-        query(
-            'app-tour-card',
-            [
-                style({ transform: 'translateY(30px)', opacity: 0 }),
-                stagger(150, [
-                    animate(
-                        '0.5s ease-out',
-                        style({ transform: 'translateY(0)', opacity: 1 })
-                    ),
-                ]),
-            ],
-        ),
+        query('app-tour-card', [
+            style({ transform: 'translateY(30px)', opacity: 0 }),
+            stagger(150, [
+                animate(
+                    '0.5s ease-out',
+                    style({ transform: 'translateY(0)', opacity: 1 })
+                ),
+            ]),
+        ]),
     ]),
 ]);

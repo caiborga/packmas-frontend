@@ -1,0 +1,115 @@
+<!-- DELETE MODAL -->
+<dialog #deleteModal class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Teilnehmer entfernen?</h3>
+        <p class="py-4">
+            Bitte bestätigen Sie, dass <b>{{ thingToDelete.name }}</b> eine
+            Couch Potatoe ist.
+        </p>
+        <div class="modal-action">
+            <form method="dialog">
+                <div class="flex gap-1">
+                    <button
+                        class="btn btn-primary"
+                        (click)="onRemoveThing(thingToDelete.id)"
+                    >
+                        {{ thingToDelete.name }} braucht man eh nicht
+                    </button>
+                    <button class="btn btn-secondary">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</dialog>
+
+<!-- SEARCH BOX -->
+<div class="flex items-center justify-center gap-2 w-full mb-4">
+    <div class="flex-grow">
+        <p-autocomplete
+            #thingSearch
+            [suggestions]="searchedThings"
+            [forceSelection]="true"
+            [placeholder]="'Gepäck suchen'"
+            (input)="onSearchChange($event)"
+            optionLabel="name"
+            class="w-full"
+        >
+            <ng-template let-thing #item>
+                <div class="flex justify-start gap-2">
+                    <!-- <div class="avatar">
+                                <div class="w-6 rounded-xl">
+                                    <img
+                                        [src]="
+                                            'assets/images/avatars/' +
+                                            member.avatar +
+                                            'thumbnail.jpg'
+                                        "
+                                    />
+                                </div>
+                            </div> -->
+                    <span class="text-sm">{{ thing.name }}</span>
+                </div>
+            </ng-template>
+        </p-autocomplete>
+    </div>
+
+    <!-- ADD THING -->
+    <button
+        class="btn btn-sm btn-circle btn-primary"
+        (click)="onAddThing(thingSearch.value, thingSearch)"
+        [disabled]="!thingSearch.value"
+        title="Mitglied hinzufügen"
+    >
+        <mat-icon
+            aria-hidden="false"
+            aria-label="Add member"
+            fontIcon="add"
+        ></mat-icon>
+    </button>
+</div>
+
+@for (thing of things.ids; track thing) {
+<details
+    pDraggable
+    (onDragStart)="onDragElement(things.data[thing])"
+    class="collapse bg-base-200"
+>
+    <summary class="collapse-title text-xl font-medium">
+        <div>
+            <div class="flex justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="avatar">
+                        <div class="w-6 rounded-xl">
+                            <img
+                                [src]="getBearerAvatar(things.data[thing])"
+                                alt="Avatar"
+                            />
+                        </div>
+                    </div>
+                    <span class="text-sm">{{ things.data[thing].name }}</span>
+                    <span class="text-sm">{{
+                        getBearerName(things.data[thing])
+                    }}</span>
+                </div>
+                <div class="flex gap-1 relative z-10">
+                    <button
+                        class="btn btn-secondary btn-circle btn-xs"
+                        (click)="showDeleteModal(things.data[thing])"
+                    >
+                        <mat-icon
+                            aria-hidden="false"
+                            aria-label="Example home icon"
+                            class="text-sm"
+                            fontIcon="delete"
+                        ></mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </summary>
+    <div class="collapse-content">
+        <p>hello</p>
+    </div>
+</details>
+
+} @empty { Bisher wurde kein Gepäck hinzugefügt }

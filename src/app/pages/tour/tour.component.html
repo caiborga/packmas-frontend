@@ -1,0 +1,127 @@
+<app-header
+    [title]="tour.tour_data.name"
+    [subTitle]="'Das wird wild'"
+    [breadCrumbs]="['Tour', tour.tour_data.name]"
+>
+</app-header>
+
+<div class="flex gap-2 flex-wrap">
+    <!-- TOUR OVERVIEW / PICTURE -->
+    <div
+        class="card bg-white shadow-lg transition-all duration-300"
+        [ngClass]="{
+            'order-first flex-grow': !isAnyCardOpen(),
+            'w-full mb-2': isAnyCardOpen()
+        }"
+    >
+        <div
+            class="card-header flex justify-between items-center p-2 bg-gray-200 rounded-t-2xl"
+        >
+            <span class="font-bold">Übersicht</span>
+            <button class="btn btn-sm btn-circle">
+                <mat-icon
+                    aria-hidden="false"
+                    aria-label="Example home icon"
+                    class="text-xlg"
+                    [fontIcon]="'edit'"
+                ></mat-icon>
+            </button>
+        </div>
+        <div class="card-body p-4">
+            <div class="flex items-start gap-4">
+                <!-- Tabelle -->
+                <table class="table table-xs text-lg">
+                    <tbody>
+                        <!-- row 1 -->
+                        <tr class="p-1">
+                            <td>Datum:</td>
+                            <td>12.12.24</td>
+                        </tr>
+                        <!-- row 2 -->
+                        <tr>
+                            <td>Teilnehmer:</td>
+                            <td>{{ tour.tour_members.ids.length}}</td>
+                        </tr>
+                        <!-- row 3 -->
+                        <tr>
+                            <td>Ziel:</td>
+                            <td>Stubaier Gletscher</td>
+                        </tr>
+                        <!-- row 4 -->
+                        <tr>
+                            <td>Gepäck:</td>
+                            <td>40kg</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- Bild -->
+                <figure class="flex-shrink-0 h-36">
+                    <img
+                        src="https://www.swissflex.com/sites/default/files/blog/2018/02/Die-5-h%C3%B6chsten-Berge-der-Schweiz.png"
+                        alt="Berg"
+                        class="h-full object-cover rounded"
+                    />
+                </figure>
+            </div>
+        </div>
+    </div>
+
+    <!-- MEMBERS / THINGS / CARS-->
+    @for(card of cards; track card; let i = $index){
+    <div
+        class="card bg-white shadow-md transition-all duration-300"
+        [ngClass]="
+            collapsedCards[i] ? 'w-12 order-last flex-shrink-0' : 'flex-grow'
+        "
+    >
+        <!-- Card Header -->
+        <div
+            class="card-header flex justify-between items-center p-2 bg-gray-200 rounded-t-2xl"
+        >
+            <span *ngIf="!collapsedCards[i]" class="font-bold">{{
+                card.title
+            }}</span>
+
+            <button class="btn btn-sm btn-circle" (click)="toggleCard(i)">
+                <mat-icon
+                    aria-hidden="false"
+                    aria-label="Example home icon"
+                    class="text-xlg"
+                    [ngClass]="
+                        collapsedCards[i] ? 'text-gray-500' : 'text-primary'
+                    "
+                    [fontIcon]="card.icon"
+                ></mat-icon>
+            </button>
+        </div>
+
+        <div class="card-body p-4">
+            <!-- Card Body -->
+            <div *ngIf="!collapsedCards[i]" class="card-body p-4">
+                @switch (i) { 
+                    @case (0) {
+                        <app-tour-members
+                            [tourID]="tour.id"
+                            [members]="tour.tour_members"
+                            [things]="tour.tour_things"
+                            (getData)="getTourData(tourID)"
+                        ></app-tour-members>
+                    } 
+                    @case (1) {
+                        <app-tour-things
+                            [tourID]="tour.id"
+                            [members]="tour.tour_members"
+                            [things]="tour.tour_things"
+                            (getData)="getTourData(tourID)"
+                        ></app-tour-things>
+                    }
+                    @case (2) { 
+                        <app-tour-cars></app-tour-cars>
+                    } 
+                    @default { Defaultcase. } 
+                }
+            </div>
+        </div>
+    </div>
+    }
+</div>

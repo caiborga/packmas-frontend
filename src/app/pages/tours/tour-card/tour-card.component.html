@@ -1,5 +1,5 @@
 <div
-    class="group relative card bg-base-100 w-64 cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-lg opacity-85"
+    class="group relative card bg-base-100 w-64 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-lg opacity-85"
 >
     <!-- PICTURE -->
     <figure>
@@ -11,7 +11,7 @@
 
     <!-- CARD BODY -->
     <div class="card-body">
-        <h2 class="card-title">Stubaier Rundweg</h2>
+        <h2 class="card-title">{{ tour.tour_data.name }}</h2>
         <div class="overflow-x-auto">
             <table class="table table-xs">
                 <tbody>
@@ -23,7 +23,7 @@
                     <!-- row 2 -->
                     <tr>
                         <td>Teilnehmer:</td>
-                        <td>2</td>
+                        <td>{{tour.tour_members.ids.length}}</td>
                     </tr>
                     <!-- row 3 -->
                     <tr>
@@ -46,40 +46,37 @@
     >
         <!-- class="avatar-group -space-x-6 rtl:space-x-reverse absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10"
         " -->
+
+        @for(member of tour.tour_members.ids; track member; let i = $index){
+        @if(i < 4) {
         <div class="avatar">
             <div class="w-6">
                 <img
-                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                    [src]="'assets/images/avatars/' + tour.tour_members.data[member].id + 'thumbnail.jpg'"
                 />
             </div>
         </div>
-        <div class="avatar">
-            <div class="w-6">
-                <img
-                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                />
-            </div>
-        </div>
-        <div class="avatar">
-            <div class="w-6">
-                <img
-                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                />
-            </div>
-        </div>
+        } } @empty {
         <div class="avatar placeholder">
             <div class="bg-neutral text-neutral-content w-6">
-                <span class="text-xs">+99</span>
+                <span class="text-xs">0</span>
             </div>
         </div>
+        } @if (tour.tour_members.ids.length > 4) {
+        <div class="avatar placeholder">
+            <div class="bg-neutral text-neutral-content w-6">
+                <span class="text-xs"
+                    >+{{ tour.tour_members.ids.length - 4 }}</span
+                >
+            </div>
+        </div>
+        }
     </div>
     <!-- HOVER MENU -->
     <div
         class="absolute bottom-0 left-0 right-0 bg-base-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex justify-center items-center p-2 gap-1 rounded-full"
     >
-        <button
-            class="btn btn-primary btn-circle btn-xs"
-        >
+        <button class="btn btn-primary btn-circle btn-xs" [routerLink]="['/', 'tour', tour.id]">
             <mat-icon
                 aria-hidden="false"
                 aria-label="Example home icon"
@@ -87,9 +84,7 @@
                 fontIcon="edit"
             ></mat-icon>
         </button>
-        <button
-            class="btn btn-secondary btn-circle btn-xs "
-        >
+        <button class="btn btn-secondary btn-circle btn-xs" (click)="onDelete.emit(tour)">
             <mat-icon
                 aria-hidden="false"
                 aria-label="Example home icon"
