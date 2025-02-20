@@ -39,3 +39,6 @@
     background: transparent !important;
 }
 
+:host ::ng-deep .p-colorpicker-preview{
+    width: 25px !important;
+}

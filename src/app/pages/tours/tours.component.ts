@@ -3,7 +3,14 @@ import { AuthService } from '../../core/services/auth-service.service';
 import { Router, RouterLink } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { DatePicker } from 'primeng/datepicker';
 import { MultiSelectModule } from 'primeng/multiselect';
 
@@ -13,7 +20,7 @@ import { LocalStorageService } from '../../core/services/local-storage.service';
 import { ToursService } from '../../core/services/tours.service';
 import { TourCardComponent } from './tour-card/tour-card.component';
 import { LayoutService } from '../../core/services/layout.service';
-import { HeaderComponent } from "../../shared/header/header.component";
+import { HeaderComponent } from '../../shared/header/header.component';
 import { tourCardsSlideIn } from '../../core/animations/layout';
 import { Tour, initializeTour } from '../../core/models/tour';
 import { Pagination } from '../../core/models/pagination';
@@ -23,19 +30,27 @@ import { AlertService } from '../../core/services/alert.service';
 @Component({
     selector: 'app-tours',
     standalone: true,
-    imports: [DatePicker, MatIconModule, MultiSelectModule, ReactiveFormsModule, HeaderComponent, RouterModule, TourCardComponent],
+    imports: [
+        DatePicker,
+        MatIconModule,
+        MultiSelectModule,
+        ReactiveFormsModule,
+        HeaderComponent,
+        RouterModule,
+        TourCardComponent,
+    ],
     templateUrl: './tours.component.html',
     styleUrl: './tours.component.scss',
-    animations: [tourCardsSlideIn]
+    animations: [tourCardsSlideIn],
 })
 export class ToursComponent {
-
     @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
     @ViewChild('deleteModal') deleteModal!: ElementRef<HTMLDialogElement>;
-    
+
     layoutService = inject(LayoutService);
     authService = inject(AuthService);
     alertService = inject(AlertService);
+    pagination: Pagination = { limit: 10, offset: 0, page: 1 };
     route = inject(ActivatedRoute);
     router = inject(Router);
     localStorageService = inject(LocalStorageService);
@@ -59,7 +74,17 @@ export class ToursComponent {
         end: new FormControl('', Validators.required),
     });
 
-    constructor() {}
+    private searchSubject = new Subject<string>();
+    
+    constructor() {
+        this.searchSubject
+            .pipe(debounceTime(300), distinctUntilChanged())
+            .subscribe((searchTerm) => {
+                this.loadingData = true;
+                this.pagination.filter = searchTerm;
+                this.getTours();
+            });
+    }
 
     private sub: any;
 
@@ -70,7 +95,7 @@ export class ToursComponent {
         this.layoutService.setFooterState('visible');
         this.layoutService.setBackgroundBlurred(true);
 
-        this.getMembers()
+        this.getMembers();
 
         // Get group ID from route params
         this.sub = this.route.params.subscribe((params) => {
@@ -126,17 +151,18 @@ export class ToursComponent {
 
     getMembers() {
         this.loadingData = true;
-        this.tourService.get('participants')
-        .toPromise()
-        .then((response) => {
-            this.allMembers = response.participants;
-            this.loadingData = false;
-            console.log('getMmembers - success', this.allMembers);
-        })
-        .catch((error) => {
-            this.loadingData = false;
-            console.error('getMmembers - error', error);
-        });
+        this.tourService
+            .get('participants')
+            .toPromise()
+            .then((response) => {
+                this.allMembers = response.participants;
+                this.loadingData = false;
+                console.log('getMmembers - success', this.allMembers);
+            })
+            .catch((error) => {
+                this.loadingData = false;
+                console.error('getMmembers - error', error);
+            });
     }
 
     getTours() {
@@ -148,7 +174,7 @@ export class ToursComponent {
                 this.tours = response.tours;
                 console.log('getTours raw - success:', this.tours);
                 for (let tour in this.tours) {
-                    let tourData = JSON.parse(response.tours[tour].tour_data);
+                    let tourData = response.tours[tour].tour_data;
                     this.tours[tour].tour_data = tourData;
                 }
                 this.loadingData = false;
@@ -169,26 +195,32 @@ export class ToursComponent {
             tourMembers: JSON.stringify(this.tourForm.value.members),
         };
 
-        this.tourService.post('tours', data)
-        .toPromise()
-        .then((response) => {
-            this.drawer.nativeElement.checked = false;
-            this.loadingData = false;
-            this.getTours();
-            this.alertService.showAlertMessage({
-                type: 'success',
-                message: 'Neuer Tour erfolgreich hinzugefügt',
+        this.tourService
+            .post('tours', data)
+            .toPromise()
+            .then((response) => {
+                this.drawer.nativeElement.checked = false;
+                this.loadingData = false;
+                this.getTours();
+                this.alertService.showAlertMessage({
+                    type: 'success',
+                    message: 'Neuer Tour erfolgreich hinzugefügt',
+                });
+                console.log('newTour - success', response);
+            })
+            .catch((error) => {
+                this.loadingData = false;
+                this.alertService.showAlertMessage({
+                    type: 'error',
+                    message: 'Da hat was nicht geklappt',
+                });
+                console.error('newTour - error', error);
             });
-            console.log('newTour - success', response);
-        })
-        .catch((error) => {
-            this.loadingData = false;
-            this.alertService.showAlertMessage({
-                type: 'error',
-                message: 'Da hat was nicht geklappt',
-            });
-            console.error('newTour - error', error);
-        });
+    }
+
+    onSearchChange(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        this.searchSubject.next(input.value);
     }
 
     showDeleteModal(tour: Tour) {

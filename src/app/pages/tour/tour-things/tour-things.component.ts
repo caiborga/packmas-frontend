@@ -75,14 +75,14 @@ export class TourThingsComponent {
         this.searchSubject
             .pipe(debounceTime(300), distinctUntilChanged())
             .subscribe((searchTerm) => {
-                this.loadingData = true;
+                // this.loadingData = true;
                 this.pagination.filter = searchTerm;
                 this.getThings();
             });
     }
 
     getBearerAvatar(thing: Thing) {
-        if (thing.bearer) {
+        if (thing && thing.bearer) {
             const member = this.members.ids.find(
                 (id) => id === thing.bearer
             )
@@ -111,34 +111,37 @@ export class TourThingsComponent {
     }
 
     getThings() {
-        this.loadingData = true;
+        // this.loadingData = true;
         this.tourService
             .get('things', this.pagination)
             .toPromise()
             .then((response) => {
                 this.searchedThings = response.things;
-                this.loadingData = false;
+                // this.loadingData = false;
                 this.pagination = response.pagination;
                 console.log('getThings - success', this.things.ids);
             })
             .catch((error) => {
-                this.loadingData = false;
+                // this.loadingData = false;
                 console.error('getThings - error', error);
             });
     }
 
     onAddThing(thing: Thing, searchBox?: AutoComplete) {
+        this.loadingData = true;
         searchBox ? searchBox.clear() : '';
         console.log('add Thing', thing.id);
         this.things.ids.push(thing.id);
         this.updateTourThings()
             .then((result) => {
                 if (result.success) {
+                    this.loadingData = false;
                     this.alertService.showAlertMessage({
                         type: 'success',
                         message: 'Gepäck erfolgreich hinzugefügt',
                     });
                 } else {
+                    this.loadingData = false;
                     this.alertService.showAlertMessage({
                         type: 'error',
                         message: 'Das hat leider nicht geklappt',

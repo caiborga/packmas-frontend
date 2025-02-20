@@ -21,6 +21,7 @@ import { AlertService } from '../../core/services/alert.service';
 import { Member } from '../../core/models/member';
 import { Pagination } from '../../core/models/pagination';
 import { PaginatorComponent } from '../../shared/paginator/paginator.component';
+import { tableRowAnimation } from '../../core/animations/layout';
 
 @Component({
     selector: 'app-members',
@@ -37,6 +38,7 @@ import { PaginatorComponent } from '../../shared/paginator/paginator.component';
     ],
     templateUrl: './members.component.html',
     styleUrl: './members.component.scss',
+    animations: [tableRowAnimation]
 })
 export class MembersComponent {
     @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
@@ -96,6 +98,18 @@ export class MembersComponent {
                 this.loadingData = false;
                 console.error('getMmembers - error', error);
             });
+    }
+
+    getErrorSummary(): string {
+        if (!this.memberForm || this.memberForm.valid) return '';
+    
+        const errorMessages: string[] = [];
+    
+        if (this.memberForm.get('name')?.hasError('required')) {
+            errorMessages.push('Name ist erforderlich.');
+        }
+    
+        return errorMessages.length > 0 ? errorMessages.join(' | ') : 'Formular enthält Fehler.';
     }
 
     selectAvatar(avatar: Avatar): void {

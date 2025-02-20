@@ -1,0 +1,204 @@
+<!-- HEADER -->
+<app-header
+    [title]="'Einstellungen'"
+    [subTitle]="'Die Einstellung ist wichtiger als die Aufstellung'"
+    [breadCrumbs]="['Einstellungen']"
+>
+</app-header>
+
+<!-- DELETE MODAL -->
+<dialog #deleteModal class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Eintrag löschen?</h3>
+        <p class="py-4">
+            Bitte bestätigen Sie, dass
+            <b>{{ settingToDelete.value }}</b> entfernt werden soll.
+        </p>
+        <div class="modal-action">
+            <form method="dialog">
+                <div class="flex gap-1">
+                    <button class="btn btn-primary" (click)="onDeleteSetting()">
+                        {{ settingToDelete.value }} entfernen
+                    </button>
+                    <button class="btn btn-secondary">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</dialog>
+
+<!-- NEW ENTRY MODAL -->
+<dialog #addModal class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Eintrag hinzufügen</h3>
+        <p class="py-4">Bitte fügen Sie hier den neuen Wert ein:</p>
+        <input #newValue type="text" class="input input-bordered w-full" />
+        <div class="modal-action">
+            <form method="dialog">
+                <div class="flex gap-1">
+                    <button class="btn btn-primary" (click)="onAddSetting(newValue.value)">
+                        Speichern
+                    </button>
+                    <button class="btn btn-secondary">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</dialog>
+
+<div class="flex gap-4">
+    <!-- ACCORDION -->
+    <div class="w-1/4">
+        <div class="join join-vertical w-full rounded-2xl bg-base-200">
+            <!-- GENERAL -->
+            <div
+                class="collapse collapse-arrow join-item border-base-300 border"
+            >
+                <input type="radio" name="my-accordion-4" checked="checked" />
+                <div class="collapse-title text-base font-medium bg-base-200">
+                    Allgemeine Einstellungen
+                </div>
+                <div class="collapse-content bg-base-200">
+                    <ul class="menu bg-base-200">
+                        @for (setting of generalSettings; track setting ) {
+                        <li>
+                            <a
+                                (click)="onSelectOption(setting)"
+                                [ngClass]="{
+                                'active': setting === selectedSetting,
+                            }"
+                                >{{ setting.value }}</a
+                            >
+                        </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <!-- CAR -->
+            <div
+                class="collapse collapse-arrow join-item border-base-300 border"
+            >
+                <input type="radio" name="my-accordion-4" />
+                <div class="collapse-title text-base font-medium bg-base-200">
+                    Auto
+                </div>
+                <div class="collapse-content bg-base-200">
+                    <ul class="menu bg-base-200">
+                        @for (setting of carSettings; track setting ) {
+                        <li>
+                            <a
+                                (click)="onSelectOption(setting)"
+                                [ngClass]="{
+                                'active': setting === selectedSetting,
+                            }"
+                                >{{ setting.value }}</a
+                            >
+                        </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <!-- THING -->
+            <div
+                class="collapse collapse-arrow join-item border-base-300 border"
+            >
+                <input type="radio" name="my-accordion-4" />
+                <div class="collapse-title text-base font-medium bg-base-200">
+                    Gepäck
+                </div>
+                <div class="collapse-content bg-base-200">
+                    <ul class="menu bg-base-200">
+                        @for (setting of thingSettings; track setting ) {
+                        <li>
+                            <a
+                                (click)="onSelectOption(setting)"
+                                [ngClass]="{
+                                'active': setting === selectedSetting,
+                            }"
+                                >{{ setting.value }}</a
+                            >
+                        </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="w-3/4">
+        <p-table
+            [value]="serverData.data"
+            [loading]="loadingData"
+            [paginator]="true"
+            [first]="carsPagination.offset"
+            [totalRecords]="carsPagination.total!"
+            [showCurrentPageReport]="true"
+            [rows]="5"
+            [rowsPerPageOptions]="[5, 10, 20]"
+            [@tableRowAnimation]
+            currentPageReportTemplate="Zeige {first} bis {last} von {totalRecords} Elementen"
+        >
+            <ng-template #header>
+                <tr>
+                    <th style="height: 30px; background-color: #f4f4f9">
+                        <div class="flex justify-between items-center w-full">
+                            <span>Eintrag</span>
+                            <button
+                                class="btn btn-circle btn-sm btn-primary"
+                                (click)="onShowAddEntryModal()"
+                            >
+                                <mat-icon
+                                    aria-hidden="false"
+                                    aria-label="Example home icon"
+                                    fontIcon="add"
+                                ></mat-icon>
+                            </button>
+                        </div>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-entry>
+                <tr>
+                    <td
+                        style="height: 30px; background-color: #ffffff"
+                        class="flex items-center justify-between"
+                    >
+                        <div class="flex items-center gap-3">
+                            <input
+                                type="text"
+                                placeholder="Type here"
+                                class="input input-xs w-full"
+                                [value]="entry.value"
+                                (blur)="onEdit(entry)"
+                            />
+                        </div>
+                        <div class="flex gap-1 px-1">
+                            <button
+                                class="btn btn-secondary btn-circle btn-xs"
+                                (click)="showDeleteModal(entry)"
+                            >
+                                <mat-icon
+                                    aria-hidden="false"
+                                    aria-label="Example home icon"
+                                    class="text-sm"
+                                    fontIcon="delete"
+                                ></mat-icon>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="7">Bisher keine Einträge erstellt</td>
+                </tr>
+            </ng-template>
+            <ng-template #loadingbody>
+                <tr>
+                    <td colspan="7">Lädt</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

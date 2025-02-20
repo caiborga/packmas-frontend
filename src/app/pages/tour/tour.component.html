@@ -70,17 +70,37 @@
     @for(card of cards; track card; let i = $index){
     <div
         class="card bg-white shadow-md transition-all duration-300"
-        [ngClass]="
-            collapsedCards[i] ? 'w-12 order-last flex-shrink-0' : 'flex-grow'
-        "
+        [ngClass]="collapsedCards[i] ? 'w-12 order-last flex-shrink-0' : 'flex-grow'"
     >
         <!-- Card Header -->
         <div
             class="card-header flex justify-between items-center p-2 bg-gray-200 rounded-t-2xl"
         >
-            <span *ngIf="!collapsedCards[i]" class="font-bold">{{
-                card.title
-            }}</span>
+            @if (!collapsedCards[i]) {
+                <div class="gap-2">
+                    <span class="font-bold">{{
+                        card.title
+                    }}</span>
+                    <div 
+                        class="badge " 
+                        [ngClass]="{'badge-primary' : i ===0, 'badge-secondary' : i ===1, 'badge-accent' : i ===2}"
+                        >
+                        @switch (i) { 
+                            @case (0) {
+                                {{tour.tour_members.ids.length}}
+                            } 
+                            @case (1) {
+                                {{tour.tour_things.ids.length}}
+                            }
+                            @case (2) { 
+                                {{tour.tour_cars.data.length}}
+                            } 
+                            @default { Defaultcase. } 
+                        }
+                    </div>
+                </div>
+            }
+            
 
             <button class="btn btn-sm btn-circle" (click)="toggleCard(i)">
                 <mat-icon
@@ -94,9 +114,8 @@
                 ></mat-icon>
             </button>
         </div>
-
+        <!-- Card Body -->
         <div class="card-body p-4">
-            <!-- Card Body -->
             <div *ngIf="!collapsedCards[i]" class="card-body p-4">
                 @switch (i) { 
                     @case (0) {
@@ -116,7 +135,31 @@
                         ></app-tour-things>
                     }
                     @case (2) { 
-                        <app-tour-cars></app-tour-cars>
+                        <app-tour-cars
+                            [members]="tour.tour_members"
+                            [tourCars]="tour.tour_cars"
+
+                        ></app-tour-cars>
+                    } 
+                    @default { Defaultcase. } 
+                }
+            </div>
+            <div *ngIf="collapsedCards[i]" class="card-body flex justify-center items-center p-2">
+                @switch (i) { 
+                    @case (0) {
+                        <div class="badge badge-primary">
+                            {{tour.tour_members.ids.length}}
+                        </div>
+                    } 
+                    @case (1) {
+                        <div class="badge badge-secondary">
+                            {{tour.tour_things.ids.length}}
+                        </div>
+                    }
+                    @case (2) { 
+                        <div class="badge badge-accent">
+                            {{tour.tour_cars.data.length}}
+                        </div>
                     } 
                     @default { Defaultcase. } 
                 }

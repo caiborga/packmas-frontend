@@ -36,6 +36,8 @@ import { TourThingsComponent } from "./tour-things/tour-things.component";
 })
 export class AditTourComponent {
     layoutService = inject(LayoutService);
+    route = inject(ActivatedRoute);
+    tourService = inject(ToursService);
 
     loading: boolean = false;
     name = new FormControl('');
@@ -61,8 +63,7 @@ export class AditTourComponent {
 
     private sub: any;
 
-    route = inject(ActivatedRoute);
-    tourService = inject(ToursService);
+    
 
     ngOnInit() {
         this.sub = this.route.params.subscribe((params) => {
@@ -125,5 +126,5 @@ export class AditTourComponent {
 
     isAnyCardOpen(): boolean {
         return this.collapsedCards.some((state) => !state);
-      }
+    }
 }

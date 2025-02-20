@@ -1,12 +1,3 @@
-.avatar {
-	position: relative;
-}
-
-.avatar img.selected {
-	border-width: 4px;
-	border-color: #f63b79; /* Tailwind blue-500 */
-}
-
 :host ::ng-deep .p-datatable-table-container {
 	border-radius: 1rem;
     border-bottom-left-radius: 0rem;
@@ -23,19 +14,5 @@
     border-bottom-left-radius: 1rem; /* Abrundung für den Paginator */
     border-bottom-right-radius: 1rem;
     background-color: #f4f4f9; /* Hintergrundfarbe */
+    height: 60px;
 }
-
-:host ::ng-deep .p-select{
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    background: transparent !important;
-}
-
-:host ::ng-deep .p-select-label{
-    border: none !important;
-    box-shadow: none !important;
-    padding-left: 5 !important;
-    background: transparent !important;
-}
-

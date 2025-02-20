@@ -2,6 +2,7 @@ import { Component, inject, ElementRef, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -10,11 +11,14 @@ import { LayoutService } from '../../core/services/layout.service';
 import { PaginatorModule } from 'primeng/paginator';
 import { Avatar, AVATAR_LIST } from '../../core/avatars/avatars';
 import { TableModule } from 'primeng/table';
+import { Select, SelectChangeEvent } from 'primeng/select';
 import { ToursService } from '../../core/services/tours.service';
 import { HeaderComponent } from '../../shared/header/header.component';
 import { AlertService } from '../../core/services/alert.service';
 import { Thing } from '../../core/models/thing';
 import { Pagination } from '../../core/models/pagination';
+import { tableRowAnimation } from '../../core/animations/layout';
+import { Setting } from '../../core/models/setting';
 
 interface PageEvent {
     first: number;
@@ -24,20 +28,23 @@ interface PageEvent {
 }
 
 @Component({
-  selector: 'app-things',
-  standalone: true,
-  imports: [
-    MatIconModule,
-    NgClass,
-    ReactiveFormsModule,
-    PaginatorModule,
-    TableModule,
-    HeaderComponent,
-],  templateUrl: './things.component.html',
-  styleUrl: './things.component.scss'
+    selector: 'app-things',
+    standalone: true,
+    imports: [
+        HeaderComponent,
+        MatIconModule,
+        NgClass,
+        PaginatorModule,
+        ReactiveFormsModule,
+        RouterModule,
+        Select,
+        TableModule,
+    ],
+    animations: [tableRowAnimation],
+    templateUrl: './things.component.html',
+    styleUrl: './things.component.scss',
 })
 export class ThingsComponent {
-
     @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
     @ViewChild('deleteModal') deleteModal!: ElementRef<HTMLDialogElement>;
 
@@ -46,39 +53,87 @@ export class ThingsComponent {
     tourService = inject(ToursService);
 
     avatars: Avatar[] = AVATAR_LIST;
+    categories: Setting[] = [];
+    serverCategories: Setting[] = [];
+    serverUnits: Setting[] = [];
+    units: Setting[] = [];
     editMode: boolean = false;
     things: Thing[] = [];
     thingToDelete: Thing = { category: '', name: '', id: 0, weight: 0 };
     loadingData: boolean = false;
     pagination: Pagination = { limit: 10, offset: 0, page: 1 };
+    categoriesPagination: Pagination = { limit: 10, offset: 0, page: 1 };
+    unitsPagination: Pagination = { limit: 10, offset: 0, page: 1 };
 
     selectedAvatar: Avatar = { fileName: 'default.jpg', id: '0' };
 
     thingForm = new FormGroup({
         category: new FormControl<string>(''),
+        id: new FormControl(),
         name: new FormControl<string>('', Validators.required),
         unit: new FormControl<number>(1),
         weight: new FormControl<number>(0, Validators.required),
     });
 
     private searchSubject = new Subject<string>();
-
+    private searchCategoriesSubject = new Subject<string>();
+    private searchUnitSubject = new Subject<string>();
 
     constructor() {
-            this.searchSubject
-                .pipe(debounceTime(300), distinctUntilChanged())
-                .subscribe((searchTerm) => {
-                    this.loadingData = true;
-                    this.pagination.filter = searchTerm;
-                    this.getThings();
-                });
-        }
+        this.searchSubject
+            .pipe(debounceTime(300), distinctUntilChanged())
+            .subscribe((searchTerm) => {
+                this.loadingData = true;
+                this.pagination.filter = searchTerm;
+                this.getThings();
+            });
+        this.searchCategoriesSubject
+            .pipe(debounceTime(300), distinctUntilChanged())
+            .subscribe((searchTerm) => {
+                this.categoriesPagination.filter = searchTerm;
+                this.getCategories();
+            });
+        this.searchUnitSubject
+            .pipe(debounceTime(300), distinctUntilChanged())
+            .subscribe((searchTerm) => {
+                this.unitsPagination.filter = searchTerm;
+                this.getUnits();
+            });
+    }
 
     ngOnInit() {
         this.getThings();
+        this.getCategories();
+        this.getUnits();
         this.layoutService.setTopbarState('visible');
         this.layoutService.setFooterState('visible');
         this.layoutService.setBackgroundBlurred(true);
+    }
+
+    getCategories() {
+        this.tourService
+            .get('settings/THING_CATEGORIES', this.categoriesPagination)
+            .toPromise()
+            .then((response) => {
+                this.categories = response.data;
+                console.log('getCategories - success', response);
+            })
+            .catch((error) => {
+                console.error('getCategories - error', error);
+            });
+    }
+
+    getUnits() {
+        this.tourService
+            .get('settings/THING_UNITS', this.unitsPagination)
+            .toPromise()
+            .then((response) => {
+                this.units = response.data;
+                console.log('getUnits - success', response);
+            })
+            .catch((error) => {
+                console.error('getUnits - error', error);
+            });
     }
 
     getThings() {
@@ -88,6 +143,8 @@ export class ThingsComponent {
             .toPromise()
             .then((response) => {
                 this.things = response.things;
+                this.serverCategories = response.data.categories;
+                this.serverUnits = response.data.units;
                 this.loadingData = false;
                 console.log('getThings - success', this.things);
             })
@@ -105,6 +162,16 @@ export class ThingsComponent {
     onSearchChange(event: Event): void {
         const input = event.target as HTMLInputElement;
         this.searchSubject.next(input.value);
+    }
+
+    onSearchCategoriesChange(event: SelectChangeEvent): void {
+        const input = event.value;
+        this.searchCategoriesSubject.next(input.value);
+    }
+
+    onSearchUnitsChange(event: SelectChangeEvent): void {
+        const input = event.value;
+        this.searchUnitSubject.next(input.value);
     }
 
     addThing() {
@@ -166,7 +233,7 @@ export class ThingsComponent {
     }
 
     editThing() {
-        console.log(this.thingForm);
+        console.log('editThing - thingForm', this.thingForm);
         this.tourService
             .put(
                 'things/' + this.thingForm.get('id')!.value,

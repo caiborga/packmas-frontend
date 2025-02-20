@@ -1,25 +1,42 @@
-<!-- <div pDroppable (onDrop)="onDrop()" class="p-p-4 bg-green-50 border rounded">
-    <p *ngIf="!droppedItems.length">Drop items here</p>
-    <ul>
-        @for (item of droppedItems; track item) {
+<!-- DELETE MODAL -->
+<!-- <dialog #deleteModal class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Teilnehmer entfernen?</h3>
+        <p class="py-4">
+            Bitte bestätigen Sie, dass <b>{{ memberToDelete.name }}</b> eine
+            Couch Potatoe ist.
+        </p>
+        <div class="modal-action">
+            <form method="dialog">
+                <div class="flex gap-1">
+                    <button
+                        class="btn btn-primary"
+                        (click)="onRemoveMember(memberToDelete)"
+                    >
+                        {{ memberToDelete.name }} ist eine Kartoffel
+                    </button>
+                    <button class="btn btn-secondary">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</dialog> -->
 
-        <li>
-            {{ item }}
-        </li>
-        }
-    </ul>
-</div> -->
+@for (car of tourCars.ids; track car) {}
+
+
+
 
 <div class="flex justify-center gap-2">
     <!-- ADD MEMBER -->
-    <label
-        for="my-drawer-4"
-        class="button btn btn-sm btn-circle btn-primary mt-3"
+    <button
+        class="btn btn-sm btn-circle btn-primary"
+        (click)="onAddCar()"
     >
         <mat-icon
             aria-hidden="false"
-            aria-label="Example home icon"
+            aria-label="Add car"
             fontIcon="add"
         ></mat-icon>
-    </label>
+    </button>
 </div>

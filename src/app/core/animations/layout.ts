@@ -57,3 +57,10 @@ export const tourCardsSlideIn = trigger('tourCardsAnimation', [
         ]),
     ]),
 ]);
+
+export const tableRowAnimation = trigger('tableRowAnimation', [
+    transition(':enter', [
+      style({ opacity: 0, transform: 'translateY(20px)' }),
+      animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+    ]),
+  ]);

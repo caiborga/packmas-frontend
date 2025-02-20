@@ -129,14 +129,14 @@ export class TourMembersComponent {
         const memberToChangeData = this.members.data
 
         if (memberToChange) {
-            if (memberToChangeData[memberToChange].burden) {
-                memberToChangeData[memberToChange].burden?.push(burden);
-                console.log('Member burden changed:', memberToChange);
-            } else {
-                memberToChangeData[memberToChange].burden = [];
-                memberToChangeData[memberToChange].burden?.push(burden);
-                console.log('Member burden changed:', memberToChange);
-            }
+            // if (memberToChangeData[memberToChange].burden) {
+            //     memberToChangeData[memberToChange].burden?.push(burden);
+            //     console.log('Member burden changed:', memberToChange);
+            // } else {
+            //     memberToChangeData[memberToChange].burden = [];
+            //     memberToChangeData[memberToChange].burden?.push(burden);
+            //     console.log('Member burden changed:', memberToChange);
+            // }
 
             this.updateTourMembers();
             this.updateTourThings(memberToChange, burden.id);

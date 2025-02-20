@@ -9,6 +9,8 @@
 
 :host ::ng-deep .p-datatable-table-container {
 	border-radius: 1rem;
+    border-bottom-left-radius: 0rem;
+    border-bottom-right-radius: 0rem;
 }
 
 :host ::ng-deep .p-datatable-mask{

@@ -4,9 +4,35 @@
     </div>
     <div class="flex-none">
         <ul class="menu menu-horizontal px-1">
-            <li><a [routerLink]="['/','tours']">Touren</a></li>
-            <li><a [routerLink]="['/','members']">Mitglieder</a></li>
-            <li><a [routerLink]="['/','things']">Gepäck</a></li>
+            <li><a [routerLink]="['/', 'tours']">Touren</a></li>
+            <li><a [routerLink]="['/', 'members']">Mitglieder</a></li>
+            <li><a [routerLink]="['/', 'things']">Gepäck</a></li>
+            <li><a [routerLink]="['/', 'cars']">Autos</a></li>
         </ul>
+    </div>
+    <div class="divider divider-horizontal"></div>
+    <div class="tooltip tooltip-bottom" data-tip="Einstellungen">
+        <button class="btn btn-ghost btn-circle" [routerLink]="['/', 'settings']">
+            <div class="indicator">
+                <mat-icon
+                    aria-hidden="false"
+                    aria-label="Example home icon"
+                    class="text-lg"
+                    fontIcon="settings"
+                ></mat-icon>
+            </div>
+        </button>
+    </div>
+    <div class="tooltip tooltip-bottom" data-tip="Abmelden">
+        <button class="btn btn-ghost btn-circle">
+            <div class="indicator">
+                <mat-icon
+                    aria-hidden="false"
+                    aria-label="Example home icon"
+                    class="text-lg text-red-600"
+                    fontIcon="logout"
+                ></mat-icon>
+            </div>
+        </button>
     </div>
 </div>

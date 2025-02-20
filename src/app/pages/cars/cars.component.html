@@ -1,0 +1,430 @@
+<!-- HEADER -->
+<app-header
+    [title]="'Autos'"
+    [subTitle]="
+        'Wenn man Bremse und Gas gleichzeitigt drückt, macht das Auto einen Screenshot'
+    "
+    [breadCrumbs]="['Autos']"
+>
+</app-header>
+
+<!-- DELETE MODAL -->
+<dialog #deleteModal class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Auto löschen?</h3>
+        <p class="py-4">
+            Bitte bestätigen Sie, dass <b>{{ carToDelete.driver }}</b> gelöscht
+            werden soll.
+        </p>
+        <div class="modal-action">
+            <form method="dialog">
+                <div class="flex gap-1">
+                    <button class="btn btn-primary" (click)="onDeleteCar()">
+                        {{ carToDelete.driver }} verschrotten
+                    </button>
+                    <button class="btn btn-secondary">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</dialog>
+
+<!-- CONTENT -->
+<div class="drawer drawer-end">
+    <input #drawer id="my-drawer-4" type="checkbox" class="drawer-toggle" />
+    <div class="drawer-content">
+        <!-- SEARCH BOX -->
+        <label class="input input-bordered rounded-2xl flex items-center mb-2">
+            <input
+                #searchBox
+                type="text"
+                class="grow"
+                placeholder="Auto suchen"
+                (input)="onSearchCarChange($event)"
+            />
+            @if(loadingData){
+            <span class="loading loading-ring loading-sm"></span>
+            } @else {
+            <mat-icon
+                aria-hidden="false"
+                aria-label="Example home icon"
+                fontIcon="search"
+            ></mat-icon>
+            }
+        </label>
+
+        <!-- TABLE -->
+        <p-table
+            [value]="cars"
+            [loading]="loadingData"
+            [paginator]="true"
+            [first]="carsPagination.offset"
+            [totalRecords]="carsPagination.total!"
+            [showCurrentPageReport]="true"
+            [rows]="5"
+            [rowsPerPageOptions]="[5, 10, 20]"
+            [@tableRowAnimation]
+            currentPageReportTemplate="Zeige {first} bis {last} von {totalRecords} Elementen"
+        >
+            <ng-template #header>
+                <tr>
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        Name
+                    </th>
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        Farbe
+                    </th>
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        Marke
+                    </th>
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        Modell
+                    </th>
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        Fahrer
+                    </th>
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        Plätze
+                    </th>
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        <!-- ACTIONS -->
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-car>
+                <tr>
+                    <!-- NAME -->
+                    <td
+                        style="height: 60px; background-color: #ffffff"
+                        class="flex items-center justify-between"
+                    >
+                        <div class="flex items-center gap-3">
+                            {{ car.name }}
+                        </div>
+                    </td>
+                    <!-- COLOR -->
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <p-colorpicker [(ngModel)]="car.color" [disabled]="true" />
+                        </div>
+                    </td>
+                    <!-- BRAND -->
+                    <td>
+                        <div class="flex items-center gap-3">
+                            {{ serverBrands[car.brand] ? serverBrands[car.brand].value : '' }}
+                        </div>
+                    </td>
+                    <!-- MODEL -->
+                    <td>
+                        <div class="flex items-center gap-3">
+                            {{ car.model }}
+                        </div>
+                    </td>
+                    <!-- DRIVER -->
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <div class="avatar">
+                                <div class="mask mask-squircle w-8">
+                                    @if(serverDrivers[car.driver]){
+                                    <img
+                                        [src]="
+                                            'assets/images/avatars/' +
+                                            serverDrivers[car.driver].avatar +
+                                            'thumbnail.jpg'
+                                        "
+                                    />
+                                    } @else {
+                                    <img
+                                        [src]="
+                                            'assets/images/avatars/default.jpg'
+                                        "
+                                    />
+                                    }
+                                </div>
+                            </div>
+                            {{ serverDrivers[car.driver] ? serverDrivers[car.driver].name : '' }}
+                        </div>
+                    </td>
+                    <!-- SEATS -->
+                    <td>
+                        <div class="flex items-center gap-3">
+                            {{ car.seats }}
+                        </div>
+                    </td>
+                    <!-- ACTIONS -->
+                    <td>
+                        <div class="flex justify-end gap-1">
+                            <button class="btn btn-circle btn-xs btn-primary" (click)="editCar(car)">
+                                <mat-icon
+                                    aria-hidden="false"
+                                    aria-label="Example home icon"
+                                    class="text-sm"
+                                    fontIcon="edit"
+                                ></mat-icon>
+                            </button>
+                            <button
+                                class="btn btn-secondary btn-circle btn-xs"
+                                (click)="showDeleteModal(car)"
+                            >
+                                <mat-icon
+                                    aria-hidden="false"
+                                    aria-label="Example home icon"
+                                    class="text-sm"
+                                    fontIcon="delete"
+                                ></mat-icon>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+                <tr>
+                    @if(searchBox.value){
+                    <td colspan="7">Keine Ergebnisse</td>
+
+                    } @else {
+                    <td colspan="7">Bisher kein Auto erstellt</td>
+                    }
+                </tr>
+            </ng-template>
+            <ng-template #loadingbody>
+                <tr>
+                    <td colspan="7">Lädt</td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <!-- BUTTONS -->
+        <div
+            class="fixed bottom-16 flex justify-center gap-1 left-1/2 transform -translate-x-1/2"
+        >
+            <!-- ADIT CAR -->
+            <label for="my-drawer-4" class="button btn btn-circle btn-primary">
+                <mat-icon
+                    aria-hidden="false"
+                    aria-label="Example home icon"
+                    fontIcon="add"
+                ></mat-icon>
+            </label>
+        </div>
+    </div>
+    <div class="drawer-side">
+        <label
+            for="my-drawer-4"
+            aria-label="close sidebar"
+            class="drawer-overlay"
+        ></label>
+
+        <ul class="menu bg-white text-base-content min-h-full w-80 p-4 my-16">
+            <div class="text-2xl font-bold">
+                {{ editMode ? "Auto ändern" : "Auto hinzufügen" }}
+            </div>
+            <div class="text-sm mb-2">Brumm brumm</div>
+
+            <form
+                [formGroup]="carForm"
+                class="w-full max-w-lg mx-auto flex flex-col gap-2"
+            >
+                <!-- NAME -->
+                <div class="form-control">
+                    <label class="label"
+                        ><span class="font-bold text-sm">Name</span></label
+                    >
+                    <label
+                        class="input input-bordered flex items-center gap-2 h-9 py-1"
+                    >
+                        <input
+                            formControlName="name"
+                            type="text"
+                            class="grow text-sm h-full"
+                        />
+                    </label>
+                </div>
+
+                <!-- DRIVER -->
+                <div class="form-control">
+                    <label class="label">
+                        <div class="flex items-center gap-x-1">
+                            <span class="font-bold text-sm">Fahrer</span>
+                            <div
+                                class="tooltip tooltip-right"
+                                data-tip="Mitglieder bearbeiten"
+                            >
+                                <button
+                                    class="btn btn-xs btn-ghost btn-circle"
+                                    [routerLink]="['/', 'members']"
+                                >
+                                    <div class="indicator">
+                                        <mat-icon
+                                            aria-hidden="false"
+                                            aria-label="Example home icon"
+                                            class="text-base"
+                                            fontIcon="settings"
+                                        ></mat-icon>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </label>
+                    <div
+                        class="input input-bordered flex items-center gap-2 h-9 p-1"
+                    >
+                        <p-select
+                            [options]="drivers"
+                            [editable]="true"
+                            (onChange)="onSearchDriverChange($event)"
+                            class="w-full text-sm"
+                            formControlName="driver"
+                            optionLabel="name"
+                            optionValue="id"
+                        >
+                            <ng-template let-member #item>
+                                <div class="flex items-center gap-2 w-full">
+                                    <div class="avatar">
+                                        <div class="mask mask-squircle w-5 h-5">
+                                            <img
+                                                [src]="
+                                                    'assets/images/avatars/' +
+                                                    member.avatar +
+                                                    'thumbnail.jpg'
+                                                "
+                                                class="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="truncate text-sm">
+                                        {{ member.name }}
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </p-select>
+                    </div>
+                </div>
+
+                <!-- SEATS -->
+                <div class="form-control">
+                    <label class="label"
+                        ><span class="font-bold text-sm">Plätze</span></label
+                    >
+                    <label
+                        class="input input-bordered flex items-center gap-2 h-9 py-1"
+                    >
+                        <input
+                            formControlName="seats"
+                            type="number"
+                            class="grow text-sm h-full"
+                        />
+                    </label>
+                </div>
+
+                <!-- BRAND -->
+                <div class="form-control">
+                    <label class="label">
+                        <div class="flex items-center gap-x-1">
+                            <span class="font-bold text-sm">Marke</span>
+                            <div
+                                class="tooltip tooltip-right"
+                                data-tip="Marken bearbeiten"
+                            >
+                                <button
+                                    class="btn btn-xs btn-ghost btn-circle"
+                                    [routerLink]="['/', 'members']"
+                                >
+                                    <div class="indicator">
+                                        <mat-icon
+                                            aria-hidden="false"
+                                            aria-label="Example home icon"
+                                            class="text-base"
+                                            fontIcon="settings"
+                                        ></mat-icon>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </label>
+                    <div
+                        class="input input-bordered flex items-center gap-2 h-9 p-1"
+                    >
+                        <p-select
+                            [options]="brands"
+                            [editable]="true"
+                            (onChange)="onSearchBrandChange($event)"
+                            class="w-full text-sm"
+                            formControlName="brand"
+                            optionLabel="value"
+                            optionValue="id"
+                        >
+                            <ng-template let-brand #item>
+                                <div class="flex items-left gap-2 w-full">
+                                    <div class="truncate text-sm">
+                                        {{ brand.value }}
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </p-select>
+                    </div>
+                </div>
+
+                <!-- MODEL & COLOR -->
+                <div class="flex items-center gap-2">
+                    <div class="form-control w-full">
+                        <label class="label"
+                            ><span class="font-bold text-sm"
+                                >Modell</span
+                            ></label
+                        >
+                        <label
+                            class="input input-bordered flex items-center h-9 py-1"
+                        >
+                            <input
+                                formControlName="model"
+                                type="text"
+                                class="grow text-sm h-full"
+                            />
+                        </label>
+                    </div>
+
+                    <div class="form-control w-20">
+                        <label class="label"
+                            ><span class="font-bold text-sm">Farbe</span></label
+                        >
+                        <div
+                            class="input input-bordered flex items-center justify-center h-9 p-1"
+                        >
+                            <p-colorpicker
+                                formControlName="color"
+                                class="w-full flex justify-center"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- BUTTON -->
+            <div class="grid grid-cols-2 gap-2 mt-4">
+                @if ( !editMode ){
+                    <div class="tooltip w-full" [attr.data-tip]="getErrorSummary()">
+                        <button
+                            class="btn btn-primary w-full"
+                            [disabled]="carForm.invalid"
+                            (click)="onAddCar()"
+                        >
+                            Erstellen
+                        </button>
+                    </div>
+                } @else {
+                <button class="btn btn-primary" (click)="onEditCar()">
+                    Ändern
+                </button>
+                }
+
+                <button
+                    class="btn btn-secondary btn-outline"
+                    (click)="closeModal()"
+                >
+                    Abbrechen
+                </button>
+            </div>
+        </ul>
+    </div>
+</div>

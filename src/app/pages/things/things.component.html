@@ -1,7 +1,7 @@
 <!-- HEADER -->
 <app-header
     [title]="'Gepäckliste'"
-    [subTitle]="'Verwalte Dein Gepäck'"
+    [subTitle]="'Ich packe meinen Koffer und nehme mit...'"
     [breadCrumbs]="['Gepäck']"
 >
 </app-header>
@@ -34,7 +34,6 @@
 <div class="drawer drawer-end">
     <input #drawer id="my-drawer-4" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
-
         <label class="input input-bordered rounded-2xl flex items-center mb-2">
             <input
                 #searchBox
@@ -63,6 +62,7 @@
             [showCurrentPageReport]="true"
             [rows]="5"
             [rowsPerPageOptions]="[5, 10, 20]"
+            [@tableRowAnimation]
             currentPageReportTemplate="Zeige {first} bis {last} von {totalRecords} Elementen"
         >
             <ng-template #header>
@@ -79,46 +79,38 @@
                     <th style="height: 70px; background-color: #f4f4f9">
                         Gewicht
                     </th>
-                    <th style="height: 70px; background-color: #f4f4f9">
-                        
-                    </th>
+                    <th style="height: 70px; background-color: #f4f4f9"></th>
                 </tr>
             </ng-template>
             <ng-template #body let-thing>
                 <tr>
-                    <td
-                        style="height: 60px; background-color: #ffffff"
-                    >
+                    <!-- NAME -->
+                    <td style="height: 60px; background-color: #ffffff">
                         <div class="flex items-center gap-3">
                             {{ thing.name }}
                         </div>
                     </td>
-                    <td
-                        style="height: 60px; background-color: #ffffff"
-                    >
+                    <!-- CATEGORY -->
+                    <td style="height: 60px; background-color: #ffffff">
                         <div class="flex items-center gap-3">
-                            {{ thing.category }}
+                            {{ serverCategories[thing.category] ? serverCategories[thing.category].value : '' }}
                         </div>
                     </td>
-                    <td
-                        style="height: 60px; background-color: #ffffff"
-                    >
+                    <!-- UNIT -->
+                    <td style="height: 60px; background-color: #ffffff">
                         <div class="flex items-center gap-3">
-                            {{ thing.unit_id }}
+                            {{ serverUnits[thing.unit_id] ? serverUnits[thing.unit_id].value : '' }}
                         </div>
                     </td>
-                    <td
-                        style="height: 60px; background-color: #ffffff"
-                    >
+                    <!-- WEIGHT -->
+                    <td style="height: 60px; background-color: #ffffff">
                         <div class="flex items-center gap-3">
                             {{ thing.weight }}
                         </div>
                     </td>
-                    <td
-                        style="height: 60px; background-color: #ffffff"
-                        class="flex items-center justify-between"
-                    >
-                        <div class="flex gap-1">
+                    <!-- ACTIONS -->
+                    <td>
+                        <div class="flex justify-end gap-1">
                             <button
                                 class="btn btn-circle btn-xs btn-primary"
                                 (click)="onEditThing(thing)"
@@ -148,10 +140,10 @@
             <ng-template #emptymessage>
                 <tr>
                     @if(searchBox.value && !loadingData){
-                        <td colspan="7">Keine Ergebnisse</td>
+                    <td colspan="7">Keine Ergebnisse</td>
 
                     } @else {
-                        <td colspan="7">Bisher kein Gepäck erstellt</td>
+                    <td colspan="7">Bisher kein Gepäck erstellt</td>
                     }
                 </tr>
             </ng-template>
@@ -163,7 +155,9 @@
         </p-table>
 
         <!-- BUTTONS -->
-        <div class="fixed bottom-16 flex justify-center gap-1 left-1/2 transform -translate-x-1/2">
+        <div
+            class="fixed bottom-16 flex justify-center gap-1 left-1/2 transform -translate-x-1/2"
+        >
             <!-- ADIT MEMBER -->
             <label
                 for="my-drawer-4"
@@ -185,59 +179,103 @@
             class="drawer-overlay"
         ></label>
 
-        <ul class="menu bg-white text-base-content min-h-full w-80 p-4 my-16 gap-3">
+        <ul
+            class="menu bg-white text-base-content min-h-full w-80 p-4 my-16 gap-3"
+        >
             <div class="text-2xl font-bold">
                 {{ editMode ? "Gepäck ändern" : "Gepäck hinzufügen" }}
             </div>
-            <div class="text-sm mb-2">Ein jeder hat sein Päckchen zu tragen</div>
-            <form [formGroup]="thingForm" class="w-100">
+            <div class="text-sm mb-2">
+                Ein jeder hat sein Päckchen zu tragen
+            </div>
+            <form [formGroup]="thingForm" class="w-full max-w-lg mx-auto flex flex-col gap-2">
                 <!-- NAME -->
-                <label class="form-control w-full max-w-xs">
-                    <div class="label">
-                        <span class="font-bold text-base">Name</span>
-                    </div>
-                    <label class="input input-bordered flex items-center gap-2">
+                <div class="form-control">
+                    <label class="label"><span class="font-bold text-sm">Name</span></label>
+                    <label class="input input-bordered flex items-center h-9 py-1">
                         <input
                             formControlName="name"
                             type="text"
-                            class="grow"
+                            class="grow text-sm h-full"
                         />
                     </label>
-                </label>
+                </div>
+            
                 <!-- CATEGORY -->
-                    <div class="label">
-                        <span class="font-bold text-base">Kategorie</span>
+                <div class="form-control">
+                    <label class="label">
+                        <div class="flex items-center gap-x-1">
+                            <span class="font-bold text-sm">Kategorie</span>
+                            <div class="tooltip tooltip-right" data-tip="Marken bearbeiten">
+                                <button class="btn btn-xs btn-ghost btn-circle" [routerLink]="['/', 'settings']">
+                                    <mat-icon class="text-base" fontIcon="settings"></mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </label>
+                    <div class="input input-bordered flex items-center h-9 p-1">
+                        <p-select
+                            [options]="categories"
+                            [editable]="true"
+                            (onChange)="onSearchCategoriesChange($event)"
+                            class="w-full text-sm"
+                            formControlName="category"
+                            optionLabel="value"
+                            optionValue="id"
+                        >
+                            <ng-template let-category #item>
+                                <div class="flex items-left gap-2 w-full">
+                                    <div class="truncate text-sm">{{ category.value }}</div>
+                                </div>
+                            </ng-template>
+                        </p-select>
                     </div>
-                        <select formControlName="category" class="select select-bordered w-full max-w-xs grow">
-                            <option [value]="1">Nahrungsmittel</option>
-                            <option [value]="2">Verbrauchsmaterial</option>
-                            <option [value]="3">Sonstiges</option>
-                        </select>
+                </div>
+            
                 <!-- UNIT -->
-                <label class="form-control w-full max-w-xs">
-                    <div class="label">
-                        <span class="font-bold text-base">Einheit</span>
+                <div class="form-control">
+                    <label class="label">
+                        <div class="flex items-center gap-x-1">
+                            <span class="font-bold text-sm">Einheit</span>
+                            <div class="tooltip tooltip-right" data-tip="Einheiten bearbeiten">
+                                <button class="btn btn-xs btn-ghost btn-circle" [routerLink]="['/', 'settings']">
+                                    <mat-icon class="text-base" fontIcon="settings"></mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </label>
+                    <div class="input input-bordered flex items-center h-9 p-1">
+                        <p-select
+                            [options]="units"
+                            [editable]="true"
+                            (onChange)="onSearchUnitsChange($event)"
+                            class="w-full text-sm"
+                            formControlName="unit"
+                            optionLabel="value"
+                            optionValue="id"
+                        >
+                            <ng-template let-unit #item>
+                                <div class="flex items-left gap-2 w-full">
+                                    <div class="truncate text-sm">{{ unit.value }}</div>
+                                </div>
+                            </ng-template>
+                        </p-select>
                     </div>
-                        <select formControlName="unit" class="select select-bordered w-full max-w-xs grow" >
-                            <option [value]="1">Packung</option>
-                            <option [value]="2">Gramm</option>
-                            <option [value]="3">Glas</option>
-                        </select>
-                </label>
+                </div>
+            
                 <!-- WEIGHT -->
-                <label class="form-control w-full max-w-xs">
-                    <div class="label">
-                        <span class="font-bold text-base">Gewicht</span>
-                    </div>
-                    <label class="input input-bordered flex items-center gap-2">
+                <div class="form-control">
+                    <label class="label"><span class="font-bold text-sm">Gewicht</span></label>
+                    <label class="input input-bordered flex items-center h-9 py-1">
                         <input
                             formControlName="weight"
                             type="number"
-                            class="grow"
+                            class="grow text-sm h-full"
                         />
                     </label>
-                </label>
+                </div>
             </form>
+            
             <!-- BUTTON -->
             <div class="grid grid-cols-2 gap-2">
                 @if ( !editMode ){

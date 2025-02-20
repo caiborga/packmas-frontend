@@ -10,12 +10,15 @@ import { AuthGuard } from './core/guards/auth-guard.guard';
 import { ToursComponent } from './pages/tours/tours.component';
 import { AditTourComponent } from './pages/tour/tour.component';
 import { MembersComponent } from './pages/members/members.component';
+import { CarsComponent } from './pages/cars/cars.component';
+import { SettingsComponent } from './pages/settings/settings.component';
+
 export const routes: Routes = [
     { path: 'tour/:id', component: AditTourComponent },
     { path: 'tours', component: ToursComponent },
-    // { path: 'home', component: HomeComponent },
+    { path: 'settings', component: SettingsComponent },
     { path: 'members', component: MembersComponent, canActivate: [AuthGuard] },
-    // { path: 'planner', component: PlannerComponent, canActivate: [AuthGuard] },
+    { path: 'cars', component: CarsComponent, canActivate: [AuthGuard] },
     // { path: 'planner/:id', component: PlannerComponent, canActivate: [AuthGuard] },
     { path: 'things', component: ThingsComponent, canActivate: [AuthGuard] },
     { path: 'register', component: RegisterComponent },

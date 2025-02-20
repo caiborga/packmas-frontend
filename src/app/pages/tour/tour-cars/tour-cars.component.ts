@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { DragDropModule } from 'primeng/dragdrop';
 import { DragDropService } from '../../../core/services/drag-drop.service';
+import { Car } from '../../../core/models/car';
+import { TourCarsObject, TourMembersObject } from '../../../core/models/tour';
 
 @Component({
     selector: 'app-tour-cars',
@@ -11,24 +13,33 @@ import { DragDropService } from '../../../core/services/drag-drop.service';
     styleUrl: './tour-cars.component.scss',
 })
 export class TourCarsComponent {
+    @Input() tourCars: TourCarsObject = {
+        ids: [],
+        data: [],
+    };
+    @Input() members: TourMembersObject = {
+        ids: [],
+        data: [],
+    };
     droppedItems: string[] = [];
 
     dragDropService = inject(DragDropService);
 
-    showDetails = false;
-    mitfahrerListe = [
-      { name: 'Max Mustermann', avatar: 'https://via.placeholder.com/32' },
-      { name: 'Erika Mustermann', avatar: 'https://via.placeholder.com/32' },
-      { name: 'John Doe', avatar: 'https://via.placeholder.com/32' },
-      { name: 'Jane Smith', avatar: 'https://via.placeholder.com/32' },
-      { name: 'Anna Müller', avatar: 'https://via.placeholder.com/32' },
-    ];
+    onAddCar() {
+        const newCar: Car = {
+            id: -1,
+            driver: 0,
+            name: 'Neues Auto',
+            passengers: [],
+            seats: 4,
+        };
+    }
 
     onDrop() {
         const item = this.dragDropService.sharedData;
         if (item) {
             this.droppedItems.push(item);
-            this.dragDropService.sharedData = null; // Daten zurücksetzen
+            this.dragDropService.sharedData = null;
         }
     }
 }
