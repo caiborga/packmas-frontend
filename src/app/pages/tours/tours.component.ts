@@ -22,7 +22,7 @@ import { TourCardComponent } from './tour-card/tour-card.component';
 import { LayoutService } from '../../core/services/layout.service';
 import { HeaderComponent } from '../../shared/header/header.component';
 import { tourCardsSlideIn } from '../../core/animations/layout';
-import { Tour, initializeTour } from '../../core/models/tour';
+import { Tour, TourAssignments, initializeTour, initializeTourAssignments } from '../../core/models/tour';
 import { Pagination } from '../../core/models/pagination';
 import { Member } from '../../core/models/member';
 import { AlertService } from '../../core/services/alert.service';
@@ -188,11 +188,21 @@ export class ToursComponent {
 
     onNewTour() {
         this.loadingData = true;
+        const tourAssignmentObject = initializeTourAssignments();
+        const members = this.tourForm.value.members;
+        let membersIds: number[] = [];
+        if ( members && members.length !== 0) {
+            for (let member of members) {
+                tourAssignmentObject.members.set(member.id, { car: -1, things: [] });
+            }
+            membersIds = members.map((member: any) => member.id);
+        }
         const data = {
             tourCars: JSON.stringify([]),
             tourData: JSON.stringify(this.tourForm.value),
             tourThings: JSON.stringify([]),
-            tourMembers: JSON.stringify(this.tourForm.value.members),
+            tourMembers: JSON.stringify(membersIds),
+            tourAssignments: JSON.stringify(this.convertTourAssignmentsToJson(tourAssignmentObject)),
         };
 
         this.tourService
@@ -216,6 +226,14 @@ export class ToursComponent {
                 });
                 console.error('newTour - error', error);
             });
+    }
+
+    convertTourAssignmentsToJson(assignments: TourAssignments) {
+        return {
+            members: Object.fromEntries(assignments.members),
+            things: Object.fromEntries(assignments.things),
+            cars: Object.fromEntries(assignments.cars),
+        };
     }
 
     onSearchChange(event: Event): void {

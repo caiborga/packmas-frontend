@@ -11,33 +11,35 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { NgClass } from '@angular/common';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DragDropModule } from 'primeng/dragdrop';
 import { AutoComplete } from 'primeng/autocomplete';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { Member } from '../../../core/models/member';
-import { Thing } from '../../../core/models/thing';
-import { DragDropService } from '../../../core/services/drag-drop.service';
+import { initializeThing, Thing } from '../../../core/models/thing';
+import { DragDropService, dragObject } from '../../../core/services/drag-drop.service';
 import { Avatar, AVATAR_LIST } from '../../../core/avatars/avatars';
 import { ToursService } from '../../../core/services/tours.service';
 import { AlertService } from '../../../core/services/alert.service';
 import { Pagination } from '../../../core/models/pagination';
-import { TourMembersObject, TourThingsObject } from '../../../core/models/tour';
+import { initializeTourAssignments, TourAssignments, TourMembersObject, TourThingsObject } from '../../../core/models/tour';
+import { IconComponent } from "../../../shared/icon/icon.component";
 
 @Component({
     selector: 'app-tour-members',
     standalone: true,
     imports: [
-        AutoComplete,
-        DragDropModule,
-        InputGroup,
-        InputGroupAddonModule,
-        ReactiveFormsModule,
-        MatIconModule,
-        NgClass,
-    ],
+    AutoComplete,
+    DragDropModule,
+    InputGroup,
+    InputGroupAddonModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    NgClass,
+    IconComponent
+],
     templateUrl: './tour-members.component.html',
     styleUrl: './tour-members.component.scss',
 })
@@ -51,12 +53,12 @@ export class TourMembersComponent {
         ids: [],
         data: []
     };
+    @Input () tourAssignments: TourAssignments = initializeTourAssignments();
     @Output() getData = new EventEmitter<boolean>();
     @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
     @ViewChild('deleteModal') deleteModal!: ElementRef<HTMLDialogElement>;
 
     avatars: Avatar[] = AVATAR_LIST;
-    dragDropService = inject(DragDropService);
     editMode: boolean = false;
     loadingData: boolean = false;
     pagination: Pagination = { limit: 10, offset: 0, page: 1 };
@@ -72,7 +74,9 @@ export class TourMembersComponent {
     memberToDelete: Member = { name: '', id: 0, avatar: '' };
 
     private searchSubject = new Subject<string>();
-
+    private assignmentData!: Subscription;
+    
+    dragDropService = inject(DragDropService);
     alertService = inject(AlertService);
     tourService = inject(ToursService);
 
@@ -83,10 +87,41 @@ export class TourMembersComponent {
                 this.loadingData = true;
                 this.pagination.filter = searchTerm;
                 this.getMembers();
+            }
+        );
+        this.assignmentData = this.dragDropService.tourAssignmentsChange$.subscribe((data) => {
+            this.tourAssignments = data;
+        });
+    }
+
+    getMembers() {
+        this.loadingData = true;
+        this.tourService
+            .get('participants', this.pagination)
+            .toPromise()
+            .then((response) => {
+                this.searchedMembers = response.participants;
+                this.loadingData = false;
+                this.pagination = response.pagination;
+                console.log('getMmembers - success', this.members);
+            })
+            .catch((error) => {
+                this.loadingData = false;
+                console.error('getMmembers - error', error);
             });
     }
 
-    addMember() {}
+    hasAssignments(id: number){
+        const check: dragObject = {
+            id: id,
+            type: 'MEMBER',
+        }
+        return this.dragDropService.hasAssignments(check)
+    }
+
+    isSelected(avatar: Avatar): boolean {
+        return this.selectedAvatar.id === avatar.id;
+    }
 
     onCreateMember() {
         this.memberForm.get('avatar')?.setValue(this.selectedAvatar.id);
@@ -113,66 +148,24 @@ export class TourMembersComponent {
             });
     }
 
-    onDropElement(member: Member) {
+    onDropElement(member: number) {
+        console.log('assignments', this.dragDropService.tourAssignmentObject);
+        console.log('tourId', this.dragDropService.tourId);
 
-        const memberId = member.id;
-        const burden = this.dragDropService.sharedData;
-
-        if(burden.bearer){
-            return
+        this.dragDropService.target = {
+            id: member,
+            type: 'MEMBER',
         }
+        this.dragDropService.newAssignment();
+    }
 
-        const memberToChange = this.members.ids.find(
-            (id) => id === memberId
-        );
-
-        const memberToChangeData = this.members.data
-
-        if (memberToChange) {
-            // if (memberToChangeData[memberToChange].burden) {
-            //     memberToChangeData[memberToChange].burden?.push(burden);
-            //     console.log('Member burden changed:', memberToChange);
-            // } else {
-            //     memberToChangeData[memberToChange].burden = [];
-            //     memberToChangeData[memberToChange].burden?.push(burden);
-            //     console.log('Member burden changed:', memberToChange);
-            // }
-
-            this.updateTourMembers();
-            this.updateTourThings(memberToChange, burden.id);
-        } else {
-            console.log('Member not found!');
+    onDragElement(member: number) {
+            const drag: dragObject= {
+                id: member,
+                type: "MEMBER"
+            }
+            this.dragDropService.origin = drag;
         }
-    }
-
-    getMembers() {
-        this.loadingData = true;
-        this.tourService
-            .get('participants', this.pagination)
-            .toPromise()
-            .then((response) => {
-                this.searchedMembers = response.participants;
-                this.loadingData = false;
-                this.pagination = response.pagination;
-                console.log('getMmembers - success', this.members);
-            })
-            .catch((error) => {
-                this.loadingData = false;
-                console.error('getMmembers - error', error);
-            });
-    }
-
-    isSelected(avatar: Avatar): boolean {
-        return this.selectedAvatar.id === avatar.id;
-    }
-
-    selectAvatar(avatar: Avatar): void {
-        if (this.selectedAvatar.id === avatar.id) {
-            this.selectedAvatar = { fileName: 'default.jpg', id: '0' };
-        } else {
-            this.selectedAvatar = avatar;
-        }
-    }
 
     onAddMember(member: number, searchBox?: AutoComplete) {
         searchBox ? searchBox.clear() : '';
@@ -217,6 +210,38 @@ export class TourMembersComponent {
             .catch((error) => {
                 console.error('Unexpected error in onAddMember', error);
             });
+    }
+
+    renderBurdenArray(member: number) {
+        const memberData = this.tourAssignments.members.get(member)
+        let result: Thing[] = [];
+        if ( memberData ) {
+            for ( let thing in memberData.things ) {
+                result.push(this.things.data[memberData.things[thing]])
+            }
+        }
+        return result
+    }
+
+    removeThingAssignment(id: number, burden: number) {
+        this.dragDropService.unassignThingFromMember(burden)
+    }
+
+    getBurdenNumber(member: number){
+        const memberData = this.tourAssignments.members.get(member)
+        if (memberData && memberData.things) {
+            return memberData.things.length
+        } else {
+            return 0
+        }
+    }
+
+    selectAvatar(avatar: Avatar): void {
+        if (this.selectedAvatar.id === avatar.id) {
+            this.selectedAvatar = { fileName: 'default.jpg', id: '0' };
+        } else {
+            this.selectedAvatar = avatar;
+        }
     }
 
     updateTourMembers() {
@@ -268,8 +293,6 @@ export class TourMembersComponent {
                 return { success: false, error }; // Fehler zurückgeben
             });
     }
-
-    onEditMember(member: Member) {}
 
     showDeleteModal(member: Member) {
         if (member) {

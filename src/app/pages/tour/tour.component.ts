@@ -4,37 +4,28 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { DatePicker } from 'primeng/datepicker';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgClass, NgFor, NgIf } from '@angular/common';
+import { Subscription } from 'rxjs';
+
 import { LayoutService } from '../../core/services/layout.service';
 import { HeaderComponent } from '../../shared/header/header.component';
 import { ToursService } from '../../core/services/tours.service';
-import { initializeTour, Tour } from '../../core/models/tour';
+import { initializeTour, Tour, TourAssignments } from '../../core/models/tour';
 import { TourMembersComponent } from './tour-members/tour-members.component';
 import { TourCarsComponent } from './tour-cars/tour-cars.component';
-import { TourThingsComponent } from "./tour-things/tour-things.component";
+import { TourThingsComponent } from './tour-things/tour-things.component';
+import { DragDropService } from '../../core/services/drag-drop.service';
 
 @Component({
     selector: 'app-adit-tour',
     standalone: true,
-    imports: [
-    DatePicker,
-    ReactiveFormsModule,
-    FormsModule,
-    HeaderComponent,
-    MatIconModule,
-    NgClass,
-    NgFor,
-    NgIf,
-    TourCarsComponent,
-    TourMembersComponent,
-    TourThingsComponent
-],
+    imports: [DatePicker, ReactiveFormsModule, FormsModule, HeaderComponent, MatIconModule, NgClass, NgFor, NgIf, TourCarsComponent, TourMembersComponent, TourThingsComponent],
     templateUrl: './tour.component.html',
     styleUrl: './tour.component.scss',
 })
 export class AditTourComponent {
+    dragDropService = inject(DragDropService);
     layoutService = inject(LayoutService);
     route = inject(ActivatedRoute);
     tourService = inject(ToursService);
@@ -58,12 +49,15 @@ export class AditTourComponent {
         name: new FormControl('', Validators.required),
     });
 
-    cards = [{ title: 'Teilnehmer', icon: 'person'},{ title: 'Gepäck', icon: 'backpack'},{ title: 'Mitfahrzentrale', icon: 'directions_car'}]
+    cards = [
+        { title: 'Teilnehmer', icon: 'person' },
+        { title: 'Gepäck', icon: 'backpack' },
+        { title: 'Mitfahrzentrale', icon: 'directions_car' },
+    ];
     collapsedCards = [false, true, true];
 
     private sub: any;
-
-    
+    private assignmentsChanged!: Subscription;
 
     ngOnInit() {
         this.sub = this.route.params.subscribe((params) => {
@@ -73,6 +67,33 @@ export class AditTourComponent {
         this.layoutService.setTopbarState('visible');
         this.layoutService.setFooterState('visible');
         this.layoutService.setBackgroundBlurred(true);
+
+        this.assignmentsChanged = this.dragDropService.tourAssignmentsChange$.subscribe(() => {
+            this.getTourData(this.tourID);
+        });
+    }
+
+    convertJsonToTourAssignments(json: any): TourAssignments {
+        return {
+            members: new Map<number, { car: number; things: number[] }>(
+                Object.entries(json.members).map(([key, value]) => [
+                    Number(key),
+                    value as { car: number; things: number[] }, // Explizite Typisierung
+                ])
+            ),
+            things: new Map<number, { member: number }>(
+                Object.entries(json.things).map(([key, value]) => [
+                    Number(key),
+                    value as { member: number }, // Explizite Typisierung
+                ])
+            ),
+            cars: new Map<number, { members: number[] }>(
+                Object.entries(json.cars).map(([key, value]) => [
+                    Number(key),
+                    value as { members: number[] }, // Explizite Typisierung
+                ])
+            ),
+        };
     }
 
     getTourData(tourID: number) {
@@ -82,36 +103,14 @@ export class AditTourComponent {
             .then((response) => {
                 console.log('getTourData - success', response.tour);
 
-                this.tour = response.tour
+                this.tour = response.tour;
+                if (this.tour.tour_assignments) {
+                    this.dragDropService.tourId = this.tour.id;
+                    this.dragDropService.setAssignments(this.tour.tour_assignments);
+                }
 
-                // this.tour.tourCars = this.tourCars
-                // this.tour.tourData = this.tourData
-                // this.tour.tourParticipants = this.tourParticipants
-                // this.tour.tourThings = this.tourThings
-                
-                this.tourForm.controls.start.setValue(
-                    this.tour.tour_data.start
-                );
+                this.tourForm.controls.start.setValue(this.tour.tour_data.start);
                 this.tourForm.controls.end.setValue(this.tour.tour_data.end);
-                // this.tourForm.controls.arrivalChecked.setValue(this.tourData.arrivalChecked)
-                // this.tourForm.controls.departureChecked.setValue(this.tourData.departureChecked)
-
-                // this.geocoder.geocode({
-
-                //     address: this.tourData.destination
-
-                // }).subscribe(({results}) => {
-                //     console.log(results);
-                //     console.log('laatitude:  ',results[0].geometry.location.lat());
-                //     console.log('logitude:  ',results[0].geometry.location.lng());
-
-                //     this.center = {
-                //         lat: results[0].geometry.location.lat(),
-                //         lng: results[0].geometry.location.lng(),
-                //       };
-                // });
-
-                // this.tourMeals = response.meals;
                 this.loading = false;
             })
             .catch((error) => {

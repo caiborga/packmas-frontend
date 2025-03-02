@@ -93,7 +93,7 @@
                                 {{tour.tour_things.ids.length}}
                             }
                             @case (2) { 
-                                {{tour.tour_cars.data.length}}
+                                {{tour.tour_cars.ids.length}}
                             } 
                             @default { Defaultcase. } 
                         }
@@ -121,6 +121,7 @@
                     @case (0) {
                         <app-tour-members
                             [tourID]="tour.id"
+                            [tourAssignments]="convertJsonToTourAssignments(tour.tour_assignments)"
                             [members]="tour.tour_members"
                             [things]="tour.tour_things"
                             (getData)="getTourData(tourID)"
@@ -129,6 +130,7 @@
                     @case (1) {
                         <app-tour-things
                             [tourID]="tour.id"
+                            [tourAssignments]="convertJsonToTourAssignments(tour.tour_assignments)"
                             [members]="tour.tour_members"
                             [things]="tour.tour_things"
                             (getData)="getTourData(tourID)"
@@ -136,9 +138,11 @@
                     }
                     @case (2) { 
                         <app-tour-cars
+                            [tourID]="tour.id"
+                            [tourAssignments]="convertJsonToTourAssignments(tour.tour_assignments)"
                             [members]="tour.tour_members"
-                            [tourCars]="tour.tour_cars"
-
+                            [cars]="tour.tour_cars"
+                            (getData)="getTourData(tourID)"
                         ></app-tour-cars>
                     } 
                     @default { Defaultcase. } 
@@ -158,7 +162,7 @@
                     }
                     @case (2) { 
                         <div class="badge badge-accent">
-                            {{tour.tour_cars.data.length}}
+                            {{tour.tour_cars.ids.length}}
                         </div>
                     } 
                     @default { Defaultcase. } 

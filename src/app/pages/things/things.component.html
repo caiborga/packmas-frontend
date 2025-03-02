@@ -68,6 +68,9 @@
             <ng-template #header>
                 <tr>
                     <th style="height: 70px; background-color: #f4f4f9">
+
+                    </th>
+                    <th style="height: 70px; background-color: #f4f4f9">
                         Name
                     </th>
                     <th style="height: 70px; background-color: #f4f4f9">
@@ -84,6 +87,27 @@
             </ng-template>
             <ng-template #body let-thing>
                 <tr>
+                    <td
+                        style="
+                            height: 60px;
+                            width: 40px;
+                            background-color: #ffffff;
+                        "
+                    >
+                        <div class="avatar">
+                            <div
+                                class="mask mask-squircle w-8 h-8 bg-base-200 flex items-center justify-center"
+                            >
+                                <mat-icon
+                                    aria-hidden="false"
+                                    aria-label="Backpack icon"
+                                    class="text-primary text-xl"
+                                    fontIcon="backpack"
+                                >
+                                </mat-icon>
+                            </div>
+                        </div>
+                    </td>
                     <!-- NAME -->
                     <td style="height: 60px; background-color: #ffffff">
                         <div class="flex items-center gap-3">
@@ -93,13 +117,21 @@
                     <!-- CATEGORY -->
                     <td style="height: 60px; background-color: #ffffff">
                         <div class="flex items-center gap-3">
-                            {{ serverCategories[thing.category] ? serverCategories[thing.category].value : '' }}
+                            {{
+                                serverCategories[thing.category]
+                                    ? serverCategories[thing.category].value
+                                    : ""
+                            }}
                         </div>
                     </td>
                     <!-- UNIT -->
                     <td style="height: 60px; background-color: #ffffff">
                         <div class="flex items-center gap-3">
-                            {{ serverUnits[thing.unit_id] ? serverUnits[thing.unit_id].value : '' }}
+                            {{
+                                serverUnits[thing.unit_id]
+                                    ? serverUnits[thing.unit_id].value
+                                    : ""
+                            }}
                         </div>
                     </td>
                     <!-- WEIGHT -->
@@ -188,11 +220,18 @@
             <div class="text-sm mb-2">
                 Ein jeder hat sein Päckchen zu tragen
             </div>
-            <form [formGroup]="thingForm" class="w-full max-w-lg mx-auto flex flex-col gap-2">
+            <form
+                [formGroup]="thingForm"
+                class="w-full max-w-lg mx-auto flex flex-col gap-2"
+            >
                 <!-- NAME -->
                 <div class="form-control">
-                    <label class="label"><span class="font-bold text-sm">Name</span></label>
-                    <label class="input input-bordered flex items-center h-9 py-1">
+                    <label class="label"
+                        ><span class="font-bold text-sm">Name</span></label
+                    >
+                    <label
+                        class="input input-bordered flex items-center h-9 py-1"
+                    >
                         <input
                             formControlName="name"
                             type="text"
@@ -200,15 +239,24 @@
                         />
                     </label>
                 </div>
-            
+
                 <!-- CATEGORY -->
                 <div class="form-control">
                     <label class="label">
                         <div class="flex items-center gap-x-1">
                             <span class="font-bold text-sm">Kategorie</span>
-                            <div class="tooltip tooltip-right" data-tip="Marken bearbeiten">
-                                <button class="btn btn-xs btn-ghost btn-circle" [routerLink]="['/', 'settings']">
-                                    <mat-icon class="text-base" fontIcon="settings"></mat-icon>
+                            <div
+                                class="tooltip tooltip-right"
+                                data-tip="Marken bearbeiten"
+                            >
+                                <button
+                                    class="btn btn-xs btn-ghost btn-circle"
+                                    [routerLink]="['/', 'settings']"
+                                >
+                                    <mat-icon
+                                        class="text-base"
+                                        fontIcon="settings"
+                                    ></mat-icon>
                                 </button>
                             </div>
                         </div>
@@ -225,21 +273,32 @@
                         >
                             <ng-template let-category #item>
                                 <div class="flex items-left gap-2 w-full">
-                                    <div class="truncate text-sm">{{ category.value }}</div>
+                                    <div class="truncate text-sm">
+                                        {{ category.value }}
+                                    </div>
                                 </div>
                             </ng-template>
                         </p-select>
                     </div>
                 </div>
-            
+
                 <!-- UNIT -->
                 <div class="form-control">
                     <label class="label">
                         <div class="flex items-center gap-x-1">
                             <span class="font-bold text-sm">Einheit</span>
-                            <div class="tooltip tooltip-right" data-tip="Einheiten bearbeiten">
-                                <button class="btn btn-xs btn-ghost btn-circle" [routerLink]="['/', 'settings']">
-                                    <mat-icon class="text-base" fontIcon="settings"></mat-icon>
+                            <div
+                                class="tooltip tooltip-right"
+                                data-tip="Einheiten bearbeiten"
+                            >
+                                <button
+                                    class="btn btn-xs btn-ghost btn-circle"
+                                    [routerLink]="['/', 'settings']"
+                                >
+                                    <mat-icon
+                                        class="text-base"
+                                        fontIcon="settings"
+                                    ></mat-icon>
                                 </button>
                             </div>
                         </div>
@@ -256,17 +315,23 @@
                         >
                             <ng-template let-unit #item>
                                 <div class="flex items-left gap-2 w-full">
-                                    <div class="truncate text-sm">{{ unit.value }}</div>
+                                    <div class="truncate text-sm">
+                                        {{ unit.value }}
+                                    </div>
                                 </div>
                             </ng-template>
                         </p-select>
                     </div>
                 </div>
-            
+
                 <!-- WEIGHT -->
                 <div class="form-control">
-                    <label class="label"><span class="font-bold text-sm">Gewicht</span></label>
-                    <label class="input input-bordered flex items-center h-9 py-1">
+                    <label class="label"
+                        ><span class="font-bold text-sm">Gewicht</span></label
+                    >
+                    <label
+                        class="input input-bordered flex items-center h-9 py-1"
+                    >
                         <input
                             formControlName="weight"
                             type="number"
@@ -275,7 +340,7 @@
                     </label>
                 </div>
             </form>
-            
+
             <!-- BUTTON -->
             <div class="grid grid-cols-2 gap-2">
                 @if ( !editMode ){

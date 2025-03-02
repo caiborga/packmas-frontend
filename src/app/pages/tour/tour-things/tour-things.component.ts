@@ -11,9 +11,10 @@ import { NgIf } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { DragDropService } from '../../../core/services/drag-drop.service';
+import { DragDropService, dragObject } from '../../../core/services/drag-drop.service';
 import { DragDropModule } from 'primeng/dragdrop';
 import { AutoComplete } from 'primeng/autocomplete';
 
@@ -22,18 +23,21 @@ import { AlertService } from '../../../core/services/alert.service';
 import { ToursService } from '../../../core/services/tours.service';
 import { initializeThing, Thing } from '../../../core/models/thing';
 import { Member } from '../../../core/models/member';
-import { TourMembersObject, TourThingsObject } from '../../../core/models/tour';
+import { initializeTourAssignments, TourAssignments, TourMembersObject, TourThingsObject } from '../../../core/models/tour';
+import { IconComponent } from "../../../shared/icon/icon.component";
 
 @Component({
     selector: 'app-tour-things',
     standalone: true,
     imports: [
-        AutoComplete,
-        DragDropModule,
-        MatIconModule,
-        ReactiveFormsModule,
-        NgIf,
-    ],
+    AutoComplete,
+    DragDropModule,
+    MatIconModule,
+    NgClass,
+    NgIf,
+    ReactiveFormsModule,
+    IconComponent
+],
     templateUrl: './tour-things.component.html',
     styleUrl: './tour-things.component.scss',
 })
@@ -47,6 +51,8 @@ export class TourThingsComponent {
         ids: [],
         data: []
     }
+    @Input () tourAssignments: TourAssignments = initializeTourAssignments();
+    
     @Output() getData = new EventEmitter<boolean>();
 
     @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
@@ -81,6 +87,14 @@ export class TourThingsComponent {
             });
     }
 
+    hasAssignments(id: number){
+        const check: dragObject = {
+            id: id,
+            type: 'THING',
+        }
+        return this.dragDropService.hasAssignments(check)
+    }
+
     getBearerAvatar(thing: Thing) {
         if (thing && thing.bearer) {
             const member = this.members.ids.find(
@@ -97,16 +111,15 @@ export class TourThingsComponent {
         
     }
 
-    getBearerName(thing: Thing) {
+    getBearerName(thing: number) {
+        const thingData = this.tourAssignments.things.get(thing)
         let result = 'Nicht zugewiesen'
-        if (thing.bearer) {
-            const member = this.members.ids.find(
-                (id) => id === thing.bearer
-            )
-            return result
-        } else { 
-            return result
+        if (thingData) {
+            const memberId = thingData.member
+            result = this.members.data[memberId].name
+            
         }
+        return result
         
     }
 
@@ -177,8 +190,12 @@ export class TourThingsComponent {
             });
     }
 
-    onDragElement(thing: Thing) {
-        this.dragDropService.sharedData = thing;
+    onDragElement(thing: number) {
+        const drag: dragObject= {
+            id: thing,
+            type: "THING"
+        }
+        this.dragDropService.origin = drag;
     }
 
     onRemoveThing(thingId: number) {

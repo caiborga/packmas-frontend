@@ -7,7 +7,7 @@ import {
 } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { NgClass } from '@angular/common';
+import { NgClass, NgStyle } from '@angular/common';
 import { AsyncPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
@@ -39,6 +39,7 @@ import { Setting } from '../../core/models/setting';
         HeaderComponent,
         MatIconModule,
         NgClass,
+        NgStyle,
         PaginatorModule,
         ReactiveFormsModule,
         RouterModule,

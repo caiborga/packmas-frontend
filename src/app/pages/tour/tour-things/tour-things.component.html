@@ -23,21 +23,21 @@
 </dialog>
 
 @if (!loadingData) {
-    <!-- SEARCH BOX -->
-    <div class="flex items-center justify-center gap-2 w-full mb-4">
-        <div class="flex-grow">
-            <p-autocomplete
-                #thingSearch
-                [suggestions]="searchedThings"
-                [forceSelection]="true"
-                [placeholder]="'Gepäck suchen'"
-                (input)="onSearchChange($event)"
-                optionLabel="name"
-                class="w-full"
-            >
-                <ng-template let-thing #item>
-                    <div class="flex justify-start gap-2">
-                        <!-- <div class="avatar">
+<!-- SEARCH BOX -->
+<div class="flex items-center justify-center gap-2 w-full mb-4">
+    <div class="flex-grow">
+        <p-autocomplete
+            #thingSearch
+            [suggestions]="searchedThings"
+            [forceSelection]="true"
+            [placeholder]="'Gepäck suchen'"
+            (input)="onSearchChange($event)"
+            optionLabel="name"
+            class="w-full"
+        >
+            <ng-template let-thing #item>
+                <div class="flex justify-start gap-2">
+                    <!-- <div class="avatar">
                                     <div class="w-6 rounded-xl">
                                         <img
                                             [src]="
@@ -48,58 +48,60 @@
                                         />
                                     </div>
                                 </div> -->
-                        <span class="text-sm">{{ thing.name }}</span>
-                    </div>
-                </ng-template>
-            </p-autocomplete>
-        </div>
-
-        <!-- ADD THING -->
-        <button
-            class="btn btn-sm btn-circle btn-primary"
-            (click)="onAddThing(thingSearch.value, thingSearch)"
-            [disabled]="!thingSearch.value"
-            title="Mitglied hinzufügen"
-        >
-            <mat-icon
-                aria-hidden="false"
-                aria-label="Add member"
-                fontIcon="add"
-            ></mat-icon>
-        </button>
+                    <span class="text-sm">{{ thing.name }}</span>
+                </div>
+            </ng-template>
+        </p-autocomplete>
     </div>
 
-    @for (thing of things.ids; track thing) {
-    <details
-        pDraggable
-        (onDragStart)="onDragElement(things.data[thing])"
-        class="collapse bg-base-200"
+    <!-- ADD THING -->
+    <button
+        class="btn btn-sm btn-circle btn-primary"
+        (click)="onAddThing(thingSearch.value, thingSearch)"
+        [disabled]="!thingSearch.value"
+        title="Mitglied hinzufügen"
     >
-        <summary class="collapse-title text-xl font-medium">
-            <div>
-                <div class="flex justify-between">
-                    <div class="flex items-center gap-2">
-                        <div class="avatar">
-                            <div class="w-6 rounded-xl">
-                                <img
-                                    [src]="getBearerAvatar(things.data[thing])"
-                                    alt="Avatar"
-                                />
-                            </div>
-                        </div>
-                        <span class="text-sm">{{ things.data[thing].name }}</span>
-                        <span class="text-sm">{{
-                            getBearerName(things.data[thing])
-                        }}</span>
-                    </div>
-                    <div class="flex gap-1 relative z-10">
+        <mat-icon
+            aria-hidden="false"
+            aria-label="Add member"
+            fontIcon="add"
+        ></mat-icon>
+    </button>
+</div>
+
+@for (thing of things.ids; track thing) {
+<details
+    pDraggable
+    (onDragStart)="onDragElement(thing)"
+    class="collapse bg-base-200"
+>
+    <summary class="collapse-title text-xl font-medium">
+        <div>
+            <div class="flex justify-between">
+                <app-icon 
+                    [type]="'THING'"
+                    [name]="things.data[thing].name"
+                    >
+                </app-icon>
+                <span class="text-sm">{{ things.data[thing].name }}</span>
+                <span class="text-sm">{{ getBearerName(thing) }}</span>
+                <!-- DELETE BUTTON -->
+                <div class="flex gap-1 relative z-10">
+                    <div
+                        class="flex gap-1 relative z-10"
+                        [ngClass]="
+                            hasAssignments(thing) ? 'tooltip tooltip-left' : ''
+                        "
+                        data-tip="Besitzt Zuweisungen"
+                    >
                         <button
                             class="btn btn-secondary btn-circle btn-xs"
                             (click)="showDeleteModal(things.data[thing])"
+                            [disabled]="hasAssignments(thing)"
                         >
                             <mat-icon
                                 aria-hidden="false"
-                                aria-label="Example home icon"
+                                aria-label="Delete member"
                                 class="text-sm"
                                 fontIcon="delete"
                             ></mat-icon>
@@ -107,12 +109,23 @@
                     </div>
                 </div>
             </div>
-        </summary>
-        <div class="collapse-content">
-            <p>hello</p>
         </div>
-    </details>
-    } @empty { Bisher wurde kein Gepäck hinzugefügt } 
-} @else { 
-    <span class="loading loading-spinner text-secondary"></span>
+    </summary>
+    <div class="collapse-content bg-white">
+        <table class="table table-xs text-lg">
+            <tbody>
+                <tr>
+                    <td>Kategorie:</td>
+                    <td>{{ things.data[thing].category }}</td>
+                </tr>
+                <tr>
+                    <td>Gewicht:</td>
+                    <td>{{ things.data[thing].weight }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</details>
+} @empty { Bisher wurde kein Gepäck hinzugefügt } } @else {
+<span class="loading loading-spinner text-secondary"></span>
 }

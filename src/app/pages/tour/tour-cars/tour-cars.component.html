@@ -1,42 +1,130 @@
 <!-- DELETE MODAL -->
-<!-- <dialog #deleteModal class="modal">
+<dialog #deleteModal class="modal">
     <div class="modal-box">
-        <h3 class="text-lg font-bold">Teilnehmer entfernen?</h3>
+        <h3 class="text-lg font-bold">Auto entfernen?</h3>
         <p class="py-4">
-            Bitte bestätigen Sie, dass <b>{{ memberToDelete.name }}</b> eine
-            Couch Potatoe ist.
+            Bitte bestätigen Sie, dass <b>{{ carToDelete.name }}</b> nicht zu
+            gebrauchen ist.
         </p>
         <div class="modal-action">
             <form method="dialog">
                 <div class="flex gap-1">
                     <button
                         class="btn btn-primary"
-                        (click)="onRemoveMember(memberToDelete)"
+                        (click)="onRemoveCar(carToDelete.id)"
                     >
-                        {{ memberToDelete.name }} ist eine Kartoffel
+                        {{ carToDelete.name }} ist schrottreif
                     </button>
                     <button class="btn btn-secondary">Abbrechen</button>
                 </div>
             </form>
         </div>
     </div>
-</dialog> -->
+</dialog>
 
-@for (car of tourCars.ids; track car) {}
-
-
-
-
-<div class="flex justify-center gap-2">
-    <!-- ADD MEMBER -->
+@if (!loadingData) {
+<!-- SEARCH BOX -->
+<div class="flex items-center justify-center gap-2 w-full mb-4">
+    <div class="flex-grow">
+        <p-autocomplete
+            #carSearch
+            [suggestions]="searchedCars"
+            [forceSelection]="true"
+            [placeholder]="'Auto suchen'"
+            (input)="onSearchChange($event)"
+            optionLabel="name"
+            class="w-full"
+        >
+            <ng-template let-car>
+                <div class="flex justify-start gap-2">
+                    <!-- <div class="avatar">
+                                    <div class="w-6 rounded-xl">
+                                        <img
+                                            [src]="
+                                                'assets/images/avatars/' +
+                                                member.avatar +
+                                                'thumbnail.jpg'
+                                            "
+                                        />
+                                    </div>
+                                </div> -->
+                    <span class="text-sm">{{ car.name }}</span>
+                </div>
+            </ng-template>
+        </p-autocomplete>
+    </div>
+    <!-- ADD THING -->
     <button
         class="btn btn-sm btn-circle btn-primary"
-        (click)="onAddCar()"
+        (click)="onAddCar(carSearch.value, carSearch)"
+        [disabled]="!carSearch.value"
+        title="Auto hinzufügen"
     >
         <mat-icon
             aria-hidden="false"
-            aria-label="Add car"
+            aria-label="Add member"
             fontIcon="add"
         ></mat-icon>
     </button>
 </div>
+
+@for (car of cars.ids; track car) {
+<details pDroppable (onDrop)="onDropElement(car)" class="collapse bg-base-200">
+    <summary class="collapse-title text-xl font-medium">
+        <div>
+            <div class="flex justify-between">
+                <!-- ICON -->
+                <app-icon 
+                    [backGroundcolor]="cars.data[car].color"
+                    [type]="'CAR'" 
+                    [name]="cars.data[car].name"
+                    >
+                </app-icon>
+                <span class="text-sm">{{ cars.data[car].name }}</span>
+                <div class="divider divider-horizontal"></div>
+
+
+                <div class="avatar-group -space-x-6">
+                    @for ( passenger of renderPassengerArray(car); track passenger ) {
+                        <app-icon
+                            [type]="'MEMBER'"
+                            [avatarNumber]="passenger.avatar"
+                        >
+                        </app-icon>
+                    }
+                </div>
+
+                <!-- DELETE BUTTON -->
+                <div
+                    class="flex gap-1 relative z-10"
+                    [ngClass]="
+                        hasAssignments(car) ? 'tooltip tooltip-left' : ''
+                    "
+                    data-tip="Besitzt Zuweisungen"
+                >
+                    <button
+                        class="btn btn-secondary btn-circle btn-xs"
+                        (click)="showDeleteModal(cars.data[car])"
+                        [disabled]="hasAssignments(car)"
+                    >
+                        <mat-icon
+                            aria-hidden="false"
+                            aria-label="Example home icon"
+                            class="text-sm"
+                            fontIcon="delete"
+                        ></mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </summary>
+    <!-- PASSENGERS -->
+    <div class="collapse-content">
+        @for ( passenger of renderPassengerArray(car); track passenger ) {
+        <li>{{ passenger.name }}</li>
+        }
+    </div>
+</details>
+} @empty { Bisher wurde kein Auto hinzugefügt } } @else {
+<span class="loading loading-spinner text-secondary"></span>
+}

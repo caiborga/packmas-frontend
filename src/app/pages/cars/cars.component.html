@@ -68,11 +68,9 @@
         >
             <ng-template #header>
                 <tr>
+                    <th style="height: 70px; background-color: #f4f4f9"></th>
                     <th style="height: 70px; background-color: #f4f4f9">
                         Name
-                    </th>
-                    <th style="height: 70px; background-color: #f4f4f9">
-                        Farbe
                     </th>
                     <th style="height: 70px; background-color: #f4f4f9">
                         Marke
@@ -93,6 +91,28 @@
             </ng-template>
             <ng-template #body let-car>
                 <tr>
+                    <td
+                        style="
+                            height: 60px;
+                            width: 40px;
+                            background-color: #ffffff;
+                        "
+                    >
+                        <div class="avatar">
+                            <div
+                                class="mask mask-squircle w-8 h-8 flex items-center justify-center"
+                                [ngStyle]="{ 'background-color': car.color }"
+                            >
+                                <mat-icon
+                                    aria-hidden="false"
+                                    aria-label="Backpack icon"
+                                    class="text-xl color-white"
+                                    fontIcon="directions_car"
+                                >
+                                </mat-icon>
+                            </div>
+                        </div>
+                    </td>
                     <!-- NAME -->
                     <td
                         style="height: 60px; background-color: #ffffff"
@@ -102,16 +122,14 @@
                             {{ car.name }}
                         </div>
                     </td>
-                    <!-- COLOR -->
-                    <td>
-                        <div class="flex items-center gap-3">
-                            <p-colorpicker [(ngModel)]="car.color" [disabled]="true" />
-                        </div>
-                    </td>
                     <!-- BRAND -->
                     <td>
                         <div class="flex items-center gap-3">
-                            {{ serverBrands[car.brand] ? serverBrands[car.brand].value : '' }}
+                            {{
+                                serverBrands[car.brand]
+                                    ? serverBrands[car.brand].value
+                                    : ""
+                            }}
                         </div>
                     </td>
                     <!-- MODEL -->
@@ -142,7 +160,11 @@
                                     }
                                 </div>
                             </div>
-                            {{ serverDrivers[car.driver] ? serverDrivers[car.driver].name : '' }}
+                            {{
+                                serverDrivers[car.driver]
+                                    ? serverDrivers[car.driver].name
+                                    : ""
+                            }}
                         </div>
                     </td>
                     <!-- SEATS -->
@@ -154,7 +176,10 @@
                     <!-- ACTIONS -->
                     <td>
                         <div class="flex justify-end gap-1">
-                            <button class="btn btn-circle btn-xs btn-primary" (click)="editCar(car)">
+                            <button
+                                class="btn btn-circle btn-xs btn-primary"
+                                (click)="editCar(car)"
+                            >
                                 <mat-icon
                                     aria-hidden="false"
                                     aria-label="Example home icon"
@@ -403,15 +428,15 @@
             <!-- BUTTON -->
             <div class="grid grid-cols-2 gap-2 mt-4">
                 @if ( !editMode ){
-                    <div class="tooltip w-full" [attr.data-tip]="getErrorSummary()">
-                        <button
-                            class="btn btn-primary w-full"
-                            [disabled]="carForm.invalid"
-                            (click)="onAddCar()"
-                        >
-                            Erstellen
-                        </button>
-                    </div>
+                <div class="tooltip w-full" [attr.data-tip]="getErrorSummary()">
+                    <button
+                        class="btn btn-primary w-full"
+                        [disabled]="carForm.invalid"
+                        (click)="onAddCar()"
+                    >
+                        Erstellen
+                    </button>
+                </div>
                 } @else {
                 <button class="btn btn-primary" (click)="onEditCar()">
                     Ändern
