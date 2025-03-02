@@ -89,6 +89,10 @@ export class DragDropService {
                     if (!carPassengers.members.includes(this.origin.id)) {
                         carPassengers.members.push(this.origin.id);
                         this.tourAssignmentObject.cars.set(this.target.id, carPassengers);
+                        // Update member
+                        let memberData =  this.tourAssignmentObject.members.get(this.origin.id);
+                        memberData!.car = this.target.id
+                        this.tourAssignmentObject.members.set(this.origin.id, memberData!);
                     } else {
                         console.log(`Member ${this.origin.id} ist bereits in Auto ${this.target.id}`);
                     }
@@ -242,9 +246,8 @@ export class DragDropService {
     /** Löst einen Member von seinem Car */
     unassignMemberFromCar(memberId: number): void {
         if (!this.tourAssignmentObject.members.has(memberId)) return;
-
         const memberData = this.tourAssignmentObject.members.get(memberId);
-        if (memberData && memberData.car !== null) {
+        if (memberData && memberData.car !== -1) {
             const carId = memberData.car;
 
             // Entferne Member von Car

@@ -24,8 +24,10 @@ import { Avatar, AVATAR_LIST } from '../../../core/avatars/avatars';
 import { ToursService } from '../../../core/services/tours.service';
 import { AlertService } from '../../../core/services/alert.service';
 import { Pagination } from '../../../core/models/pagination';
-import { initializeTourAssignments, TourAssignments, TourMembersObject, TourThingsObject } from '../../../core/models/tour';
+import { initializeTourAssignments, TourAssignments, TourCarsObject, TourMembersObject, TourThingsObject } from '../../../core/models/tour';
 import { IconComponent } from "../../../shared/icon/icon.component";
+import { Car } from '../../../core/models/car';
+import { WeightPipe } from '../../../core/pipes/customPipes';
 
 @Component({
     selector: 'app-tour-members',
@@ -38,20 +40,26 @@ import { IconComponent } from "../../../shared/icon/icon.component";
     ReactiveFormsModule,
     MatIconModule,
     NgClass,
-    IconComponent
+    IconComponent,
+    WeightPipe
 ],
     templateUrl: './tour-members.component.html',
     styleUrl: './tour-members.component.scss',
 })
 export class TourMembersComponent {
     @Input() tourID: Number = 0;
+    @Input() cars: TourCarsObject = {
+        ids: [],
+        data: []
+    };
     @Input() members: TourMembersObject = {
         ids: [],
         data: []
     };
     @Input() things: TourThingsObject = {
         ids: [],
-        data: []
+        data: [],
+        totalWeight: 0
     };
     @Input () tourAssignments: TourAssignments = initializeTourAssignments();
     @Output() getData = new EventEmitter<boolean>();
@@ -214,10 +222,16 @@ export class TourMembersComponent {
 
     renderBurdenArray(member: number) {
         const memberData = this.tourAssignments.members.get(member)
-        let result: Thing[] = [];
+        let result: { totalWeight: number, things: Thing[] } = {
+            totalWeight: 0,
+            things: []
+        };
+        
+        let totalWeight: number = 0;
         if ( memberData ) {
             for ( let thing in memberData.things ) {
-                result.push(this.things.data[memberData.things[thing]])
+                result.totalWeight += this.things.data[memberData.things[thing]].weight
+                result.things.push(this.things.data[memberData.things[thing]])
             }
         }
         return result

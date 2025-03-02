@@ -11,6 +11,7 @@ import { NgClass, NgStyle } from '@angular/common';
 export class IconComponent {
     @Input() avatarNumber: string = '';
     @Input() name: string = '';
+    @Input() number: number = 0;
     @Input() backGroundcolor: string = '';
     @Input() type: string = '';
     abbreviation: string = '';

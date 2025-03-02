@@ -34,8 +34,9 @@
     <div class="drawer-content">
         @if(loadingData){
         <span class="loading loading-spinner text-primary"></span>
-        } @else { @if(tours.length > 0) {
-        <div class="flex items-center gap-2">
+        } 
+        @else { @if(tours.length > 0) {
+        <!-- <div class="flex items-center gap-2">
             <label
                 class="input input-bordered rounded-2xl flex items-center"
             >
@@ -67,7 +68,7 @@
                 [showIcon]="true"
                 inputId="icondisplay"
             />
-        </div>
+        </div> -->
         <div [@tourCardsAnimation] class="flex flex-wrap gap-4 m-4">
             @for(tour of tours; track tour){
             <app-tour-card

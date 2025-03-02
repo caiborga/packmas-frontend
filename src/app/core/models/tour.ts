@@ -16,6 +16,7 @@ export interface TourCarsObject {
 export interface TourThingsObject {
     ids: number[];
     data: Thing[];
+    totalWeight: number
 }
 
 export interface TourMembersObject {
@@ -55,7 +56,8 @@ export function initializeTour(overrides: Partial<Tour> = {}): Tour {
         
         tour_things: {
             ids: [],
-            data: []
+            data: [],
+            totalWeight: 0
         },
 
         tour_members: {

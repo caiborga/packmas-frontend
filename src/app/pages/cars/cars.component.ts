@@ -28,24 +28,26 @@ import { AlertService } from '../../core/services/alert.service';
 
 import { tableRowAnimation } from '../../core/animations/layout';
 import { Setting } from '../../core/models/setting';
+import { IconComponent } from "../../shared/icon/icon.component";
 
 @Component({
     selector: 'app-cars',
     standalone: true,
     imports: [
-        AsyncPipe,
-        ColorPickerModule,
-        FormsModule,
-        HeaderComponent,
-        MatIconModule,
-        NgClass,
-        NgStyle,
-        PaginatorModule,
-        ReactiveFormsModule,
-        RouterModule,
-        Select,
-        TableModule,
-    ],
+    AsyncPipe,
+    ColorPickerModule,
+    FormsModule,
+    HeaderComponent,
+    MatIconModule,
+    NgClass,
+    NgStyle,
+    PaginatorModule,
+    ReactiveFormsModule,
+    RouterModule,
+    Select,
+    TableModule,
+    IconComponent
+],
     templateUrl: './cars.component.html',
     styleUrl: './cars.component.scss',
     animations: [tableRowAnimation],

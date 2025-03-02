@@ -25,6 +25,7 @@ import { initializeThing, Thing } from '../../../core/models/thing';
 import { Member } from '../../../core/models/member';
 import { initializeTourAssignments, TourAssignments, TourMembersObject, TourThingsObject } from '../../../core/models/tour';
 import { IconComponent } from "../../../shared/icon/icon.component";
+import { WeightPipe } from '../../../core/pipes/customPipes';
 
 @Component({
     selector: 'app-tour-things',
@@ -36,7 +37,8 @@ import { IconComponent } from "../../../shared/icon/icon.component";
     NgClass,
     NgIf,
     ReactiveFormsModule,
-    IconComponent
+    IconComponent,
+    WeightPipe
 ],
     templateUrl: './tour-things.component.html',
     styleUrl: './tour-things.component.scss',
@@ -49,7 +51,8 @@ export class TourThingsComponent {
     }
     @Input() things: TourThingsObject =  {
         ids: [],
-        data: []
+        data: [],
+        totalWeight: 0
     }
     @Input () tourAssignments: TourAssignments = initializeTourAssignments();
     
@@ -95,20 +98,14 @@ export class TourThingsComponent {
         return this.dragDropService.hasAssignments(check)
     }
 
-    getBearerAvatar(thing: Thing) {
-        if (thing && thing.bearer) {
-            const member = this.members.ids.find(
-                (id) => id === thing.bearer
-            )
-            if (member) {
-                return 'assets/images/avatars/' + this.members.data[member].avatar + 'thumbnail.jpg'
-            } else {
-                return 'assets/images/avatars/default.jpg'
-            }
-        } else { 
-            return 'assets/images/avatars/default.jpg'
+    getBearerAvatar(thing: number) {
+        const thingData = this.tourAssignments.things.get(thing)
+        let result = ''
+        if (thingData) {
+            const memberId = thingData.member
+            result = this.members.data[memberId].avatar
         }
-        
+        return result
     }
 
     getBearerName(thing: number) {
@@ -120,7 +117,6 @@ export class TourThingsComponent {
             
         }
         return result
-        
     }
 
     getThings() {

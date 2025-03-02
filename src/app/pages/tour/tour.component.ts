@@ -1,4 +1,5 @@
 import { Component, Inject, inject, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DatePicker } from 'primeng/datepicker';
@@ -16,11 +17,13 @@ import { TourMembersComponent } from './tour-members/tour-members.component';
 import { TourCarsComponent } from './tour-cars/tour-cars.component';
 import { TourThingsComponent } from './tour-things/tour-things.component';
 import { DragDropService } from '../../core/services/drag-drop.service';
+import { IconComponent } from '../../shared/icon/icon.component';
+import { WeightPipe } from '../../core/pipes/customPipes';
 
 @Component({
     selector: 'app-adit-tour',
     standalone: true,
-    imports: [DatePicker, ReactiveFormsModule, FormsModule, HeaderComponent, MatIconModule, NgClass, NgFor, NgIf, TourCarsComponent, TourMembersComponent, TourThingsComponent],
+    imports: [DatePicker, DatePipe, ReactiveFormsModule, FormsModule, HeaderComponent, MatIconModule, NgClass, NgFor, NgIf, TourCarsComponent, TourMembersComponent, TourThingsComponent, IconComponent, WeightPipe],
     templateUrl: './tour.component.html',
     styleUrl: './tour.component.scss',
 })

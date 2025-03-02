@@ -19,6 +19,8 @@ import { Thing } from '../../core/models/thing';
 import { Pagination } from '../../core/models/pagination';
 import { tableRowAnimation } from '../../core/animations/layout';
 import { Setting } from '../../core/models/setting';
+import { WeightPipe } from '../../core/pipes/customPipes';
+import { IconComponent } from "../../shared/icon/icon.component";
 
 interface PageEvent {
     first: number;
@@ -31,15 +33,17 @@ interface PageEvent {
     selector: 'app-things',
     standalone: true,
     imports: [
-        HeaderComponent,
-        MatIconModule,
-        NgClass,
-        PaginatorModule,
-        ReactiveFormsModule,
-        RouterModule,
-        Select,
-        TableModule,
-    ],
+    HeaderComponent,
+    MatIconModule,
+    NgClass,
+    PaginatorModule,
+    ReactiveFormsModule,
+    RouterModule,
+    Select,
+    TableModule,
+    WeightPipe,
+    IconComponent
+],
     animations: [tableRowAnimation],
     templateUrl: './things.component.html',
     styleUrl: './things.component.scss',

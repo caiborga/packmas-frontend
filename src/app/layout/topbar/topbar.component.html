@@ -1,6 +1,8 @@
 <div class="navbar bg-base-100">
     <div class="flex-1">
         <a class="btn btn-ghost text-xl">PackMas</a>
+        <div class="divider divider-horizontal"></div>
+        <a class="btn btn-ghost text-xl" [cdkCopyToClipboard]="link" (click)="copyToClipboard()">{{ group.name }}</a>
     </div>
     <div class="flex-none">
         <ul class="menu menu-horizontal px-1">
@@ -24,7 +26,7 @@
         </button>
     </div>
     <div class="tooltip tooltip-bottom" data-tip="Abmelden">
-        <button class="btn btn-ghost btn-circle">
+        <button class="btn btn-ghost btn-circle" (click)="logout()">
             <div class="indicator">
                 <mat-icon
                     aria-hidden="false"

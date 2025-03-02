@@ -37,17 +37,6 @@
         >
             <ng-template let-car>
                 <div class="flex justify-start gap-2">
-                    <!-- <div class="avatar">
-                                    <div class="w-6 rounded-xl">
-                                        <img
-                                            [src]="
-                                                'assets/images/avatars/' +
-                                                member.avatar +
-                                                'thumbnail.jpg'
-                                            "
-                                        />
-                                    </div>
-                                </div> -->
                     <span class="text-sm">{{ car.name }}</span>
                 </div>
             </ng-template>
@@ -70,46 +59,88 @@
 
 @for (car of cars.ids; track car) {
 <details pDroppable (onDrop)="onDropElement(car)" class="collapse bg-base-200">
+
+    <progress 
+        class="progress progress-success absolute top-0 left-0 w-full"
+        value="{{ tourAssignments.cars.get(car)?.members?.length }}" 
+        max="{{ cars.data[car].seats }}">
+    </progress>
+
     <summary class="collapse-title text-xl font-medium">
-        <div>
-            <div class="flex justify-between">
+        <div class="flex justify-between">
+            <!-- ICON / PASSENGER ICONS -->
+            <div class="flex justify-start space-x-2">
                 <!-- ICON -->
-                <app-icon 
+                <app-icon
                     [backGroundcolor]="cars.data[car].color"
-                    [type]="'CAR'" 
+                    [type]="'CAR'"
                     [name]="cars.data[car].name"
-                    >
+                >
                 </app-icon>
                 <span class="text-sm">{{ cars.data[car].name }}</span>
-                <div class="divider divider-horizontal"></div>
 
+                <div class="divider divider-horizontal"></div>
 
                 <div class="avatar-group -space-x-6">
                     @for ( passenger of renderPassengerArray(car); track passenger ) {
-                        <app-icon
-                            [type]="'MEMBER'"
-                            [avatarNumber]="passenger.avatar"
-                        >
-                        </app-icon>
+                    <app-icon
+                        [type]="'MEMBER'"
+                        [avatarNumber]="passenger.avatar"
+                    >
+                    </app-icon>
                     }
                 </div>
+            </div>
 
-                <!-- DELETE BUTTON -->
-                <div
-                    class="flex gap-1 relative z-10"
-                    [ngClass]="
-                        hasAssignments(car) ? 'tooltip tooltip-left' : ''
-                    "
-                    data-tip="Besitzt Zuweisungen"
+            <!-- DELETE BUTTON -->
+            <div
+                class="flex gap-1 relative z-10"
+                [ngClass]="hasAssignments(car) ? 'tooltip tooltip-left' : ''"
+                data-tip="Besitzt Zuweisungen"
+            >
+                <button
+                    class="btn btn-secondary btn-circle btn-xs"
+                    (click)="showDeleteModal(cars.data[car])"
+                    [disabled]="hasAssignments(car)"
                 >
+                    <mat-icon
+                        aria-hidden="false"
+                        aria-label="Example home icon"
+                        class="text-sm"
+                        fontIcon="delete"
+                    ></mat-icon>
+                </button>
+            </div>
+        </div>
+    </summary>
+    <!-- PASSENGERS -->
+    <div class="collapse-content">
+        
+        @for ( passenger of renderPassengerArray(car); track passenger ) {
+
+        <div class="card bg-white align-middle ms-24">
+            <div class="flex justify-between m-3">
+                <!-- ICON -->
+                <div class="flex justify-start space-x-2">
+                    <app-icon
+                        [type]="'MEMBER'"
+                        [avatarNumber]="passenger.avatar"
+                    >
+                    </app-icon>
+                    <span class="text-sm">{{ passenger.name }}</span>
+                    <!-- <div class="divider divider-horizontal"></div>
+                    <span class="text-sm">{{ burden.weight }} g</span> -->
+                </div>
+                
+                <div class="flex justify-end space-x-2">
+
                     <button
                         class="btn btn-secondary btn-circle btn-xs"
-                        (click)="showDeleteModal(cars.data[car])"
-                        [disabled]="hasAssignments(car)"
+                        (click)="removeCarAssignment(passenger.id)"
                     >
                         <mat-icon
                             aria-hidden="false"
-                            aria-label="Example home icon"
+                            aria-label="Delete member"
                             class="text-sm"
                             fontIcon="delete"
                         ></mat-icon>
@@ -117,11 +148,6 @@
                 </div>
             </div>
         </div>
-    </summary>
-    <!-- PASSENGERS -->
-    <div class="collapse-content">
-        @for ( passenger of renderPassengerArray(car); track passenger ) {
-        <li>{{ passenger.name }}</li>
         }
     </div>
 </details>

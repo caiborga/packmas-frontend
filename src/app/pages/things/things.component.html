@@ -94,19 +94,11 @@
                             background-color: #ffffff;
                         "
                     >
-                        <div class="avatar">
-                            <div
-                                class="mask mask-squircle w-8 h-8 bg-base-200 flex items-center justify-center"
-                            >
-                                <mat-icon
-                                    aria-hidden="false"
-                                    aria-label="Backpack icon"
-                                    class="text-primary text-xl"
-                                    fontIcon="backpack"
-                                >
-                                </mat-icon>
-                            </div>
-                        </div>
+                    <app-icon 
+                        [type]="'LISTTHING'" 
+                        [name]="thing.name">
+                    </app-icon>
+
                     </td>
                     <!-- NAME -->
                     <td style="height: 60px; background-color: #ffffff">
@@ -137,7 +129,7 @@
                     <!-- WEIGHT -->
                     <td style="height: 60px; background-color: #ffffff">
                         <div class="flex items-center gap-3">
-                            {{ thing.weight }}
+                            {{ thing.weight | weight }}
                         </div>
                     </td>
                     <!-- ACTIONS -->
@@ -327,7 +319,7 @@
                 <!-- WEIGHT -->
                 <div class="form-control">
                     <label class="label"
-                        ><span class="font-bold text-sm">Gewicht</span></label
+                        ><span class="font-bold text-sm">Gewicht in Gramm</span></label
                     >
                     <label
                         class="input input-bordered flex items-center h-9 py-1"
@@ -336,6 +328,7 @@
                             formControlName="weight"
                             type="number"
                             class="grow text-sm h-full"
+                            placeholder="200"
                         />
                     </label>
                 </div>

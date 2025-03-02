@@ -197,6 +197,19 @@ export class ToursComponent {
             }
             membersIds = members.map((member: any) => member.id);
         }
+
+        let range = this.tourForm.value.start
+        if ( range ) {
+            this.tourForm.patchValue({
+                start: range[0],
+                end: range[1],
+              }
+            );
+        }
+        
+
+
+
         const data = {
             tourCars: JSON.stringify([]),
             tourData: JSON.stringify(this.tourForm.value),

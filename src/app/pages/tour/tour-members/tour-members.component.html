@@ -79,40 +79,73 @@
 >
     <!-- INFO -->
     <summary class="collapse-title text-xl font-medium">
-        <div class="flex items-center justify-between">
-            <!-- AVATAR / NAME -->
-            <div class="flex items-center space-x-3">
+        <div class="flex justify-between">
+            <!-- AVATAR / NAME / BURDENs-->
+            <div class="flex justify-start space-x-2">
                 <app-icon
                     [type]="'MEMBER'"
                     [avatarNumber]="members.data[member].avatar"
                 >
                 </app-icon>
                 <span class="text-sm">{{ members.data[member].name }}</span>
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Edit member"
-                    class="text-sm"
-                    fontIcon="stones"
-                ></mat-icon>
-                <div class="divider divider-horizontal"></div>
-                @for ( burden of renderBurdenArray(member); track burden ) {
-                <app-icon [type]="'THING'" [name]="burden.name"> </app-icon>
-                }
-            </div>
 
+                <div class="divider divider-horizontal"></div>
+
+                <span class="text-sm">{{ renderBurdenArray(member).totalWeight | weight }}</span>
+
+                <div class="divider divider-horizontal"></div>
+
+                <div class="avatar-group -space-x-6">
+                    @for ( burden of renderBurdenArray(member).things; track burden ) {
+                        <div class="avatar">
+                            <app-icon [type]="'THING'" [name]="burden.name"></app-icon>
+                        </div>
+                    }
+                </div>
+            </div>
             <!-- BUTTONS -->
-            <div class="flex space-x-1">
-                <div
-                    class="flex gap-1 relative z-10"
-                    [ngClass]="
-                        hasAssignments(member) ? 'tooltip tooltip-left' : ''
-                    "
-                    data-tip="Besitzt Zuweisungen"
+            <div
+                class="flex gap-1 relative z-10"
+                [ngClass]="
+                    hasAssignments(member) ? 'tooltip tooltip-left' : ''
+                "
+                data-tip="Besitzt Zuweisungen"
+            >
+                <button
+                    class="btn btn-secondary btn-circle btn-xs"
+                    (click)="showDeleteModal(members.data[member])"
+                    [disabled]="hasAssignments(member)"
                 >
+                    <mat-icon
+                        aria-hidden="false"
+                        aria-label="Delete member"
+                        class="text-sm"
+                        fontIcon="delete"
+                    ></mat-icon>
+                </button>
+            </div>
+        </div>
+    </summary>
+    <!-- BURDENS -->
+    <div class="collapse-content">
+        @for ( burden of renderBurdenArray(member).things; track burden ) {
+            
+        <div class="card bg-white align-middle ms-24">
+            <div class="flex justify-between m-3">
+                <!-- ICON -->
+                <div class="flex justify-start space-x-2">
+                    <app-icon [type]="'THING'" [name]="burden.name">
+                    </app-icon>
+                    <span class="text-sm">{{ burden.name }}</span>
+                    <div class="divider divider-horizontal"></div>
+                    <span class="text-sm">{{ burden.weight | weight }} </span>
+                </div>
+                
+                <div class="flex justify-end space-x-2">
+
                     <button
                         class="btn btn-secondary btn-circle btn-xs"
-                        (click)="showDeleteModal(members.data[member])"
-                        [disabled]="hasAssignments(member)"
+                        (click)="removeThingAssignment(member, burden.id)"
                     >
                         <mat-icon
                             aria-hidden="false"
@@ -123,24 +156,6 @@
                     </button>
                 </div>
             </div>
-        </div>
-    </summary>
-    <!-- BURDENS -->
-    <div class="collapse-content">
-        @for ( burden of renderBurdenArray(member); track burden ) {
-        <div class="card bg-white">
-            <div class="m-3">{{ burden.name }}</div>
-            <button
-                class="btn btn-secondary btn-circle btn-xs"
-                (click)="removeThingAssignment(member, burden.id)"
-            >
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Delete member"
-                    class="text-sm"
-                    fontIcon="delete"
-                ></mat-icon>
-            </button>
         </div>
         }
     </div>

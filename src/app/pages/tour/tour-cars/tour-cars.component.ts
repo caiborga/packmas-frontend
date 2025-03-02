@@ -147,6 +147,10 @@ export class TourCarsComponent {
         this.searchSubject.next(input.value);
     }
 
+    removeCarAssignment(passengerId: number) {
+        this.dragDropService.unassignMemberFromCar(passengerId)
+    }
+
     renderPassengerArray(car: number) {
         const carData = this.tourAssignments.cars.get(car)
         let result: Member[] = [];

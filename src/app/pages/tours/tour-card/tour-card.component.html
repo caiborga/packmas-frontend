@@ -15,25 +15,30 @@
         <div class="overflow-x-auto">
             <table class="table table-xs">
                 <tbody>
-                    <!-- row 1 -->
-                    <tr class="p-1">
-                        <td>Datum:</td>
-                        <td>12.12.24</td>
+                     <!-- START -->
+                     <tr class="p-1">
+                        <td>Start:</td>
+                        <td>{{ tour.tour_data.start | date:'dd.MM.yyyy'}}</td>
                     </tr>
-                    <!-- row 2 -->
+                    <!-- END -->
+                    <tr class="p-1">
+                        <td>Ende:</td>
+                        <td>{{ tour.tour_data.end | date:'dd.MM.yyyy'}}</td>
+                    </tr>
+                    <!-- PARTICIPANTS -->
                     <tr>
                         <td>Teilnehmer:</td>
                         <td>{{tour.tour_members.ids.length}}</td>
                     </tr>
-                    <!-- row 3 -->
-                    <tr>
-                        <td>Ziel:</td>
-                        <td>Stubaier Gletscher</td>
-                    </tr>
-                    <!-- row 4 -->
+                    <!-- THINGS -->
                     <tr>
                         <td>Gepäck:</td>
-                        <td>40kg</td>
+                        <td>{{tour.tour_things.ids.length}}</td>
+                    </tr>
+                    <!-- WEIGHT -->
+                    <tr>
+                        <td>Gewicht:</td>
+                        <td>{{tour.tour_things.totalWeight | weight}}</td>
                     </tr>
                 </tbody>
             </table>

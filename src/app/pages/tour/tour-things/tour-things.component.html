@@ -70,22 +70,36 @@
 </div>
 
 @for (thing of things.ids; track thing) {
+<progress
+    class="progress progress-success absolute top-12 left-0 w-full rounded-none"
+    value="{{ tourAssignments.things.size }}"
+    max="{{ things.ids.length }}"
+></progress>
 <details
     pDraggable
     (onDragStart)="onDragElement(thing)"
     class="collapse bg-base-200"
 >
     <summary class="collapse-title text-xl font-medium">
-        <div>
-            <div class="flex justify-between">
-                <app-icon 
-                    [type]="'THING'"
-                    [name]="things.data[thing].name"
-                    >
+        <div class="flex justify-between">
+            <!-- ICON -->
+            <div class="flex justify-start space-x-2">
+                <app-icon [type]="'THING'" [name]="things.data[thing].name">
                 </app-icon>
                 <span class="text-sm">{{ things.data[thing].name }}</span>
-                <span class="text-sm">{{ getBearerName(thing) }}</span>
-                <!-- DELETE BUTTON -->
+                <div class="divider divider-horizontal"></div>
+                <span class="text-sm">{{
+                    things.data[thing].weight | weight
+                }}</span>
+                <div class="divider divider-horizontal"></div>
+                <app-icon
+                    [type]="'MEMBER'"
+                    [avatarNumber]="getBearerAvatar(thing)"
+                >
+                </app-icon>
+            </div>
+            <!-- DELETE BUTTON -->
+            <div class="flex justify-end space-x-1">
                 <div class="flex gap-1 relative z-10">
                     <div
                         class="flex gap-1 relative z-10"
@@ -111,6 +125,7 @@
             </div>
         </div>
     </summary>
+
     <div class="collapse-content bg-white">
         <table class="table table-xs text-lg">
             <tbody>
@@ -120,7 +135,7 @@
                 </tr>
                 <tr>
                     <td>Gewicht:</td>
-                    <td>{{ things.data[thing].weight }}</td>
+                    <td>{{ things.data[thing].weight | weight }}</td>
                 </tr>
             </tbody>
         </table>

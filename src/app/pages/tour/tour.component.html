@@ -32,25 +32,35 @@
                 <!-- Tabelle -->
                 <table class="table table-xs text-lg">
                     <tbody>
-                        <!-- row 1 -->
+                        <!-- START -->
                         <tr class="p-1">
-                            <td>Datum:</td>
-                            <td>12.12.24</td>
+                            <td>Start:</td>
+                            <td>{{ tour.tour_data.start | date:'dd.MM.yyyy'}}</td>
+                        </tr>
+                        <!-- END -->
+                        <tr class="p-1">
+                            <td>Ende:</td>
+                            <td>{{ tour.tour_data.end | date:'dd.MM.yyyy'}}</td>
                         </tr>
                         <!-- row 2 -->
                         <tr>
                             <td>Teilnehmer:</td>
                             <td>{{ tour.tour_members.ids.length}}</td>
                         </tr>
-                        <!-- row 3 -->
-                        <tr>
-                            <td>Ziel:</td>
-                            <td>Stubaier Gletscher</td>
-                        </tr>
-                        <!-- row 4 -->
+                        <!-- THINGS -->
                         <tr>
                             <td>Gepäck:</td>
-                            <td>40kg</td>
+                            <td>{{ tour.tour_things.ids.length}}</td>
+                        </tr>
+                        <!-- WEIGHT -->
+                        <tr>
+                            <td>Gewicht:</td>
+                            <td>{{ tour.tour_things.totalWeight | weight }}</td>
+                        </tr>
+                        <!-- CARS -->
+                        <tr>
+                            <td>Autos:</td>
+                            <td>{{ tour.tour_cars.ids.length }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -78,26 +88,40 @@
         >
             @if (!collapsedCards[i]) {
                 <div class="gap-2">
-                    <span class="font-bold">{{
-                        card.title
-                    }}</span>
-                    <div 
-                        class="badge " 
-                        [ngClass]="{'badge-primary' : i ===0, 'badge-secondary' : i ===1, 'badge-accent' : i ===2}"
-                        >
+                    <!-- TITLE -->
+                     <div class="flex justify-start space-x-2">
+                        <span class="font-bold">{{
+                            card.title
+                        }}</span>
+                        <!-- ICON -->
                         @switch (i) { 
                             @case (0) {
-                                {{tour.tour_members.ids.length}}
+                                <app-icon
+                                    [type]="'NUMBER'"
+                                    [number]="tour.tour_members.ids.length"
+                                >
+                                </app-icon>
                             } 
                             @case (1) {
-                                {{tour.tour_things.ids.length}}
+                                <app-icon
+                                    [type]="'NUMBER'"
+                                    [number]="tour.tour_things.ids.length"
+                                >
+                                </app-icon>
+                                <div class="divider divider-horizontal"></div>
+                                <span>{{ tour.tour_things.totalWeight | weight }} </span>
                             }
                             @case (2) { 
-                                {{tour.tour_cars.ids.length}}
+                                <app-icon
+                                    [type]="'NUMBER'"
+                                    [number]="tour.tour_cars.ids.length"
+                                >
+                                </app-icon>
                             } 
                             @default { Defaultcase. } 
                         }
                     </div>
+
                 </div>
             }
             
@@ -122,6 +146,7 @@
                         <app-tour-members
                             [tourID]="tour.id"
                             [tourAssignments]="convertJsonToTourAssignments(tour.tour_assignments)"
+                            [cars]="tour.tour_cars"
                             [members]="tour.tour_members"
                             [things]="tour.tour_things"
                             (getData)="getTourData(tourID)"
