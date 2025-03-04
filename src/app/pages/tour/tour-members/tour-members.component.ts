@@ -1,12 +1,4 @@
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    inject,
-    Input,
-    Output,
-    ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,24 +17,14 @@ import { ToursService } from '../../../core/services/tours.service';
 import { AlertService } from '../../../core/services/alert.service';
 import { Pagination } from '../../../core/models/pagination';
 import { initializeTourAssignments, TourAssignments, TourCarsObject, TourMembersObject, TourThingsObject } from '../../../core/models/tour';
-import { IconComponent } from "../../../shared/icon/icon.component";
+import { IconComponent } from '../../../shared/icon/icon.component';
 import { Car } from '../../../core/models/car';
 import { WeightPipe } from '../../../core/pipes/customPipes';
 
 @Component({
     selector: 'app-tour-members',
     standalone: true,
-    imports: [
-    AutoComplete,
-    DragDropModule,
-    InputGroup,
-    InputGroupAddonModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    NgClass,
-    IconComponent,
-    WeightPipe
-],
+    imports: [AutoComplete, DragDropModule, InputGroup, InputGroupAddonModule, ReactiveFormsModule, MatIconModule, NgClass, IconComponent, WeightPipe],
     templateUrl: './tour-members.component.html',
     styleUrl: './tour-members.component.scss',
 })
@@ -50,18 +32,18 @@ export class TourMembersComponent {
     @Input() tourID: Number = 0;
     @Input() cars: TourCarsObject = {
         ids: [],
-        data: []
+        data: [],
     };
     @Input() members: TourMembersObject = {
         ids: [],
-        data: []
+        data: [],
     };
     @Input() things: TourThingsObject = {
         ids: [],
         data: [],
-        totalWeight: 0
+        totalWeight: 0,
     };
-    @Input () tourAssignments: TourAssignments = initializeTourAssignments();
+    @Input() tourAssignments: TourAssignments = initializeTourAssignments();
     @Output() getData = new EventEmitter<boolean>();
     @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
     @ViewChild('deleteModal') deleteModal!: ElementRef<HTMLDialogElement>;
@@ -83,20 +65,17 @@ export class TourMembersComponent {
 
     private searchSubject = new Subject<string>();
     private assignmentData!: Subscription;
-    
+
     dragDropService = inject(DragDropService);
     alertService = inject(AlertService);
     tourService = inject(ToursService);
 
     constructor() {
-        this.searchSubject
-            .pipe(debounceTime(300), distinctUntilChanged())
-            .subscribe((searchTerm) => {
-                this.loadingData = true;
-                this.pagination.filter = searchTerm;
-                this.getMembers();
-            }
-        );
+        this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe((searchTerm) => {
+            this.loadingData = true;
+            this.pagination.filter = searchTerm;
+            this.getMembers();
+        });
         this.assignmentData = this.dragDropService.tourAssignmentsChange$.subscribe((data) => {
             this.tourAssignments = data;
         });
@@ -119,12 +98,12 @@ export class TourMembersComponent {
             });
     }
 
-    hasAssignments(id: number){
+    hasAssignments(id: number) {
         const check: dragObject = {
             id: id,
             type: 'MEMBER',
-        }
-        return this.dragDropService.hasAssignments(check)
+        };
+        return this.dragDropService.hasAssignments(check);
     }
 
     isSelected(avatar: Avatar): boolean {
@@ -163,39 +142,57 @@ export class TourMembersComponent {
         this.dragDropService.target = {
             id: member,
             type: 'MEMBER',
-        }
+        };
         this.dragDropService.newAssignment();
     }
 
     onDragElement(member: number) {
-            const drag: dragObject= {
-                id: member,
-                type: "MEMBER"
-            }
-            this.dragDropService.origin = drag;
-        }
+        const drag: dragObject = {
+            id: member,
+            type: 'MEMBER',
+        };
+        this.dragDropService.origin = drag;
+    }
 
-    onAddMember(member: number, searchBox?: AutoComplete) {
-        searchBox ? searchBox.clear() : '';
-        console.log('add Member', member);
-        this.members.ids.push(member);
-        this.updateTourMembers()
-            .then((result) => {
-                if (result.success) {
-                    this.alertService.showAlertMessage({
-                        type: 'success',
-                        message: 'Teilnehmer erfolgreich hinzugefügt',
-                    });
-                } else {
-                    this.alertService.showAlertMessage({
-                        type: 'error',
-                        message: 'Das hat leider nicht geklappt',
-                    });
-                }
-            })
-            .catch((error) => {
-                console.error('Unexpected error in onAddMember', error);
+    async onAddMember(member: number, searchBox?: AutoComplete) {
+        try {
+            searchBox?.clear();
+            console.log('add Member', member);
+            this.members.ids.push(member);
+
+            // Insert new members into assignments
+            for (const id of this.members.ids) {
+                this.tourAssignments.members.set(id, { car: -1, things: [] });
+            }
+
+            // Beide Updates parallel ausführen
+            const [assignmentsResult, membersResult] = await Promise.allSettled([this.updateTourAssignments(), this.updateTourMembers()]);
+
+            // Verarbeite die Ergebnisse
+            this.handleResult(assignmentsResult, 'Fehler beim Aktualisieren der Zuweisungen');
+            this.handleResult(membersResult, 'Fehler beim Hinzufügen des Teilnehmers');
+        } catch (error) {
+            console.error('Unexpected error in onAddMember', error);
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Ein unerwarteter Fehler ist aufgetreten.',
             });
+        }
+    }
+
+    private handleResult(result: PromiseSettledResult<any>, errorMessage: string) {
+        if (result.status === 'fulfilled' && result.value?.success) {
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Teilnehmer erfolgreich hinzugefügt',
+            });
+        } else {
+            console.error(errorMessage, result);
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: errorMessage,
+            });
+        }
     }
 
     onRemoveMember(member: Member) {
@@ -221,32 +218,32 @@ export class TourMembersComponent {
     }
 
     renderBurdenArray(member: number) {
-        const memberData = this.tourAssignments.members.get(member)
-        let result: { totalWeight: number, things: Thing[] } = {
+        const memberData = this.tourAssignments.members.get(member);
+        let result: { totalWeight: number; things: Thing[] } = {
             totalWeight: 0,
-            things: []
+            things: [],
         };
-        
+
         let totalWeight: number = 0;
-        if ( memberData ) {
-            for ( let thing in memberData.things ) {
-                result.totalWeight += this.things.data[memberData.things[thing]].weight
-                result.things.push(this.things.data[memberData.things[thing]])
+        if (memberData) {
+            for (let thing in memberData.things) {
+                result.totalWeight += this.things.data[memberData.things[thing]].weight;
+                result.things.push(this.things.data[memberData.things[thing]]);
             }
         }
-        return result
+        return result;
     }
 
     removeThingAssignment(id: number, burden: number) {
-        this.dragDropService.unassignThingFromMember(burden)
+        this.dragDropService.unassignThingFromMember(burden);
     }
 
-    getBurdenNumber(member: number){
-        const memberData = this.tourAssignments.members.get(member)
+    getBurdenNumber(member: number) {
+        const memberData = this.tourAssignments.members.get(member);
         if (memberData && memberData.things) {
-            return memberData.things.length
+            return memberData.things.length;
         } else {
-            return 0
+            return 0;
         }
     }
 
@@ -256,6 +253,32 @@ export class TourMembersComponent {
         } else {
             this.selectedAvatar = avatar;
         }
+    }
+
+    updateTourAssignments() {
+        const data = {
+            tourAssignments: JSON.stringify(this.convertTourAssignmentsToJson(this.tourAssignments)),
+        };
+
+        return this.tourService
+            .put('tour/' + this.tourID + '/assignments', data)
+            .toPromise()
+            .then((response) => {
+                console.log('updateTourAssignments - success', response);
+                return { success: true, response };
+            })
+            .catch((error) => {
+                console.error('updateTourAssignments - error', error);
+                return { success: false, error };
+            });
+    }
+
+    convertTourAssignmentsToJson(assignments: TourAssignments) {
+        return {
+            members: Object.fromEntries(assignments.members),
+            things: Object.fromEntries(assignments.things),
+            cars: Object.fromEntries(assignments.cars),
+        };
     }
 
     updateTourMembers() {
@@ -273,37 +296,6 @@ export class TourMembersComponent {
             })
             .catch((error) => {
                 console.error('editTourParticipants - error', error);
-                return { success: false, error }; // Fehler zurückgeben
-            });
-    }
-
-    updateTourThings(member: number, tourThingId: number) {
-        const burdenToChange = this.things.ids.find(
-            (id) => id === tourThingId
-        );
-
-
-        if (burdenToChange) {
-            this.things.data[burdenToChange].bearer = member;
-            console.log('Burden changed:', burdenToChange);
-        } else {
-            console.log('Burden not found!');
-        }
-
-        const data = {
-            tourThings: JSON.stringify(this.things.ids),
-        };
-
-        return this.tourService
-            .put('tour/' + this.tourID + '/things', data)
-            .toPromise()
-            .then((response) => {
-                this.getData.emit();
-                console.log('updateTourThings - success', response);
-                return { success: true, response }; // Erfolg zurückgeben
-            })
-            .catch((error) => {
-                console.error('updateTourThings - error', error);
                 return { success: false, error }; // Fehler zurückgeben
             });
     }

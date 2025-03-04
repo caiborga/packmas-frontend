@@ -36,15 +36,6 @@ export class RegisterComponent {
         this.layoutService.setBackgroundBlurred(false);
     }
 
-    copyToClipboard() {
-        // let message: Message = {
-        //     type: 'info',
-        //     message: `Link wurde in die Zwischenablage kopiert!`
-        // }
-        // this.clipboard.copy(this.link);
-
-    }
-
     registerGroup() {
         let data = { 
             name: this.groupName

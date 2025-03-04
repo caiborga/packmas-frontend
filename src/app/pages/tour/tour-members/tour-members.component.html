@@ -93,7 +93,8 @@
 
                 <span class="text-sm">{{ renderBurdenArray(member).totalWeight | weight }}</span>
 
-                <div class="divider divider-horizontal"></div>
+                @if(renderBurdenArray(member).things.length > 0) {
+                    <div class="divider divider-horizontal"></div>
 
                 <div class="avatar-group -space-x-6">
                     @for ( burden of renderBurdenArray(member).things; track burden ) {
@@ -102,6 +103,9 @@
                         </div>
                     }
                 </div>
+                }
+
+                
             </div>
             <!-- BUTTONS -->
             <div
@@ -129,7 +133,6 @@
     <!-- BURDENS -->
     <div class="collapse-content">
         @for ( burden of renderBurdenArray(member).things; track burden ) {
-            
         <div class="card bg-white align-middle ms-24">
             <div class="flex justify-between m-3">
                 <!-- ICON -->
@@ -157,6 +160,8 @@
                 </div>
             </div>
         </div>
+        }@empty {
+            {{ members.data[member].name }}'s Rucksack ist leer
         }
     </div>
 </details>

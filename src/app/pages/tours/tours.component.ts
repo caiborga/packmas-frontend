@@ -188,6 +188,7 @@ export class ToursComponent {
 
     onNewTour() {
         this.loadingData = true;
+        // Insert new members into assignments
         const tourAssignmentObject = initializeTourAssignments();
         const members = this.tourForm.value.members;
         let membersIds: number[] = [];
@@ -197,7 +198,7 @@ export class ToursComponent {
             }
             membersIds = members.map((member: any) => member.id);
         }
-
+        // Collect start / end from form
         let range = this.tourForm.value.start
         if ( range ) {
             this.tourForm.patchValue({
@@ -206,9 +207,6 @@ export class ToursComponent {
               }
             );
         }
-        
-
-
 
         const data = {
             tourCars: JSON.stringify([]),

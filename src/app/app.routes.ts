@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 //Componentes
-// import { HomeComponent } from './pages/home/home.component';
+import { HomeComponent } from './pages/home/home.component';
 // import { PlannerComponent } from './pages/planner/planner.component';
 import { ThingsComponent } from './pages/things/things.component';
 import { RegisterComponent } from './auth/register/register.component';
@@ -14,6 +14,8 @@ import { CarsComponent } from './pages/cars/cars.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 
 export const routes: Routes = [
+    { path: 'home', component: HomeComponent },
+    { path: 'home/:id', component: HomeComponent },
     { path: 'tour/:id', component: AditTourComponent },
     { path: 'tours', component: ToursComponent },
     { path: 'settings', component: SettingsComponent },

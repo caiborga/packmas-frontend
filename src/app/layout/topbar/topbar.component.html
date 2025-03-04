@@ -2,7 +2,20 @@
     <div class="flex-1">
         <a class="btn btn-ghost text-xl">PackMas</a>
         <div class="divider divider-horizontal"></div>
-        <a class="btn btn-ghost text-xl" [cdkCopyToClipboard]="link" (click)="copyToClipboard()">{{ group.name }}</a>
+        <a
+            class="btn btn-ghost text-xl"
+            >{{ group.name }}</a
+        >
+        <div class="tooltip tooltip-bottom" data-tip="Gruppenlink in die Zwischenablage kopieren">
+            <button class="btn btn-circle btn-sm" [cdkCopyToClipboard]="link" (click)="copyToClipboard()">
+                <mat-icon
+                    aria-hidden="false"
+                    aria-label="Example home icon"
+                    class="text-base"
+                    fontIcon="content_copy"
+                ></mat-icon>
+            </button>
+        </div>
     </div>
     <div class="flex-none">
         <ul class="menu menu-horizontal px-1">
@@ -14,7 +27,10 @@
     </div>
     <div class="divider divider-horizontal"></div>
     <div class="tooltip tooltip-bottom" data-tip="Einstellungen">
-        <button class="btn btn-ghost btn-circle" [routerLink]="['/', 'settings']">
+        <button
+            class="btn btn-ghost btn-circle"
+            [routerLink]="['/', 'settings']"
+        >
             <div class="indicator">
                 <mat-icon
                     aria-hidden="false"

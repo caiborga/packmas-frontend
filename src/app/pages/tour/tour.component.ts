@@ -57,7 +57,7 @@ export class AditTourComponent {
         { title: 'Gepäck', icon: 'backpack' },
         { title: 'Mitfahrzentrale', icon: 'directions_car' },
     ];
-    collapsedCards = [false, true, true];
+    collapsedCards = [true, true, true];
 
     private sub: any;
     private assignmentsChanged!: Subscription;
@@ -100,6 +100,7 @@ export class AditTourComponent {
     }
 
     getTourData(tourID: number) {
+        this.loading = true
         this.tourService
             .get('tour/' + tourID)
             .toPromise()

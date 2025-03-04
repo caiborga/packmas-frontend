@@ -101,6 +101,10 @@ export class DragDropService {
                 this.tourAssignmentObject.cars.set(this.target.id, {
                     members: [this.origin.id],
                 });
+                // Update member
+                let memberData =  this.tourAssignmentObject.members.get(this.origin.id);
+                memberData!.car = this.target.id
+                this.tourAssignmentObject.members.set(this.origin.id, memberData!);
                 this.updateTourAssignments();
             }
         } else {
@@ -328,6 +332,4 @@ export class DragDropService {
             this.updateTourAssignments();
         }
     }
-
-    
 }
