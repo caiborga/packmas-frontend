@@ -28,11 +28,10 @@ export class AuthService {
     logout() {
         this.isAuthenticatedSubject.next(false);
         this.localStorageService.removeItem('key')
-        this.routerService.navigate(['/', 'register']);
+        this.routerService.navigate(['/', 'home']);
     }
 
     getGroupName() {
-        debugger
         let key = this.localStorageService.getItem('key')
         const data = {
             key: key

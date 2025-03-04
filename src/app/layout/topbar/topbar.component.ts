@@ -67,7 +67,8 @@ export class TopbarComponent {
     }
 
     getGroupName() {
-        this.tourService.get('group/' + this.group.key)
+        if ( this.group && this.group.key ) {
+            this.tourService.get('group/' + this.group.key)
             .toPromise()
             .then((response) => {
                 this.group.name = response.name
@@ -76,6 +77,7 @@ export class TopbarComponent {
             .catch((error) => {
                 console.error('getGroupName - error:', error);
             });
+        }
     }
 
     logout() {

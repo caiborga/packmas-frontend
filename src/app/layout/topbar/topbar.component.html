@@ -4,7 +4,7 @@
         <div class="divider divider-horizontal"></div>
         <a
             class="btn btn-ghost text-xl"
-            >{{ group.name }}</a
+            >{{ group.name ? group.name : '' }}</a
         >
         <div class="tooltip tooltip-bottom" data-tip="Gruppenlink in die Zwischenablage kopieren">
             <button class="btn btn-circle btn-sm" [cdkCopyToClipboard]="link" (click)="copyToClipboard()">
