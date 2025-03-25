@@ -3,9 +3,9 @@ import { AuthService } from '../../core/services/auth-service.service';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { LocalStorageService } from '../../core/services/local-storage.service';
-import { ApiService } from '../../core/services/api.service';
 import { FormsModule } from '@angular/forms';
 import { LayoutService } from '../../core/services/layout.service';
+import { ToursService } from '../../core/services/tours.service';
 
 @Component({
   selector: 'app-register',
@@ -26,7 +26,7 @@ export class RegisterComponent {
         private authService: AuthService,
         // private clipboard: Clipboard,
         private router: Router,
-        private apiService: ApiService,
+        private tourService: ToursService,
         private localStorage: LocalStorageService
     ) {}
 
@@ -40,7 +40,7 @@ export class RegisterComponent {
         let data = { 
             name: this.groupName
         }
-        this.apiService.post('register', data)
+        this.tourService.post('register', data)
         .toPromise()
         .then((response: any) => {
             console.log('registerGroup - success', response.message);

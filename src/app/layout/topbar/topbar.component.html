@@ -2,12 +2,12 @@
     <div class="flex-1">
         <a class="btn btn-ghost text-xl">PackMas</a>
         <div class="divider divider-horizontal"></div>
-        <a
-            class="btn btn-ghost text-xl"
-            >{{ group.name ? group.name : '' }}</a
-        >
-        <div class="tooltip tooltip-bottom" data-tip="Gruppenlink in die Zwischenablage kopieren">
-            <button class="btn btn-circle btn-sm" [cdkCopyToClipboard]="link" (click)="copyToClipboard()">
+        <a class="btn btn-ghost text-xl">{{ group.name ? group.name : "" }}</a>
+        <div class="tooltip tooltip-bottom" [attr.data-tip]="tooltipText">
+            <button
+                class="btn btn-circle btn-sm"
+                (click)="copyToClipboard()"
+            >
                 <mat-icon
                     aria-hidden="false"
                     aria-label="Example home icon"

@@ -1,12 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { backendUrl } from '../../../../environment';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ToursService {
-    private apiUrl: string = backendUrl + '/api';
+    private apiUrl: string = environment.backendUrl + '/api';
 
     constructor(private httpClient: HttpClient) {}
 

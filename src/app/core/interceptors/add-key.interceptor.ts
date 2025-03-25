@@ -1,10 +1,10 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { backendUrl } from '../../../../environment';
+import { environment } from '../../../environments/environment';
 
 export const addKeyInterceptor: HttpInterceptorFn = (req, next) => {
 
     //console.log("interceptor start", req)
-    if (req.url.startsWith( backendUrl + '/api/')) {
+    if (req.url.startsWith( environment.backendUrl + '/api/')) {
         // Den Wert aus dem Local Storage abrufen (ersetze 'meinSchlüssel' durch den tatsächlichen Schlüssel)
         const token = localStorage.getItem('key');
 

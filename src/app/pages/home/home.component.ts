@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { LocalStorageService } from '../../core/services/local-storage.service';
 import { AuthService } from '../../core/services/auth-service.service';
 import { ToursService } from '../../core/services/tours.service';
@@ -58,6 +59,11 @@ export class HomeComponent {
                     this.alertService.showAlertMessage({
                         type: 'success',
                         message: 'Login erfolgreich - Willkommen zurück!',
+                    });
+                } else { 
+                    this.alertService.showAlertMessage({
+                        type: 'error',
+                        message: 'Gruppe existiert nicht - vielleicht vertippt?',
                     });
                 }
             } else if (this.groupIdFromStorage) {

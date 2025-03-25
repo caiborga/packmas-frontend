@@ -7,11 +7,11 @@ import { AuthService } from '../../core/services/auth-service.service';
 import { ToursService } from '../../core/services/tours.service';
 import { LocalStorageService } from '../../core/services/local-storage.service';
 import { AlertService } from '../../core/services/alert.service';
-import { frontendUrl } from '../../../../environment';
+import { environment } from '../../../environments/environment';
 
 interface Group {
-    key: string,
-    name: string
+    key: string;
+    name: string;
 }
 
 @Component({
@@ -22,61 +22,79 @@ interface Group {
     styleUrl: './topbar.component.scss',
 })
 export class TopbarComponent {
-
     group: Group = {
         key: '',
-        name: ''
-    }
+        name: '',
+    };
     isAuthenticated: boolean = false;
-    link: string = ''
+    link: string = '';
+    tooltipText = 'Gruppenlink in die Zwischenablage kopieren';
 
     private authSubscription: Subscription;
 
-    authService = inject(AuthService)
-    alertService = inject(AlertService)
-    clipboardService =  inject(ClipboardModule)
-    localStorageService = inject(LocalStorageService)
-    tourService = inject(ToursService)
+    authService = inject(AuthService);
+    alertService = inject(AlertService);
+    clipboardService = inject(ClipboardModule);
+    localStorageService = inject(LocalStorageService);
+    tourService = inject(ToursService);
 
     constructor() {
-        this.authSubscription = this.authService.isAuthenticated$.subscribe(
-            isAuthenticated => {
-                this.isAuthenticated = isAuthenticated;
-                if (this.isAuthenticated) {
-                    this.group.key = this.localStorageService.getItem('key')!
-                    this.getGroupName()
+        this.group.key = this.localStorageService.getItem('key')!;
+        if (this.group.key) {
+            this.link = `${environment.frontendUrl}/#/home/${this.group.key}/`;
+            this.getGroupName();
+        }
+    
+        this.authSubscription = this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
+            this.isAuthenticated = isAuthenticated;
+            if (this.isAuthenticated) {
+                // Sicherstellen, dass key nicht leer ist
+                if (!this.group.key) {
+                    this.group.key = this.localStorageService.getItem('key')!;
+                    this.link = `${environment.frontendUrl}/#/home/${this.group.key}/`;
+                    this.getGroupName();
                 }
             }
-        );
-    }
-
-    ngOnInit() {
-        this.group.key = this.localStorageService.getItem('key')!
-        if (this.group.key) {
-            this.isAuthenticated = true
-            this.link = `${frontendUrl}${this.group.key}/`
-            this.getGroupName()
-        }
-    }
-
-    copyToClipboard() {
-        this.alertService.showAlertMessage({
-            type: 'success',
-            message: 'Link wurde in die Zwischenablage kopiert!',
         });
     }
 
-    getGroupName() {
-        if ( this.group && this.group.key ) {
-            this.tourService.get('group/' + this.group.key)
-            .toPromise()
-            .then((response) => {
-                this.group.name = response.name
-                console.log('getGroupName - success:', response);
+    copyToClipboard() {
+        navigator.clipboard
+            .writeText(this.link)
+            .then(() => {
+                this.alertService.showAlertMessage({
+                    type: 'success',
+                    message: 'Link wurde in die Zwischenablage kopiert!',
+                });
+                this.tooltipText = 'Kopiert!';
+                setTimeout(() => {
+                    this.tooltipText = 'Gruppenlink in die Zwischenablage kopieren';
+                }, 2000);
             })
-            .catch((error) => {
-                console.error('getGroupName - error:', error);
+            .catch(() => {
+                this.alertService.showAlertMessage({
+                    type: 'error',
+                    message: 'Fehler beim Kopieren des Links!',
+                });
+                this.tooltipText = 'Fehler beim Kopieren!';
+                setTimeout(() => {
+                    this.tooltipText = 'Gruppenlink in die Zwischenablage kopieren';
+                }, 2000);
             });
+    }
+
+    getGroupName() {
+        if (this.group && this.group.key) {
+            this.tourService
+                .get('group/' + this.group.key)
+                .toPromise()
+                .then((response) => {
+                    this.group.name = response.name;
+                    console.log('getGroupName - success:', response);
+                })
+                .catch((error) => {
+                    console.error('getGroupName - error:', error);
+                });
         }
     }
 
