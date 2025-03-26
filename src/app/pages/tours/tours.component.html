@@ -35,49 +35,54 @@
         @if(loadingData){
         <span class="loading loading-spinner text-primary"></span>
         } 
-        @else { @if(tours.length > 0) {
-        <!-- <div class="flex items-center gap-2">
-            <label
-                class="input input-bordered rounded-2xl flex items-center"
-            >
-                <input
-                    #searchBox
-                    type="text"
-                    class="grow"
-                    placeholder="Tour suchen"
-                    (input)="onSearchChange($event)"
+        @else { 
+            @if(tours.length > 0) {
+            <!-- <div class="flex items-center gap-2">
+                <label
+                    class="input input-bordered rounded-2xl flex items-center"
+                >
+                    <input
+                        #searchBox
+                        type="text"
+                        class="grow"
+                        placeholder="Tour suchen"
+                        (input)="onSearchChange($event)"
+                    />
+                    @if(loadingData){
+                    <span class="loading loading-ring loading-sm"></span>
+                    } @else {
+                    <mat-icon
+                        aria-hidden="false"
+                        aria-label="Example home icon"
+                        fontIcon="search"
+                    ></mat-icon>
+                    }
+                </label>
+                <p-datepicker
+                    [iconDisplay]="'input'"
+                    [showIcon]="true"
+                    inputId="icondisplay"
+                    class="rounded-2xl "
                 />
-                @if(loadingData){
-                <span class="loading loading-ring loading-sm"></span>
-                } @else {
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Example home icon"
-                    fontIcon="search"
-                ></mat-icon>
+                <p-datepicker
+                    [iconDisplay]="'input'"
+                    [showIcon]="true"
+                    inputId="icondisplay"
+                />
+            </div> -->
+            <div [@tourCardsAnimation] class="flex flex-wrap gap-4 m-4">
+                @for(tour of tours; track tour){
+                <app-tour-card
+                    [tour]="tour"
+                    (onDelete)="showDeleteModal($event)"
+                ></app-tour-card>
                 }
-            </label>
-            <p-datepicker
-                [iconDisplay]="'input'"
-                [showIcon]="true"
-                inputId="icondisplay"
-                class="rounded-2xl "
-            />
-            <p-datepicker
-                [iconDisplay]="'input'"
-                [showIcon]="true"
-                inputId="icondisplay"
-            />
-        </div> -->
-        <div [@tourCardsAnimation] class="flex flex-wrap gap-4 m-4">
-            @for(tour of tours; track tour){
-            <app-tour-card
-                [tour]="tour"
-                (onDelete)="showDeleteModal($event)"
-            ></app-tour-card>
+            </div>
+            } 
+            @else {
+                <div class=" text-base text-white">Bisher wurde keine Tour erstellt</div>
             }
-        </div>
-        } }
+        }
 
         <div
             class="fixed bottom-16 left-1/2 transform -translate-x-1/2 z-10"

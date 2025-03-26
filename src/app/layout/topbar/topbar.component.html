@@ -1,8 +1,15 @@
 <div class="navbar bg-base-100">
     <div class="flex-1">
-        <a class="btn btn-ghost text-xl">PackMas</a>
+        <div class="flex justify-center items-center">
+            <img
+                src="/assets/packmas-icon.png"
+                alt="Logo"
+                class="w-10 h-auto"
+            />
+        </div>
+        <a class="text-xl p-2">Pack Ma's</a>
         <div class="divider divider-horizontal"></div>
-        <a class="btn btn-ghost text-xl">{{ group.name ? group.name : "" }}</a>
+        <a class="text-xl font-bold p-2">{{ group.name ? group.name : "" }}</a>
         <div class="tooltip tooltip-bottom" [attr.data-tip]="tooltipText">
             <button
                 class="btn btn-circle btn-sm"

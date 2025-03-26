@@ -1,23 +1,36 @@
-<!--flex-col  items-center relative -->
-<div class="flex flex-col justify-center items-center h-full"> 
+<div class="flex flex-col justify-center items-center h-full">
     <div class="card bg-base-100 max-w-sm shrink-0 shadow-2xl">
         <form class="card-body">
+            <div class="flex justify-center items-center">
+                <img
+                    src="/assets/packmaswbg.png"
+                    alt="Logo"
+                    class="w-32 h-auto"
+                />
+            </div>
+            <p class="pb-2 text-center">
+                Gruppe erstellen und Link mit allen Mitstreitern teilen
+            </p>
             <div class="form-control">
                 <label class="label">
                     <span class="label-text">Gruppenname</span>
                 </label>
                 <input
+                    #groupNameInput
                     type="text"
                     placeholder="Die Woodys"
                     class="input input-bordered"
                     [(ngModel)]="groupName"
                     name="groupName"
-                    required
                 />
             </div>
             <div class="form-control mt-1">
-                <button class="btn btn-primary" (click)="registerGroup()">
-                    Neue Gruppe erstellen
+                <button
+                    class="btn btn-primary"
+                    (click)="registerGroup()"
+                    [disabled]="!groupNameInput.value"
+                >
+                    Neue Gruppe erstellens
                 </button>
             </div>
         </form>
