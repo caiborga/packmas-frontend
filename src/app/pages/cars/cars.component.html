@@ -243,22 +243,6 @@
                 [formGroup]="carForm"
                 class="w-full max-w-lg mx-auto flex flex-col gap-2"
             >
-                <!-- NAME -->
-                <div class="form-control">
-                    <label class="label"
-                        ><span class="font-bold text-sm">Name</span></label
-                    >
-                    <label
-                        class="input input-bordered flex items-center gap-2 h-9 py-1"
-                    >
-                        <input
-                            formControlName="name"
-                            type="text"
-                            class="grow text-sm h-full"
-                        />
-                    </label>
-                </div>
-
                 <!-- DRIVER -->
                 <div class="form-control">
                     <label class="label">
@@ -287,14 +271,14 @@
                     <div
                         class="input input-bordered flex items-center gap-2 h-9 p-1"
                     >
-                        <p-select
-                            [options]="drivers"
-                            [editable]="true"
-                            (onChange)="onSearchDriverChange($event)"
-                            class="w-full text-sm"
+                        <p-autoComplete
                             formControlName="driver"
-                            optionLabel="name"
-                            optionValue="id"
+                            [suggestions]="drivers"
+                            [forceSelection]="true"
+                            (completeMethod)="onSearchDriverChange($event)"
+                            (onSelect)="onSelectDriver($event)"
+                            field="name"
+                            placeholder="Fahrer suchen"
                         >
                             <ng-template let-member #item>
                                 <div class="flex items-center gap-2 w-full">
@@ -315,8 +299,24 @@
                                     </div>
                                 </div>
                             </ng-template>
-                        </p-select>
+                        </p-autoComplete>
                     </div>
+                </div>
+
+                <!-- NAME -->
+                <div class="form-control">
+                    <label class="label"
+                        ><span class="font-bold text-sm">Name</span></label
+                    >
+                    <label
+                        class="input input-bordered flex items-center gap-2 h-9 py-1"
+                    >
+                        <input
+                            formControlName="name"
+                            type="text"
+                            class="grow text-sm h-full"
+                        />
+                    </label>
                 </div>
 
                 <!-- SEATS -->

@@ -1,10 +1,5 @@
 import { Component, ElementRef, inject, model, ViewChild } from '@angular/core';
-import {
-    FormGroup,
-    FormControl,
-    FormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormGroup, FormControl, FormsModule, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgClass, NgStyle } from '@angular/common';
@@ -23,31 +18,18 @@ import { PaginatorModule } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { Select, SelectChangeEvent } from 'primeng/select';
+import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { ToursService } from '../../core/services/tours.service';
 import { AlertService } from '../../core/services/alert.service';
 
 import { tableRowAnimation } from '../../core/animations/layout';
 import { Setting } from '../../core/models/setting';
-import { IconComponent } from "../../shared/icon/icon.component";
+import { IconComponent } from '../../shared/icon/icon.component';
 
 @Component({
     selector: 'app-cars',
     standalone: true,
-    imports: [
-    AsyncPipe,
-    ColorPickerModule,
-    FormsModule,
-    HeaderComponent,
-    MatIconModule,
-    NgClass,
-    NgStyle,
-    PaginatorModule,
-    ReactiveFormsModule,
-    RouterModule,
-    Select,
-    TableModule,
-    IconComponent
-],
+    imports: [AsyncPipe, ColorPickerModule, FormsModule, HeaderComponent, MatIconModule, NgClass, NgStyle, PaginatorModule, ReactiveFormsModule, RouterModule, Select, TableModule, IconComponent, AutoCompleteModule],
     templateUrl: './cars.component.html',
     styleUrl: './cars.component.scss',
     animations: [tableRowAnimation],
@@ -64,7 +46,7 @@ export class CarsComponent {
     cars: Car[] = [];
     carToDelete: Car = initializeCar();
     drivers: Member[] = [];
-    serverDrivers: Member[] =[];
+    serverDrivers: Member[] = [];
     serverBrands: Setting[] = [];
     editMode: boolean = false;
     loadingData: boolean = false;
@@ -89,27 +71,21 @@ export class CarsComponent {
     private searchBrandSubject = new Subject<string>();
 
     constructor() {
-        this.searchCarSubject
-            .pipe(debounceTime(300), distinctUntilChanged())
-            .subscribe((searchTerm) => {
-                this.loadingData = true;
-                this.carsPagination.filter = searchTerm;
-                this.getCars();
-            });
+        this.searchCarSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe((searchTerm) => {
+            this.loadingData = true;
+            this.carsPagination.filter = searchTerm;
+            this.getCars();
+        });
 
-        this.searchDriverSubject
-            .pipe(debounceTime(300), distinctUntilChanged())
-            .subscribe((searchTerm) => {
-                this.driverPagination.filter = searchTerm;
-                this.getMembers();
-            });
+        this.searchDriverSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe((searchTerm) => {
+            this.driverPagination.filter = searchTerm;
+            this.getMembers();
+        });
 
-        this.searchBrandSubject
-            .pipe(debounceTime(300), distinctUntilChanged())
-            .subscribe((searchTerm) => {
-                this.brandPagination.filter = searchTerm;
-                this.getBrands();
-            });
+        this.searchBrandSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe((searchTerm) => {
+            this.brandPagination.filter = searchTerm;
+            this.getBrands();
+        });
     }
 
     ngOnInit() {
@@ -126,7 +102,7 @@ export class CarsComponent {
             .get('settings/CAR_BRANDS', this.brandPagination)
             .toPromise()
             .then((response) => {
-                this.brands = response.data;
+                this.brands = response.settings;
                 console.log('getBrands - success', response);
             })
             .catch((error) => {
@@ -161,14 +137,12 @@ export class CarsComponent {
             errorMessages.push('Name ist erforderlich.');
         }
 
-        return errorMessages.length > 0
-            ? errorMessages.join(' | ')
-            : 'Formular enthält Fehler.';
+        return errorMessages.length > 0 ? errorMessages.join(' | ') : 'Formular enthält Fehler.';
     }
 
     getMembers() {
         this.tourService
-            .get('participants', this.driverPagination)
+            .get('members', this.driverPagination)
             .toPromise()
             .then((response) => {
                 this.drivers = response.participants;
@@ -181,28 +155,34 @@ export class CarsComponent {
             });
     }
 
-    onAddCar() {
+    async onAddCar() {
         this.loadingData = true;
-        this.tourService
-            .post('cars', this.carForm.value)
-            .toPromise()
-            .then((response) => {
-                console.log('addCar - success', response);
-                this.closeModal();
-                this.alertService.showAlertMessage({
-                    type: 'success',
-                    message: 'Neues Auto erfolgreich hinzugefügt',
-                });
-                this.getCars();
-            })
-            .catch((error) => {
-                this.loadingData = false;
-                this.alertService.showAlertMessage({
-                    type: 'error',
-                    message: 'Auto konnte nicht hinzugefügt werden',
-                });
-                console.error('addThing - error', error);
+
+        try {
+            const driver = this.carForm.get('driver')?.value;
+            const driverId = driver?.id;
+            const data = {
+                ...this.carForm.value,
+                driver: driverId,
+            };
+            const response = await this.tourService.post('cars', data).toPromise();
+
+            console.log('addCar - success', response);
+            this.closeModal();
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Neues Auto erfolgreich hinzugefügt',
             });
+            this.getCars();
+        } catch (error) {
+            console.error('addCar - error', error);
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Auto konnte nicht hinzugefügt werden',
+            });
+        } finally {
+            this.loadingData = false;
+        }
     }
 
     onDeleteCar() {
@@ -227,31 +207,48 @@ export class CarsComponent {
             });
     }
 
-    onEditCar() {
-        this.tourService
-            .put('cars/' + this.carForm.get('id')!.value, this.carForm.value)
-            .toPromise()
-            .then((response) => {
-                this.closeModal();
-                this.alertService.showAlertMessage({
-                    type: 'success',
-                    message: 'Änderung gespeichert',
-                });
-                this.getCars();
-                console.log('Edit car - success', response);
-            })
-            .catch((error) => {
-                this.alertService.showAlertMessage({
-                    type: 'error',
-                    message: 'Änderung konnte nicht gespeichert werden',
-                });
-                console.error('Edit car - error', error);
+    async onEditCar() {
+        const carId = this.carForm.get('id')?.value;
+
+        if (!carId) {
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Fahrzeug-ID fehlt. Änderung nicht möglich.',
             });
+            return;
+        }
+
+        const driver = this.carForm.get('driver')?.value;
+        const driverId = driver?.id;
+        const data = {
+            ...this.carForm.value,
+            driver: driverId,
+        };
+
+        try {
+            const response = await this.tourService.put(`cars/${carId}`, data).toPromise();
+
+            this.closeModal();
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Änderung gespeichert',
+            });
+            this.getCars();
+            console.log('Edit car - success', response);
+        } catch (error) {
+            console.error('Edit car - error', error);
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Änderung konnte nicht gespeichert werden',
+            });
+        }
     }
 
     editCar(car: Car) {
+        const driverObject = this.serverDrivers[car.driver];
         this.editMode = true;
         this.carForm.patchValue(car);
+        this.carForm.get('driver')?.setValue(driverObject);
         this.drawer.nativeElement.checked = true;
     }
 
@@ -260,14 +257,18 @@ export class CarsComponent {
         this.searchBrandSubject.next(input.value);
     }
 
-    onSearchDriverChange(event: SelectChangeEvent): void {
-        const input = event.value;
-        this.searchDriverSubject.next(input);
-    }
-
     onSearchCarChange(event: Event): void {
         const input = event.target as HTMLInputElement;
         this.searchCarSubject.next(input.value);
+    }
+
+    onSearchDriverChange(event: AutoCompleteCompleteEvent): void {
+        this.searchDriverSubject.next(event.query);
+    }
+
+    onSelectDriver(event: SelectChangeEvent) {
+        const name = event.value.name;
+        this.carForm.get('name')?.setValue(`${name}'s Auto`);
     }
 
     showDeleteModal(car: Car) {

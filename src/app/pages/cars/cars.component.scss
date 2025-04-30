@@ -32,6 +32,13 @@
     background: transparent !important;
 }
 
+:host ::ng-deep .p-inputtext{
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
 :host ::ng-deep .p-select-label{
     border: none !important;
     box-shadow: none !important;

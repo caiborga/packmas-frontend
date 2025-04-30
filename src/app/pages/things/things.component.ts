@@ -63,7 +63,7 @@ export class ThingsComponent {
     units: Setting[] = [];
     editMode: boolean = false;
     things: Thing[] = [];
-    thingToDelete: Thing = { category: '', name: '', id: 0, weight: 0 };
+    thingToDelete: Thing = { category: 0, name: '', id: 0, weight: 0 };
     loadingData: boolean = false;
     pagination: Pagination = { limit: 10, offset: 0, page: 1 };
     categoriesPagination: Pagination = { limit: 10, offset: 0, page: 1 };
@@ -72,10 +72,10 @@ export class ThingsComponent {
     selectedAvatar: Avatar = { fileName: 'default.jpg', id: '0' };
 
     thingForm = new FormGroup({
-        category: new FormControl<string>(''),
+        category: new FormControl<number>(0),
         id: new FormControl(),
         name: new FormControl<string>('', Validators.required),
-        unit: new FormControl<number>(1),
+        unit_id: new FormControl<number>(1),
         weight: new FormControl<number>(0, Validators.required),
     });
 
@@ -119,7 +119,7 @@ export class ThingsComponent {
             .get('settings/THING_CATEGORIES', this.categoriesPagination)
             .toPromise()
             .then((response) => {
-                this.categories = response.data;
+                this.categories = response.settings;
                 console.log('getCategories - success', response);
             })
             .catch((error) => {
@@ -132,7 +132,7 @@ export class ThingsComponent {
             .get('settings/THING_UNITS', this.unitsPagination)
             .toPromise()
             .then((response) => {
-                this.units = response.data;
+                this.units = response.settings;
                 console.log('getUnits - success', response);
             })
             .catch((error) => {
@@ -230,7 +230,7 @@ export class ThingsComponent {
             });
     }
 
-    onEditThing(thing: any) {
+    onEditThing(thing: Thing) {
         this.editMode = true;
         this.thingForm.patchValue(thing);
         this.drawer.nativeElement.checked = true;

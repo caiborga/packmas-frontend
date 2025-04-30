@@ -99,7 +99,7 @@ export class SettingsComponent {
             .toPromise()
             .then((response) => {
                 console.log('getSettingData - success', response);
-                this.serverData = response
+                this.serverData.data = response.settings
                 this.loadingData = false;
             })
             .catch((error) => {

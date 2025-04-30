@@ -9,6 +9,21 @@ export interface Car {
     model?: string
 }
 
+export interface TourCar {
+    id: number,
+    car_id: number,
+    created_at: string,
+    tour_id: number,
+}
+
+export interface TourCarMember {
+    id: number,
+    car_id: number,
+    created_at: string,
+    member_id: number,
+    tour_id: number,
+}
+
 export function initializeCar(overrides: Partial<Car> = {}): Car {
     return {
         id: -1,

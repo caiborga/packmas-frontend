@@ -42,9 +42,14 @@ export class AditTourComponent {
         dates: new FormControl<Date[] | undefined>([]),
         firstName: new FormControl(''),
         lastName: new FormControl(''),
+        tourMembers: new FormControl(0),
     });
     tour: Tour = initializeTour();
     tourID: number = 0;
+
+    tourMembersCount: number = 0;
+    tourCarsCount: number = 0;
+    tourThingsCount: number = 0;
 
     memberForm = new FormGroup({
         avatar: new FormControl(0),
@@ -76,45 +81,22 @@ export class AditTourComponent {
         });
     }
 
-    convertJsonToTourAssignments(json: any): TourAssignments {
-        return {
-            members: new Map<number, { car: number; things: number[] }>(
-                Object.entries(json.members).map(([key, value]) => [
-                    Number(key),
-                    value as { car: number; things: number[] }, // Explizite Typisierung
-                ])
-            ),
-            things: new Map<number, { member: number }>(
-                Object.entries(json.things).map(([key, value]) => [
-                    Number(key),
-                    value as { member: number }, // Explizite Typisierung
-                ])
-            ),
-            cars: new Map<number, { members: number[] }>(
-                Object.entries(json.cars).map(([key, value]) => [
-                    Number(key),
-                    value as { members: number[] }, // Explizite Typisierung
-                ])
-            ),
-        };
-    }
-
     getTourData(tourID: number) {
-        this.loading = true
+        this.loading = true;
         this.tourService
-            .get('tour/' + tourID)
+            .get('tours/' + tourID)
             .toPromise()
             .then((response) => {
-                console.log('getTourData - success', response.tour);
+                console.log('getTourData - success', response);
 
-                this.tour = response.tour;
-                if (this.tour.tour_assignments) {
-                    this.dragDropService.tourId = this.tour.id;
-                    this.dragDropService.setAssignments(this.tour.tour_assignments);
-                }
+                this.tour = response;
 
-                this.tourForm.controls.start.setValue(this.tour.tour_data.start);
-                this.tourForm.controls.end.setValue(this.tour.tour_data.end);
+                this.tourMembersCount = response.tourData.tourMembers.length;
+                this.tourCarsCount = response.tourData.tourCars.length;
+                this.tourThingsCount = response.tourData.tourThings.length;
+
+                this.tourForm.controls.start.setValue(this.tour.tourData.start);
+                this.tourForm.controls.end.setValue(this.tour.tourData.end);
                 this.loading = false;
             })
             .catch((error) => {
@@ -129,5 +111,17 @@ export class AditTourComponent {
 
     isAnyCardOpen(): boolean {
         return this.collapsedCards.some((state) => !state);
+    }
+
+    onTourThingsCountChange(count: number) {
+        this.tourThingsCount = count;
+    }
+
+    onTourMembersCountChange(count: number) {
+        this.tourMembersCount = count;
+    }
+
+    onTourCarsCountChange(count: number) {
+        this.tourCarsCount = count;
     }
 }

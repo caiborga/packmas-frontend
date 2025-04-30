@@ -1,12 +1,4 @@
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    inject,
-    Input,
-    Output,
-    ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
@@ -21,50 +13,33 @@ import { AutoComplete } from 'primeng/autocomplete';
 import { Pagination } from '../../../core/models/pagination';
 import { AlertService } from '../../../core/services/alert.service';
 import { ToursService } from '../../../core/services/tours.service';
-import { initializeThing, Thing } from '../../../core/models/thing';
+import { initializeThing, Thing, TourThing } from '../../../core/models/thing';
 import { Member } from '../../../core/models/member';
-import { initializeTourAssignments, TourAssignments, TourMembersObject, TourThingsObject } from '../../../core/models/tour';
-import { IconComponent } from "../../../shared/icon/icon.component";
+import { initializeTourAssignments, TourAssignments } from '../../../core/models/tour';
+import { IconComponent } from '../../../shared/icon/icon.component';
 import { WeightPipe } from '../../../core/pipes/customPipes';
+import { Setting } from '../../../core/models/setting';
 
 @Component({
     selector: 'app-tour-things',
     standalone: true,
-    imports: [
-    AutoComplete,
-    DragDropModule,
-    MatIconModule,
-    NgClass,
-    NgIf,
-    ReactiveFormsModule,
-    IconComponent,
-    WeightPipe
-],
+    imports: [AutoComplete, DragDropModule, MatIconModule, NgClass, NgIf, ReactiveFormsModule, IconComponent, WeightPipe],
     templateUrl: './tour-things.component.html',
     styleUrl: './tour-things.component.scss',
 })
 export class TourThingsComponent {
     @Input() tourID: number = 0;
-    @Input() members: TourMembersObject = {
-        ids: [],
-        data: []
-    }
-    @Input() things: TourThingsObject =  {
-        ids: [],
-        data: [],
-        totalWeight: 0
-    }
-    @Input () tourAssignments: TourAssignments = initializeTourAssignments();
-    
-    @Output() getData = new EventEmitter<boolean>();
-
+    @Output() tourThingsCount = new EventEmitter<number>();
     @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
     @ViewChild('deleteModal') deleteModal!: ElementRef<HTMLDialogElement>;
 
     editMode: boolean = false;
     loadingData: boolean = false;
     pagination: Pagination = { limit: 10, offset: 0, page: 1 };
-    searchedThings: Thing[] = [];
+    things: Thing[] = [];
+    tourThings: TourThing[] = [];
+    tourThingsData: Thing[] = [];
+    tourThingsCategories: Setting[] = [];
     thingToDelete: Thing = initializeThing();
 
     thingForm = new FormGroup({
@@ -81,42 +56,43 @@ export class TourThingsComponent {
     tourService = inject(ToursService);
 
     constructor() {
-        this.searchSubject
-            .pipe(debounceTime(300), distinctUntilChanged())
-            .subscribe((searchTerm) => {
-                // this.loadingData = true;
-                this.pagination.filter = searchTerm;
-                this.getThings();
-            });
+        this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe((searchTerm) => {
+            // this.loadingData = true;
+            this.pagination.filter = searchTerm;
+            this.getThings();
+        });
     }
 
-    hasAssignments(id: number){
+    ngOnInit() {
+        this.getTourThings();
+    }
+
+    hasAssignments(thing: TourThing) {
         const check: dragObject = {
-            id: id,
+            id: thing.id,
             type: 'THING',
-        }
-        return this.dragDropService.hasAssignments(check)
+        };
+        return this.dragDropService.hasAssignments(check);
     }
 
     getBearerAvatar(thing: number) {
-        const thingData = this.tourAssignments.things.get(thing)
-        let result = ''
-        if (thingData) {
-            const memberId = thingData.member
-            result = this.members.data[memberId].avatar
-        }
-        return result
+        // const thingData = this.tourAssignments.things.get(thing)
+        let result = '';
+        // if (thingData) {
+        //     const memberId = thingData.member
+        //     result = this.members.data[memberId].avatar
+        // }
+        return result;
     }
 
     getBearerName(thing: number) {
-        const thingData = this.tourAssignments.things.get(thing)
-        let result = 'Nicht zugewiesen'
-        if (thingData) {
-            const memberId = thingData.member
-            result = this.members.data[memberId].name
-            
-        }
-        return result
+        // const thingData = this.tourAssignments.things.get(thing);
+        let result = 'Nicht zugewiesen';
+        // if (thingData) {
+        //     const memberId = thingData.member;
+        //     result = this.members.data[memberId].name;
+        // }
+        return result;
     }
 
     getThings() {
@@ -125,10 +101,9 @@ export class TourThingsComponent {
             .get('things', this.pagination)
             .toPromise()
             .then((response) => {
-                this.searchedThings = response.things;
-                // this.loadingData = false;
+                this.things = response.things;
                 this.pagination = response.pagination;
-                console.log('getThings - success', this.things.ids);
+                console.log('getThings - success', this.things);
             })
             .catch((error) => {
                 // this.loadingData = false;
@@ -136,30 +111,62 @@ export class TourThingsComponent {
             });
     }
 
-    onAddThing(thing: Thing, searchBox?: AutoComplete) {
-        this.loadingData = true;
-        searchBox ? searchBox.clear() : '';
-        console.log('add Thing', thing.id);
-        this.things.ids.push(thing.id);
-        this.updateTourThings()
-            .then((result) => {
-                if (result.success) {
-                    this.loadingData = false;
-                    this.alertService.showAlertMessage({
-                        type: 'success',
-                        message: 'Gepäck erfolgreich hinzugefügt',
-                    });
-                } else {
-                    this.loadingData = false;
-                    this.alertService.showAlertMessage({
-                        type: 'error',
-                        message: 'Das hat leider nicht geklappt',
-                    });
-                }
+    getTourThings() {
+        //  this.loadingData = true;
+        const params = {
+            ...this.pagination,
+            tourId: this.tourID,
+        };
+        this.tourService
+            .get('tourThings', params)
+            .toPromise()
+            .then((response) => {
+                this.tourThings = response.tourThings;
+                this.tourThingsData = response.data.things;
+                this.tourThingsCategories = response.data.categories;
+                this.tourThingsCount.emit(this.tourThings.length)
+                this.pagination = response.pagination;
+                console.log('getTourThings - success', response);
             })
             .catch((error) => {
-                console.error('Unexpected error in onAddMember', error);
+                // this.loadingData = false;
+                console.error('getTourThings - error', error);
             });
+    }
+
+    async onAddThing(thing: Thing, searchBox?: AutoComplete) {
+        this.loadingData = true;
+
+        if (searchBox) {
+            searchBox.clear();
+        }
+
+        console.log('add Thing', thing.id);
+
+        const data = {
+            thing_id: thing.id,
+            tour_id: this.tourID,
+        };
+
+        try {
+            const response = await this.tourService.post('tourThings', data).toPromise();
+            console.log('onAddThing - success', response);
+
+            await this.getTourThings();
+
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Gepäck erfolgreich hinzugefügt',
+            });
+        } catch (error) {
+            console.error('onAddThing - error', error);
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Das hat leider nicht geklappt',
+            });
+        } finally {
+            this.loadingData = false;
+        }
     }
 
     onCreateThing() {
@@ -186,34 +193,33 @@ export class TourThingsComponent {
             });
     }
 
-    onDragElement(thing: number) {
-        const drag: dragObject= {
-            id: thing,
-            type: "THING"
-        }
+    onDragElement(thing: TourThing) {
+        const drag: dragObject = {
+            id: thing.id,
+            type: 'THING',
+        };
         this.dragDropService.origin = drag;
     }
 
-    onRemoveThing(thingId: number) {
-        console.log('remove Member', thingId);
-        this.things.ids = this.things.ids.filter((id) => id !== thingId);
-        this.updateTourThings()
-            .then((result) => {
-                if (result.success) {
-                    this.alertService.showAlertMessage({
-                        type: 'success',
-                        message: 'Teilnehmer erfolgreich entfernt',
-                    });
-                } else {
-                    this.alertService.showAlertMessage({
-                        type: 'error',
-                        message: 'Das hat leider nicht geklappt',
-                    });
-                }
-            })
-            .catch((error) => {
-                console.error('Unexpected error in onAddMember', error);
+    async onDeleteTourThing(thing: Thing) {
+        console.log('remove Thing', thing.id, 'from Tour', this.tourID);
+        try {
+            const response = await this.tourService.delete(`tourThings/${this.tourID}/${thing.id}`).toPromise();
+
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Gepäck erfolgreich entfernt',
             });
+            await this.getTourThings();
+            return { success: true, response };
+        } catch (error) {
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Das hat nicht geklappt',
+            });
+            console.error('onRemoveThing - error', error);
+            return { success: false, error };
+        }
     }
 
     onSearchChange(event: Event): void {
@@ -221,29 +227,10 @@ export class TourThingsComponent {
         this.searchSubject.next(input.value);
     }
 
-    showDeleteModal(thing: Thing) {
+    onShowDeleteModal(thing: Thing) {
         if (thing) {
             this.thingToDelete = thing;
             this.deleteModal.nativeElement.showModal();
         }
-    }
-
-    updateTourThings() {
-        const data = {
-            tourThings: JSON.stringify(this.things.ids),
-        };
-
-        return this.tourService
-            .put('tour/' + this.tourID + '/things', data)
-            .toPromise()
-            .then((response) => {
-                this.getData.emit();
-                console.log('updateTourThings - success', response);
-                return { success: true, response }; // Erfolg zurückgeben
-            })
-            .catch((error) => {
-                console.error('updateTourThings - error', error);
-                return { success: false, error }; // Fehler zurückgeben
-            });
     }
 }

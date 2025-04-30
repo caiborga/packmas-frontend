@@ -1,7 +1,7 @@
 <app-header
-    [title]="tour.tour_data.name"
+    [title]="tour.tourData.destination"
     [subTitle]="'Das wird wild'"
-    [breadCrumbs]="['Tour', tour.tour_data.name]"
+    [breadCrumbs]="['Tour', tour.tourData.destination]"
 >
 </app-header>
 
@@ -37,36 +37,37 @@
                         <tr class="p-1">
                             <td>Start:</td>
                             <td>
-                                {{ tour.tour_data.start | date : "dd.MM.yyyy" }}
+                                {{ tour.tourData.start | date : "dd.MM.yyyy" }}
                             </td>
                         </tr>
                         <!-- END -->
                         <tr class="p-1">
                             <td>Ende:</td>
                             <td>
-                                {{ tour.tour_data.end | date : "dd.MM.yyyy" }}
+                                {{ tour.tourData.end | date : "dd.MM.yyyy" }}
                             </td>
                         </tr>
-                        <!-- row 2 -->
+                        <!-- MEMBERS -->
                         <tr>
                             <td>Teilnehmer:</td>
-                            <td>{{ tour.tour_members.ids.length }}</td>
-                        </tr>
-                        <!-- THINGS -->
-                        <tr>
-                            <td>Gepäck:</td>
-                            <td>{{ tour.tour_things.ids.length }}</td>
-                        </tr>
-                        <!-- WEIGHT -->
-                        <tr>
-                            <td>Gewicht:</td>
-                            <td>{{ tour.tour_things.totalWeight | weight }}</td>
+                            <td>{{ tourMembersCount }}</td>
                         </tr>
                         <!-- CARS -->
                         <tr>
                             <td>Autos:</td>
-                            <td>{{ tour.tour_cars.ids.length }}</td>
+                            <td>{{ tourCarsCount }}</td>
                         </tr>
+                        <!-- THINGS -->
+                        <tr>
+                            <td>Gepäck:</td>
+                            <td>{{ tourThingsCount }}</td>
+                        </tr>
+                        <!-- WEIGHT -->
+                        <tr>
+                            <td>Gewicht:</td>
+                            <td>{{ tour.tourData.tourThingsWeight | weight }}</td>
+                        </tr>
+                        
                     </tbody>
                 </table>
                 <!-- Bild -->
@@ -89,7 +90,7 @@
             collapsedCards[i] ? 'w-12 order-last flex-shrink-0' : 'flex-grow'
         "
     >
-        <!-- Card Header -->
+        <!-- CARD HEADER -->
         <div
             class="card-header flex justify-between items-center p-2 bg-gray-200 rounded-t-2xl"
         >
@@ -102,21 +103,21 @@
                     @switch (i) { @case (0) {
                     <app-icon
                         [type]="'NUMBER'"
-                        [number]="tour.tour_members.ids.length"
+                        [number]="tourMembersCount"
                     >
                     </app-icon>
                     } @case (1) {
                     <app-icon
                         [type]="'NUMBER'"
-                        [number]="tour.tour_things.ids.length"
+                        [number]="tourThingsCount"
                     >
                     </app-icon>
                     <div class="divider divider-horizontal"></div>
-                    <span>{{ tour.tour_things.totalWeight | weight }} </span>
+                    <span>{{ tour.tourData.tourThingsWeight | weight }} </span>
                     } @case (2) {
                     <app-icon
                         [type]="'NUMBER'"
-                        [number]="tour.tour_cars.ids.length"
+                        [number]="tourCarsCount"
                     >
                     </app-icon>
                     } @default { Defaultcase. } }
@@ -136,41 +137,29 @@
                 ></mat-icon>
             </button>
         </div>
-        <!-- Card Body -->
+        <!-- CARD BODY -->
         <div class="card-body p-4">
             <div *ngIf="!collapsedCards[i]" class="card-body p-4">
-                @switch (i) { @case (0) {
-                <app-tour-members
-                    [tourID]="tour.id"
-                    [tourAssignments]="
-                        convertJsonToTourAssignments(tour.tour_assignments)
-                    "
-                    [cars]="tour.tour_cars"
-                    [members]="tour.tour_members"
-                    [things]="tour.tour_things"
-                    (getData)="getTourData(tourID)"
-                ></app-tour-members>
-                } @case (1) {
-                <app-tour-things
-                    [tourID]="tour.id"
-                    [tourAssignments]="
-                        convertJsonToTourAssignments(tour.tour_assignments)
-                    "
-                    [members]="tour.tour_members"
-                    [things]="tour.tour_things"
-                    (getData)="getTourData(tourID)"
-                ></app-tour-things>
-                } @case (2) {
-                <app-tour-cars
-                    [tourID]="tour.id"
-                    [tourAssignments]="
-                        convertJsonToTourAssignments(tour.tour_assignments)
-                    "
-                    [members]="tour.tour_members"
-                    [cars]="tour.tour_cars"
-                    (getData)="getTourData(tourID)"
-                ></app-tour-cars>
-                } @default { Defaultcase. } }
+                @switch (i) { 
+                    <!-- MEMBERS -->
+                    @case (0) {
+                    <app-tour-members
+                        [tourID]="tour.id"
+                        (tourMembersCount)="onTourMembersCountChange($event)"
+                    ></app-tour-members>
+                    <!-- THINGS -->
+                    } @case (1) {
+                    <app-tour-things
+                        [tourID]="tour.id"
+                        (tourThingsCount)="onTourThingsCountChange($event)"
+                    ></app-tour-things>
+                    <!-- CARS -->
+                    } @case (2) {
+                    <app-tour-cars
+                        [tourID]="tour.id"
+                        (tourCarsCount)="onTourCarsCountChange($event)"
+                    ></app-tour-cars>
+                    } @default { Defaultcase. } }
             </div>
             <div
                 *ngIf="collapsedCards[i]"
@@ -178,15 +167,15 @@
             >
                 @switch (i) { @case (0) {
                 <div class="badge badge-primary">
-                    {{ tour.tour_members.ids.length }}
+                    {{ tour.tourData.tourMembers.length }}
                 </div>
                 } @case (1) {
                 <div class="badge badge-secondary">
-                    {{ tour.tour_things.ids.length }}
+                    {{ tour.tourData.tourThings.length }}
                 </div>
                 } @case (2) {
                 <div class="badge badge-accent">
-                    {{ tour.tour_cars.ids.length }}
+                    {{ tour.tourData.tourCars.length }}
                 </div>
                 } @default { Defaultcase. } }
             </div>

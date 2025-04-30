@@ -1,27 +1,16 @@
+import { Car } from './car';
 import { Member } from './member';
 import { Thing } from './thing';
 
 export interface TourData {
+    id: number;
     destination: string;
     start: string;
     end: string;
-    name: string;
-}
-
-export interface TourCarsObject {
-    ids: number[];
-    data: any[];
-}
-
-export interface TourThingsObject {
-    ids: number[];
-    data: Thing[];
-    totalWeight: number
-}
-
-export interface TourMembersObject {
-    ids: number[];
-    data: Member[];
+    tourMembers: Member[];
+    tourThings: Thing[];
+    tourCars: Car[];
+    tourThingsWeight: number;
 }
 
 export interface TourAssignments {
@@ -32,45 +21,23 @@ export interface TourAssignments {
 
 export interface Tour {
     id: number;
-    tour_data: TourData;
-    tour_cars: TourCarsObject;
-    tour_things: TourThingsObject;
-    tour_members: TourMembersObject;
-    tour_assignments: TourAssignments;
+    tourData: TourData;
 }
 
 export function initializeTour(overrides: Partial<Tour> = {}): Tour {
     return {
         id: 0,
-        tour_data: {
+        tourData: {
+            id: 0,
             destination: 'DESTINATION',
             start: 'START',
             end: 'END',
-            name: 'NAME',
-            ...overrides.tour_data,
-        },
-        tour_cars: {
-            ids: [],
-            data: []
-        },
-        
-        tour_things: {
-            ids: [],
-            data: [],
-            totalWeight: 0
-        },
-
-        tour_members: {
-            ids: [],
-            data: []
-        },
-
-        tour_assignments: {
-            members: new Map<number, { car: number; things: number[] }>(),
-            things: new Map<number, { member: number }>(),
-            cars: new Map<number, { members: number[] }>(),
-        },
-        ...overrides,
+            tourMembers: [],
+            tourThings: [],
+            tourCars: [],
+            tourThingsWeight: 0,
+            ...overrides.tourData,
+        }
     };
 }
 
@@ -89,10 +56,14 @@ export function initializeTourData(
     overrides: Partial<TourData> = {}
 ): TourData {
     return {
+        id: 0,
         destination: 'DESTINATION',
         start: 'START',
         end: 'END',
-        name: 'NAME',
+        tourMembers: [],
+        tourThings: [],
+        tourCars: [],
+        tourThingsWeight: 0,
         ...overrides,
     };
 }

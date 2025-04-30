@@ -7,6 +7,7 @@ import {
 } from '../../../core/models/tour';
 import { RouterModule } from '@angular/router';
 import { WeightPipe } from '../../../core/pipes/customPipes';
+import { Member } from '../../../core/models/member';
 
 @Component({
     selector: 'app-tour-card',
@@ -19,4 +20,12 @@ export class TourCardComponent {
     @Input() tour: Tour = initializeTour();
     @Input() loading: boolean = true;
     @Output() onDelete = new EventEmitter<Tour>();
+
+    ngOnInit() {
+        console.log('TourCardComponent - tour', this.tour )
+    }
+
+    getAvatar(member: Member) {
+        return 'assets/images/avatars/' + member.avatar + 'thumbnail.jpg'
+    }
 }

@@ -11,34 +11,39 @@
 
     <!-- CARD BODY -->
     <div class="card-body">
-        <h2 class="card-title">{{ tour.tour_data.name }}</h2>
+        <h2 class="card-title">{{ tour.tourData.destination }}</h2>
         <div class="overflow-x-auto">
             <table class="table table-xs">
                 <tbody>
-                     <!-- START -->
-                     <tr class="p-1">
+                    <!-- START -->
+                    <tr class="p-1">
                         <td>Start:</td>
-                        <td>{{ tour.tour_data.start | date:'dd.MM.yyyy'}}</td>
+                        <td>{{ tour.tourData.start | date : "dd.MM.yyyy" }}</td>
                     </tr>
                     <!-- END -->
                     <tr class="p-1">
                         <td>Ende:</td>
-                        <td>{{ tour.tour_data.end | date:'dd.MM.yyyy'}}</td>
+                        <td>{{ tour.tourData.end | date : "dd.MM.yyyy" }}</td>
                     </tr>
-                    <!-- PARTICIPANTS -->
+                    <!-- MEMBERS -->
                     <tr>
                         <td>Teilnehmer:</td>
-                        <td>{{tour.tour_members.ids.length}}</td>
+                        <td>{{ tour.tourData.tourMembers.length }}</td>
+                    </tr>
+                    <!-- CARS -->
+                    <tr>
+                        <td>Autos:</td>
+                        <td>{{ tour.tourData.tourCars.length }}</td>
                     </tr>
                     <!-- THINGS -->
                     <tr>
                         <td>Gepäck:</td>
-                        <td>{{tour.tour_things.ids.length}}</td>
+                        <td>{{ tour.tourData.tourThings.length }}</td>
                     </tr>
                     <!-- WEIGHT -->
                     <tr>
                         <td>Gewicht:</td>
-                        <td>{{tour.tour_things.totalWeight | weight}}</td>
+                        <td>{{ tour.tourData.tourThingsWeight | weight }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -47,18 +52,16 @@
     <!-- AVATAR GROUP -->
     <div
         class="avatar-group -space-x-4 rtl:space-x-reverse absolute pl-2"
-        style="top: calc(100% - 214px)"
+        style="top: calc(100% - 264px)"
     >
         <!-- class="avatar-group -space-x-6 rtl:space-x-reverse absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10"
         " -->
 
-        @for(member of tour.tour_members.ids; track member; let i = $index){
+        @for(member of tour.tourData.tourMembers; track member; let i = $index){
         @if(i < 4) {
         <div class="avatar">
             <div class="w-6">
-                <img
-                    [src]="'assets/images/avatars/' + tour.tour_members.data[member].id + 'thumbnail.jpg'"
-                />
+                <img [src]="getAvatar(member)" />
             </div>
         </div>
         } } @empty {
@@ -67,11 +70,11 @@
                 <span class="text-xs">0</span>
             </div>
         </div>
-        } @if (tour.tour_members.ids.length > 4) {
+        } @if (tour.tourData.tourMembers.length > 4) {
         <div class="avatar placeholder">
             <div class="bg-neutral text-neutral-content w-6">
                 <span class="text-xs"
-                    >+{{ tour.tour_members.ids.length - 4 }}</span
+                    >+{{ tour.tourData.tourMembers.length - 4 }}</span
                 >
             </div>
         </div>
@@ -81,7 +84,10 @@
     <div
         class="absolute bottom-0 left-0 right-0 bg-base-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex justify-center items-center p-2 gap-1 rounded-full"
     >
-        <button class="btn btn-primary btn-circle btn-xs" [routerLink]="['/', 'tour', tour.id]">
+        <button
+            class="btn btn-primary btn-circle btn-xs"
+            [routerLink]="['/', 'tour', tour.id]"
+        >
             <mat-icon
                 aria-hidden="false"
                 aria-label="Example home icon"
@@ -89,7 +95,10 @@
                 fontIcon="edit"
             ></mat-icon>
         </button>
-        <button class="btn btn-secondary btn-circle btn-xs" (click)="onDelete.emit(tour)">
+        <button
+            class="btn btn-secondary btn-circle btn-xs"
+            (click)="onDelete.emit(tour)"
+        >
             <mat-icon
                 aria-hidden="false"
                 aria-label="Example home icon"

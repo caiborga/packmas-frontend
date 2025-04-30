@@ -11,7 +11,7 @@
                 <div class="flex gap-1">
                     <button
                         class="btn btn-primary"
-                        (click)="onRemoveThing(thingToDelete.id)"
+                        (click)="onDeleteTourThing(thingToDelete)"
                     >
                         {{ thingToDelete.name }} braucht man eh nicht
                     </button>
@@ -28,7 +28,7 @@
     <div class="flex-grow">
         <p-autocomplete
             #thingSearch
-            [suggestions]="searchedThings"
+            [suggestions]="things"
             [forceSelection]="true"
             [placeholder]="'Gepäck suchen'"
             (input)="onSearchChange($event)"
@@ -37,17 +37,6 @@
         >
             <ng-template let-thing #item>
                 <div class="flex justify-start gap-2">
-                    <!-- <div class="avatar">
-                                    <div class="w-6 rounded-xl">
-                                        <img
-                                            [src]="
-                                                'assets/images/avatars/' +
-                                                member.avatar +
-                                                'thumbnail.jpg'
-                                            "
-                                        />
-                                    </div>
-                                </div> -->
                     <span class="text-sm">{{ thing.name }}</span>
                 </div>
             </ng-template>
@@ -69,12 +58,12 @@
     </button>
 </div>
 
-@for (thing of things.ids; track thing) {
-<progress
+@for (thing of tourThings; track thing) {
+<!-- <progress
     class="progress progress-success absolute top-12 left-0 w-full rounded-none"
     value="{{ tourAssignments.things.size }}"
     max="{{ things.ids.length }}"
-></progress>
+></progress> -->
 <details
     pDraggable
     (onDragStart)="onDragElement(thing)"
@@ -84,33 +73,33 @@
         <div class="flex justify-between">
             <!-- ICON -->
             <div class="flex justify-start space-x-2">
-                <app-icon [type]="'THING'" [name]="things.data[thing].name">
+                <app-icon [type]="'THING'" [name]="tourThingsData[thing.thing_id].name">
                 </app-icon>
-                <span class="text-sm">{{ things.data[thing].name }}</span>
+                <span class="text-sm">{{ tourThingsData[thing.thing_id].name }}</span>
                 <div class="divider divider-horizontal"></div>
                 <span class="text-sm">{{
-                    things.data[thing].weight | weight
+                    tourThingsData[thing.thing_id].weight | weight
                 }}</span>
                 <div class="divider divider-horizontal"></div>
                 <app-icon
                     [type]="'MEMBER'"
-                    [avatarNumber]="getBearerAvatar(thing)"
+                    [avatarNumber]="getBearerAvatar(thing.thing_id)"
                 >
                 </app-icon>
             </div>
             <!-- DELETE BUTTON -->
             <div class="flex justify-end space-x-1">
                 <div class="flex gap-1 relative z-10">
-                    <div
+                    <!-- <div
                         class="flex gap-1 relative z-10"
                         [ngClass]="
                             hasAssignments(thing) ? 'tooltip tooltip-left' : ''
                         "
                         data-tip="Besitzt Zuweisungen"
-                    >
+                    > -->
                         <button
                             class="btn btn-secondary btn-circle btn-xs"
-                            (click)="showDeleteModal(things.data[thing])"
+                            (click)="onShowDeleteModal(tourThingsData[thing.thing_id])"
                             [disabled]="hasAssignments(thing)"
                         >
                             <mat-icon
@@ -120,7 +109,7 @@
                                 fontIcon="delete"
                             ></mat-icon>
                         </button>
-                    </div>
+                    <!-- </div> -->
                 </div>
             </div>
         </div>
@@ -131,11 +120,11 @@
             <tbody>
                 <tr>
                     <td>Kategorie:</td>
-                    <td>{{ things.data[thing].category }}</td>
+                    <!-- <td>{{ tourThingsCategories[tourThingsData[thing.id].category].value }}</td> -->
                 </tr>
                 <tr>
                     <td>Gewicht:</td>
-                    <td>{{ things.data[thing].weight | weight }}</td>
+                    <!-- <td>{{ tourThingsData[thing.id].weight | weight }}</td> -->
                 </tr>
             </tbody>
         </table>

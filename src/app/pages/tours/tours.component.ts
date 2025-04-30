@@ -69,7 +69,6 @@ export class ToursComponent {
     tourForm = new FormGroup({
         destination: new FormControl(''),
         members: new FormControl<Member[]>([]),
-        name: new FormControl('', Validators.required),
         start: new FormControl('', Validators.required),
         end: new FormControl('', Validators.required),
     });
@@ -152,7 +151,7 @@ export class ToursComponent {
     getMembers() {
         this.loadingData = true;
         this.tourService
-            .get('participants')
+            .get('members')
             .toPromise()
             .then((response) => {
                 this.allMembers = response.participants;
@@ -172,11 +171,6 @@ export class ToursComponent {
             .toPromise()
             .then((response) => {
                 this.tours = response.tours;
-                console.log('getTours raw - success:', this.tours);
-                for (let tour in this.tours) {
-                    let tourData = response.tours[tour].tour_data;
-                    this.tours[tour].tour_data = tourData;
-                }
                 this.loadingData = false;
                 console.log('getTours - success:', this.tours);
             })
@@ -190,14 +184,7 @@ export class ToursComponent {
         this.loadingData = true;
         // Insert new members into assignments
         const tourAssignmentObject = initializeTourAssignments();
-        const members = this.tourForm.value.members;
-        let membersIds: number[] = [];
-        if ( members && members.length !== 0) {
-            for (let member of members) {
-                tourAssignmentObject.members.set(member.id, { car: -1, things: [] });
-            }
-            membersIds = members.map((member: any) => member.id);
-        }
+        
         // Collect start / end from form
         let range = this.tourForm.value.start
         if ( range ) {
@@ -208,13 +195,7 @@ export class ToursComponent {
             );
         }
 
-        const data = {
-            tourCars: JSON.stringify([]),
-            tourData: JSON.stringify(this.tourForm.value),
-            tourThings: JSON.stringify([]),
-            tourMembers: JSON.stringify(membersIds),
-            tourAssignments: JSON.stringify(this.convertTourAssignmentsToJson(tourAssignmentObject)),
-        };
+        const data = this.tourForm.value;
 
         this.tourService
             .post('tours', data)
@@ -280,19 +261,4 @@ export class ToursComponent {
     closeMenu(): void {
         this.isMenuOpen = false;
     }
-
-    // addParticipant(participant: any){
-    //     const index = this.newParticipants.indexOf(participant);
-    //     if (index === -1) {
-    //     console.log("index",index)
-    //         let newParticipantObject: any = {};
-    //         newParticipantObject = {
-    //             id: participant.item.id,
-    //             start: this.tourForm.get('start')!.value,
-    //             end: this.tourForm.get('end')!.value,
-    //         };
-    //         this.newParticipants.push(newParticipantObject);
-    //         console.log(this.newParticipants)
-    //     }
-    // }
 }

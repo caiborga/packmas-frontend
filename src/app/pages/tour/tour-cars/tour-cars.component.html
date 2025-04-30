@@ -28,7 +28,7 @@
     <div class="flex-grow">
         <p-autocomplete
             #carSearch
-            [suggestions]="searchedCars"
+            [suggestions]="cars"
             [forceSelection]="true"
             [placeholder]="'Auto suchen'"
             (input)="onSearchChange($event)"
@@ -42,7 +42,7 @@
             </ng-template>
         </p-autocomplete>
     </div>
-    <!-- ADD THING -->
+    <!-- ADD CAR -->
     <button
         class="btn btn-sm btn-circle btn-primary"
         (click)="onAddCar(carSearch.value, carSearch)"
@@ -57,13 +57,13 @@
     </button>
 </div>
 
-@for (car of cars.ids; track car) {
-<details pDroppable (onDrop)="onDropElement(car)" class="collapse bg-base-200">
+@for (car of tourCars; track car) {
+<details pDroppable (onDrop)="onAssignToCar(car.id)" class="collapse bg-base-200">
 
     <progress 
         class="progress progress-success absolute top-0 left-0 w-full"
-        value="{{ tourAssignments.cars.get(car)?.members?.length }}" 
-        max="{{ cars.data[car].seats }}">
+        value="{{ 2 }}" 
+        max="{{ tourCarsData[car.car_id].seats }}">
     </progress>
 
     <summary class="collapse-title text-xl font-medium">
@@ -72,16 +72,16 @@
             <div class="flex justify-start space-x-2">
                 <!-- ICON -->
                 <app-icon
-                    [backGroundcolor]="cars.data[car].color"
+                    [backGroundcolor]="tourCarsData[car.car_id].color!"
                     [type]="'CAR'"
-                    [name]="cars.data[car].name"
+                    [name]="tourCarsData[car.car_id].name"
                 >
                 </app-icon>
-                <span class="text-sm">{{ cars.data[car].name }}</span>
+                <span class="text-sm">{{ tourCarsData[car.car_id].name }}</span>
 
                 <div class="divider divider-horizontal"></div>
 
-                <div class="avatar-group -space-x-6">
+                <!-- <div class="avatar-group -space-x-6">
                     @for ( passenger of renderPassengerArray(car); track passenger ) {
                     <app-icon
                         [type]="'MEMBER'"
@@ -89,7 +89,7 @@
                     >
                     </app-icon>
                     }
-                </div>
+                </div> -->
             </div>
 
             <!-- DELETE BUTTON -->
@@ -100,7 +100,7 @@
             >
                 <button
                     class="btn btn-secondary btn-circle btn-xs"
-                    (click)="showDeleteModal(cars.data[car])"
+                    (click)="showDeleteModal(tourCarsData[car.car_id])"
                     [disabled]="hasAssignments(car)"
                 >
                     <mat-icon
@@ -114,13 +114,12 @@
         </div>
     </summary>
     <!-- PASSENGERS -->
-    <div class="collapse-content">
+    <!-- <div class="collapse-content">
         
         @for ( passenger of renderPassengerArray(car); track passenger ) {
 
         <div class="card bg-white align-middle ms-24">
             <div class="flex justify-between m-3">
-                <!-- ICON -->
                 <div class="flex justify-start space-x-2">
                     <app-icon
                         [type]="'MEMBER'"
@@ -128,8 +127,6 @@
                     >
                     </app-icon>
                     <span class="text-sm">{{ passenger.name }}</span>
-                    <!-- <div class="divider divider-horizontal"></div>
-                    <span class="text-sm">{{ burden.weight }} g</span> -->
                 </div>
                 
                 <div class="flex justify-end space-x-2">
@@ -149,7 +146,7 @@
             </div>
         </div>
         }
-    </div>
+    </div> -->
 </details>
 } @empty { Bisher wurde kein Auto hinzugefügt } } @else {
 <span class="loading loading-spinner text-secondary"></span>

@@ -3,15 +3,22 @@ import { Member } from "./member";
 export interface Thing {
     id: number,
     bearer?: number,
-    category: string,
+    category: number,
     name: string,
     weight: number,
+}
+
+export interface TourThing {
+    id: number,
+    created_at: string,
+    thing_id: number,
+    tour_id: number,
 }
 
 export function initializeThing(): Thing {
     return {
         id: 0,
-        category: 'CATEGORY',
+        category: 0,
         name: 'NAME',
         weight: 0
     };

@@ -1,5 +1,5 @@
 import { Component, inject, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { JsonPipe, NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -7,42 +7,35 @@ import { AutoComplete } from 'primeng/autocomplete';
 import { DragDropModule } from 'primeng/dragdrop';
 
 import { DragDropService, dragObject } from '../../../core/services/drag-drop.service';
-import { Car, initializeCar } from '../../../core/models/car';
-import { initializeTourAssignments, TourAssignments, TourCarsObject, TourMembersObject } from '../../../core/models/tour';
+import { Car, initializeCar, TourCar, TourCarMember } from '../../../core/models/car';
+import { initializeTourAssignments, TourAssignments } from '../../../core/models/tour';
 import { AlertService } from '../../../core/services/alert.service';
 import { ToursService } from '../../../core/services/tours.service';
 import { Pagination } from '../../../core/models/pagination';
 import { Member } from '../../../core/models/member';
-import { IconComponent } from "../../../shared/icon/icon.component";
+import { IconComponent } from '../../../shared/icon/icon.component';
 
 @Component({
     selector: 'app-tour-cars',
     standalone: true,
-    imports: [AutoComplete, DragDropModule, MatIconModule, NgClass, IconComponent],
+    imports: [AutoComplete, DragDropModule, JsonPipe, MatIconModule, NgClass, IconComponent],
     templateUrl: './tour-cars.component.html',
     styleUrl: './tour-cars.component.scss',
 })
 export class TourCarsComponent {
     @Input() tourID: number = 0;
-    @Input() members: TourMembersObject = {
-        ids: [],
-        data: [],
-    };
-    @Input() cars: TourCarsObject = {
-        ids: [],
-        data: [],
-    };
-    @Input () tourAssignments: TourAssignments = initializeTourAssignments();
-    
-    @Output() getData = new EventEmitter<boolean>();
-
+    @Output() tourCarsCount = new EventEmitter<number>()
     @ViewChild('deleteModal') deleteModal!: ElementRef<HTMLDialogElement>;
-    
 
+    cars: Car[] = [];
+    tourCars: TourCar[] = [];
+    tourCarsData: Car[] = [];
+    tourCarsMembers: TourCarMember[] = [];
+    tourCarsMembersData = [];
     carToDelete: Car = initializeCar();
     droppedItems: string[] = [];
     loadingData: boolean = false;
-    pagination: Pagination = { limit: 10, offset: 0, page: 1 };
+    pagination: Pagination = { limit: 10, offset: 0, page: 1, filter: '' };
     searchedCars: Car[] = [];
 
     private searchSubject = new Subject<string>();
@@ -58,16 +51,22 @@ export class TourCarsComponent {
             this.getCars();
         });
     }
+
+    ngOnInit() {
+        this.getTourCars();
+        this.getTourCarsMembers();
+    }
+
     getCars() {
         // this.loadingData = true;
         this.tourService
             .get('cars', this.pagination)
             .toPromise()
             .then((response) => {
-                this.searchedCars = response.cars;
+                this.cars = response.cars;
                 // this.loadingData = false;
                 this.pagination = response.pagination;
-                console.log('getCars - success', this.cars.ids);
+                console.log('getCars - success', this.cars);
             })
             .catch((error) => {
                 // this.loadingData = false;
@@ -75,71 +74,150 @@ export class TourCarsComponent {
             });
     }
 
-    hasAssignments(id: number){
-        const check: dragObject = {
-            id: id,
-            type: 'CAR',
-        }
-        return this.dragDropService.hasAssignments(check)
-    }
-
-    onAddCar(car: Car, searchBox?: AutoComplete) {
-        this.loadingData = true;
-        searchBox ? searchBox.clear() : '';
-        console.log('add Car', car.id);
-        this.cars.ids.push(car.id);
-        this.updateTourCars()
-            .then((result) => {
-                if (result.success) {
-                    this.loadingData = false;
-                    this.alertService.showAlertMessage({
-                        type: 'success',
-                        message: 'Auto erfolgreich hinzugefügt',
-                    });
-                } else {
-                    this.loadingData = false;
-                    this.alertService.showAlertMessage({
-                        type: 'error',
-                        message: 'Das hat leider nicht geklappt',
-                    });
-                }
+    getTourCars() {
+        //  this.loadingData = true;
+        const params = {
+            ...this.pagination,
+            tourId: this.tourID,
+        };
+        this.tourService
+            .get('tourCars', params)
+            .toPromise()
+            .then((response) => {
+                this.tourCars = response.tourCars;
+                this.tourCarsData = response.data.cars;
+                this.tourCarsCount.emit(this.tourCars.length)
+                this.pagination = response.pagination;
+                console.log('getTourCars - success', response);
             })
             .catch((error) => {
-                console.error('Unexpected error in onAddCar', error);
+                // this.loadingData = false;
+                console.error('getTourCars - error', error);
             });
+    }
+
+    getTourCarsMembers() {
+        //  this.loadingData = true;
+        const params = {
+            ...this.pagination,
+            tourId: this.tourID,
+        };
+        this.tourService
+            .get(`tourCarMembers/${this.tourID}`)
+            .toPromise()
+            .then((response) => {
+                this.tourCarsMembers = response.tourCarMembers;
+                this.tourCarsMembersData = response.data.cars;
+                console.log('getTourCarsMembers - success', response);
+            })
+            .catch((error) => {
+                // this.loadingData = false;
+                console.error('getTourCarsMembers - error', error);
+            });
+    }
+
+    hasAssignments(car: TourCar) {
+        // const check: dragObject = {
+        //     id: id,
+        //     type: 'CAR',
+        // }
+        // return this.dragDropService.hasAssignments(check)
+        return false;
+    }
+
+    async onAddCar(car: Car, searchBox?: AutoComplete) {
+        this.loadingData = true;
+
+        if (searchBox) {
+            searchBox.clear();
+        }
+
+        console.log('add Car', car.id);
+
+        const data = {
+            car_id: car.id,
+            tour_id: this.tourID,
+        };
+
+        try {
+            const response = await this.tourService.post('tourCars', data).toPromise();
+            console.log('updateTourCars - success', response);
+
+            await this.getTourCars();
+
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Auto erfolgreich hinzugefügt',
+            });
+        } catch (error) {
+            console.error('updateTourCars - error', error);
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Das hat leider nicht geklappt',
+            });
+        } finally {
+            this.loadingData = false;
+        }
+    }
+
+    async onAddCarMember(car: Car, member: Member) {
+        this.loadingData = true;
+
+        console.log('add CarMember', car.id);
+
+        const data = {
+            car_id: car.id,
+            tour_id: this.tourID,
+            member_id: member.id
+        };
+
+        try {
+            const response = await this.tourService.post('tourCarMembers', data).toPromise();
+            console.log('updateTourCars - success', response);
+
+            await this.getTourCarsMembers();
+
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Member erfolgreich hinzugefügt',
+            });
+        } catch (error) {
+            console.error('updateTourCars - error', error);
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Das hat leider nicht geklappt',
+            });
+        } finally {
+            this.loadingData = false;
+        }
     }
 
     onDropElement(car: number) {
-        console.log('assignments', this.dragDropService.tourAssignmentObject);
-        console.log('tourId', this.dragDropService.tourId);
-
         this.dragDropService.target = {
             id: car,
             type: 'CAR',
-        }
+        };
         this.dragDropService.newAssignment();
     }
 
-    onRemoveCar(carId: number) {
-        console.log('remove Car', carId);
-        this.cars.ids = this.cars.ids.filter((id) => id !== carId);
-        this.updateTourCars()
-            .then((result) => {
-                if (result.success) {
-                    this.alertService.showAlertMessage({
-                        type: 'success',
-                        message: 'Teilnehmer erfolgreich entfernt',
-                    });
-                } else {
-                    this.alertService.showAlertMessage({
-                        type: 'error',
-                        message: 'Das hat leider nicht geklappt',
-                    });
-                }
-            })
-            .catch((error) => {
-                console.error('Unexpected error in onAddMember', error);
+    async onRemoveCar(carId: number) {
+
+        console.log('remove Car', carId, 'from Tour', this.tourID);
+        try {
+            const response = await this.tourService.delete(`tourCars/${this.tourID}/${carId}`).toPromise();
+
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Auto erfolgreich entfernt',
             });
+            console.log('removeCar - success', response);
+            await this.getTourCars();
+
+            return { success: true, response };
+        } catch (error) {
+            console.error('removeCar - error', error);
+            return { success: false, error };
+        }
     }
 
     onSearchChange(event: Event): void {
@@ -148,51 +226,28 @@ export class TourCarsComponent {
     }
 
     removeCarAssignment(passengerId: number) {
-        this.dragDropService.unassignMemberFromCar(passengerId)
+        this.dragDropService.unassignMemberFromCar(passengerId);
     }
 
-    renderPassengerArray(car: number) {
-        const carData = this.tourAssignments.cars.get(car)
-        let result: Member[] = [];
-        if ( carData ) {
-            for ( let passenger in carData.members ) {
-                result.push(this.members.data[carData.members[passenger]])
-            }
-        }
-        return result
-    }
+    // renderPassengerArray(car: number) {
+    //     const carData = this.tourAssignments.cars.get(car)
+    //     let result: Member[] = [];
+    //     if ( carData ) {
+    //         for ( let passenger in carData.members ) {
+    //             result.push(this.members.data[carData.members[passenger]])
+    //         }
+    //     }
+    //     return result
+    // }
 
     showDeleteModal(car: Car) {
-            if (car) {
-                this.carToDelete = car;
-                this.deleteModal.nativeElement.showModal();
-            }
+        if (car) {
+            this.carToDelete = car;
+            this.deleteModal.nativeElement.showModal();
         }
-
-    updateTourCars() {
-        const data = {
-            tourCars: JSON.stringify(this.cars.ids),
-        };
-
-        return this.tourService
-            .put('tour/' + this.tourID + '/cars', data)
-            .toPromise()
-            .then((response) => {
-                this.getData.emit();
-                console.log('updateTourCars - success', response);
-                return { success: true, response }; // Erfolg zurückgeben
-            })
-            .catch((error) => {
-                console.error('updateTourCars - error', error);
-                return { success: false, error }; // Fehler zurückgeben
-            });
     }
 
-    onDrop() {
-        // const item = this.dragDropService.sharedData;
-        // if (item) {
-        //     this.droppedItems.push(item);
-        //     this.dragDropService.sharedData = null;
-        // }
+    onAssignToCar(carId: number) {
+        const origin = this.dragDropService.origin;
     }
 }

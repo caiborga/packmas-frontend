@@ -86,17 +86,18 @@ export class MembersComponent {
     getMembers() {
         this.loadingData = true;
         this.tourService
-            .get('participants', this.pagination)
+            .get('members', this.pagination)
             .toPromise()
             .then((response) => {
                 this.members = response.participants;
                 this.loadingData = false;
                 this.pagination = response.pagination;
-                console.log('getMmembers - success', this.members);
+                console.log('getMembers - success', this.members);
             })
             .catch((error) => {
                 this.loadingData = false;
-                console.error('getMmembers - error', error);
+                this.members = [];
+                console.error('getMembers - error', error);
             });
     }
 
@@ -134,10 +135,10 @@ export class MembersComponent {
         this.memberForm.get('avatar')?.setValue(this.selectedAvatar.id);
         this.loadingData = true;
         this.tourService
-            .post('participants', this.memberForm.value)
+            .post('members', this.memberForm.value)
             .toPromise()
             .then((response) => {
-                console.log('addParticipant - success', response);
+                console.log('addMember - success', response);
                 this.drawer.nativeElement.checked = false;
                 this.alertService.showAlertMessage({
                     type: 'success',
@@ -164,7 +165,7 @@ export class MembersComponent {
 
     deleteMember(id: number) {
         this.tourService
-            .delete('participants/' + id)
+            .delete('members/' + id)
             .toPromise()
             .then((response) => {
                 this.getMembers();
@@ -202,7 +203,7 @@ export class MembersComponent {
         console.log(this.memberForm);
         this.tourService
             .put(
-                'participants/' + this.memberForm.get('id')!.value,
+                'members/' + this.memberForm.get('id')!.value,
                 this.memberForm.value
             )
             .toPromise()
