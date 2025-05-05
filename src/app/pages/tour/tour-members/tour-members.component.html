@@ -75,7 +75,7 @@
     pDroppable
     class="collapse bg-base-200"
     (onDrag)="onDragElement(member)"
-    (onDrop)="onDropElement(member)"
+    (onDrop)="onDropElement(member.member_id)"
 >
     <!-- INFO -->
     <summary class="collapse-title text-xl font-medium">
@@ -87,23 +87,31 @@
                     [avatarNumber]="tourMembersData[member.member_id].avatar"
                 >
                 </app-icon>
-                <span class="text-sm">{{ tourMembersData[member.member_id].name }}</span>
+                <span class="text-sm">{{
+                    tourMembersData[member.member_id].name
+                }}</span>
 
                 <div class="divider divider-horizontal"></div>
 
-                <!-- <span class="text-sm">{{ renderBurdenArray(member).totalWeight | weight }}</span> -->
+                <span class="text-sm">{{
+                    getTourMemberWeight(member.member_id) | weight
+                }}</span>
 
-                <!-- @if(renderBurdenArray(member).things.length > 0) {
+                @if(getTourMemberThings(member.member_id).length > 0) {
                     <div class="divider divider-horizontal"></div>
 
-                <div class="avatar-group -space-x-6">
-                    @for ( burden of renderBurdenArray(member).things; track burden ) {
+                    <div class="avatar-group -space-x-6">
+                        @for ( burden of getTourMemberThings(member.member_id); track
+                        burden ) {
                         <div class="avatar">
-                            <app-icon [type]="'THING'" [name]="burden.name"></app-icon>
+                            <app-icon
+                                [type]="'THING'"
+                                [name]="tourMembersThingsData[burden].name"
+                            ></app-icon>
                         </div>
-                    }
-                </div>
-                } -->
+                        }
+                    </div>
+                }
             </div>
             <!-- BUTTONS -->
             <!-- <div
@@ -113,39 +121,39 @@
                 "
                 data-tip="Besitzt Zuweisungen"
             > -->
-                <button
-                    class="btn btn-secondary btn-circle btn-xs"
-                    (click)="showDeleteModal(tourMembersData[member.member_id])"
-                >
-                    <mat-icon
-                        aria-hidden="false"
-                        aria-label="Delete member"
-                        class="text-sm"
-                        fontIcon="delete"
-                    ></mat-icon>
-                </button>
+            <button
+                class="btn btn-secondary btn-circle btn-xs"
+                (click)="showDeleteModal(tourMembersData[member.member_id])"
+            >
+                <mat-icon
+                    aria-hidden="false"
+                    aria-label="Delete member"
+                    class="text-sm"
+                    fontIcon="delete"
+                ></mat-icon>
+            </button>
             <!-- </div> -->
         </div>
     </summary>
     <!-- BURDENS -->
     <div class="collapse-content">
-        <!-- @for ( burden of renderBurdenArray(member).things; track burden ) {
+        @for ( burden of getTourMemberThings(member.member_id); track burden ) {
         <div class="card bg-white align-middle ms-24">
             <div class="flex justify-between m-3">
 
                 <div class="flex justify-start space-x-2">
-                    <app-icon [type]="'THING'" [name]="burden.name">
+                    <app-icon [type]="'THING'" [name]="tourMembersThingsData[burden].name">
                     </app-icon>
-                    <span class="text-sm">{{ burden.name }}</span>
+                    <span class="text-sm">{{ tourMembersThingsData[burden].name }}</span>
                     <div class="divider divider-horizontal"></div>
-                    <span class="text-sm">{{ burden.weight | weight }} </span>
+                    <span class="text-sm">{{ tourMembersThingsData[burden].weight | weight }} </span>
                 </div>
                 
                 <div class="flex justify-end space-x-2">
 
                     <button
                         class="btn btn-secondary btn-circle btn-xs"
-                        (click)="removeThingAssignment(member, burden.id)"
+                        (click)="onRemoveThingFromMember(burden, member.member_id)"
                     >
                         <mat-icon
                             aria-hidden="false"
@@ -158,8 +166,8 @@
             </div>
         </div>
         }@empty {
-            {{ members.data[member].name }}'s Rucksack ist leer
-        } -->
+            {{ tourMembersData[member.member_id].name }}'s Rucksack ist leer
+        }
     </div>
 </details>
 

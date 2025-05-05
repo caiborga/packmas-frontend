@@ -30,8 +30,8 @@ export class TourCarsComponent {
     cars: Car[] = [];
     tourCars: TourCar[] = [];
     tourCarsData: Car[] = [];
-    tourCarsMembers: TourCarMember[] = [];
-    tourCarsMembersData = [];
+    tourCarsMembers: Record<number, number[]> = {};
+    tourCarsMembersData: Member[] = [];
     carToDelete: Car = initializeCar();
     droppedItems: string[] = [];
     loadingData: boolean = false;
@@ -106,14 +106,22 @@ export class TourCarsComponent {
             .get(`tourCarMembers/${this.tourID}`)
             .toPromise()
             .then((response) => {
-                this.tourCarsMembers = response.tourCarMembers;
-                this.tourCarsMembersData = response.data.cars;
+                this.tourCarsMembers = response.tourCarsMembers;
+                this.tourCarsMembersData = response.data.members;
                 console.log('getTourCarsMembers - success', response);
             })
             .catch((error) => {
                 // this.loadingData = false;
                 console.error('getTourCarsMembers - error', error);
             });
+    }
+
+    getTourCarMembers(carId: number): number[] {
+        let result: number[] = [];
+        if(this.tourCarsMembers) {
+            result = this.tourCarsMembers[carId] ? this.tourCarsMembers[carId] : [];
+        }
+        return result;
     }
 
     hasAssignments(car: TourCar) {
@@ -160,46 +168,6 @@ export class TourCarsComponent {
         }
     }
 
-    async onAddCarMember(car: Car, member: Member) {
-        this.loadingData = true;
-
-        console.log('add CarMember', car.id);
-
-        const data = {
-            car_id: car.id,
-            tour_id: this.tourID,
-            member_id: member.id
-        };
-
-        try {
-            const response = await this.tourService.post('tourCarMembers', data).toPromise();
-            console.log('updateTourCars - success', response);
-
-            await this.getTourCarsMembers();
-
-            this.alertService.showAlertMessage({
-                type: 'success',
-                message: 'Member erfolgreich hinzugefügt',
-            });
-        } catch (error) {
-            console.error('updateTourCars - error', error);
-            this.alertService.showAlertMessage({
-                type: 'error',
-                message: 'Das hat leider nicht geklappt',
-            });
-        } finally {
-            this.loadingData = false;
-        }
-    }
-
-    onDropElement(car: number) {
-        this.dragDropService.target = {
-            id: car,
-            type: 'CAR',
-        };
-        this.dragDropService.newAssignment();
-    }
-
     async onRemoveCar(carId: number) {
 
         console.log('remove Car', carId, 'from Tour', this.tourID);
@@ -225,21 +193,6 @@ export class TourCarsComponent {
         this.searchSubject.next(input.value);
     }
 
-    removeCarAssignment(passengerId: number) {
-        this.dragDropService.unassignMemberFromCar(passengerId);
-    }
-
-    // renderPassengerArray(car: number) {
-    //     const carData = this.tourAssignments.cars.get(car)
-    //     let result: Member[] = [];
-    //     if ( carData ) {
-    //         for ( let passenger in carData.members ) {
-    //             result.push(this.members.data[carData.members[passenger]])
-    //         }
-    //     }
-    //     return result
-    // }
-
     showDeleteModal(car: Car) {
         if (car) {
             this.carToDelete = car;
@@ -247,7 +200,61 @@ export class TourCarsComponent {
         }
     }
 
-    onAssignToCar(carId: number) {
+    async onAssignMemberToCar(carId: number) {
         const origin = this.dragDropService.origin;
+
+        this.loadingData = true;
+
+        console.log('add CarMember', carId);
+
+        const data = {
+            car_id: carId,
+            tour_id: this.tourID,
+            member_id: origin.id
+        };
+
+        try {
+            const response = await this.tourService.post('tourCarMembers', data).toPromise();
+            console.log('updateTourCars - success', response);
+
+            await this.getTourCarsMembers();
+
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Member erfolgreich hinzugefügt',
+            });
+        } catch (error) {
+            console.error('updateTourCars - error', error);
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Das hat leider nicht geklappt',
+            });
+        } finally {
+            this.loadingData = false;
+        }
+    }
+
+    async onRemoveMemberFromCar(carId: number, memberId: number) {
+        this.loadingData = true;
+
+        try {
+            const response = await this.tourService.delete(`TourCarMembers/${this.tourID}/${carId}/${memberId}`).toPromise();
+            console.log('updateTourCars - success', response);
+
+            await this.getTourCarsMembers();
+
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Member erfolgreich entfernt',
+            });
+        } catch (error) {
+            console.error('updateTourCars - error', error);
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Das hat leider nicht geklappt',
+            });
+        } finally {
+            this.loadingData = false;
+        }
     }
 }

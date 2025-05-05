@@ -45,6 +45,9 @@ export class TourMembersComponent {
 
     tourMembers: TourMember[] = [];
     tourMembersData: Member[] = [];
+    tourMembersThings: Record<number, number[]> = {};
+    tourMembersThingsData: Thing[] = [];
+    tourMembersWeights: Record<number, number> = {};
 
     private searchSubject = new Subject<string>();
     private assignmentData!: Subscription;
@@ -63,6 +66,7 @@ export class TourMembersComponent {
 
     ngOnInit() {
         this.getTourMembers();
+        this.getTourMembersThings();
     }
 
     getMembers() {
@@ -94,7 +98,7 @@ export class TourMembersComponent {
             .then((response) => {
                 this.tourMembers = response.tourMembers;
                 this.tourMembersData = response.data.members;
-                this.tourMembersCount.emit(this.tourMembers.length)
+                this.tourMembersCount.emit(this.tourMembers.length);
                 this.pagination = response.pagination;
                 console.log('getTourMembers - success', response);
             })
@@ -104,22 +108,100 @@ export class TourMembersComponent {
             });
     }
 
-    onDropElement(member: TourMember) {
-        // console.log('assignments', this.dragDropService.tourAssignmentObject);
-        // console.log('tourId', this.dragDropService.tourId);
-        // this.dragDropService.target = {
-        //     id: member,
-        //     type: 'MEMBER',
-        // };
-        // this.dragDropService.newAssignment();
+    getTourMemberWeight(memberId: number): number {
+        const result = this.tourMembersWeights ? this.tourMembersWeights[memberId] : 0;
+        return result;
     }
 
+    getTourMembersThings() {
+        //  this.loadingData = true;
+        const params = {
+            ...this.pagination,
+            tourId: this.tourID,
+        };
+        this.tourService
+            .get(`tourMemberThings/${this.tourID}`)
+            .toPromise()
+            .then((response) => {
+                this.tourMembersThings = response.tourMembersThings;
+                this.tourMembersThingsData = response.data.things;
+                this.tourMembersWeights = response.data.memberWeights;
+                console.log('getTourMembersThings - success', response);
+                console.log('tourMembersWeights', this.tourMembersWeights);
+            })
+            .catch((error) => {
+                // this.loadingData = false;
+                console.error('getTourCarsMembers - error', error);
+            });
+    }
+
+    getTourMemberThings(memberId: number): number[]{
+        let result: number[] = []
+        if(this.tourMembersThings) {
+            result = this.tourMembersThings[memberId] ? this.tourMembersThings[memberId] : [];
+        }
+        return result;
+    }
+
+    
+
     onDragElement(member: TourMember) {
-        // const drag: dragObject = {
-        //     id: member,
-        //     type: 'MEMBER',
-        // };
-        // this.dragDropService.origin = drag;
+        const drag: dragObject = {
+            id: member.member_id,
+            type: 'MEMBER',
+        };
+        this.dragDropService.origin = drag;
+    }
+
+    async onDropElement(memberId: number) {
+        const origin = this.dragDropService.origin;
+
+        this.loadingData = true;
+
+        const data = {
+            thing_id: origin.id,
+            tour_id: this.tourID,
+            member_id: memberId,
+        };
+
+        try {
+            const response = await this.tourService.post('tourMemberThings', data).toPromise();
+
+            await this.getTourMembersThings();
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Thing erfolgreich hinzugefügt',
+            });
+        } catch (error) {
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Das hat leider nicht geklappt',
+            });
+        } finally {
+            this.loadingData = false;
+        }
+    }
+
+    async onRemoveThingFromMember(thingId: number, memberId: number) {
+        this.loadingData = true;
+
+        try {
+            const response = await this.tourService.delete(`tourMemberThings/${this.tourID}/${memberId}/${thingId}`).toPromise();
+
+            await this.getTourMembersThings();
+
+            this.alertService.showAlertMessage({
+                type: 'success',
+                message: 'Thing erfolgreich entfernt',
+            });
+        } catch (error) {
+            this.alertService.showAlertMessage({
+                type: 'error',
+                message: 'Das hat leider nicht geklappt',
+            });
+        } finally {
+            this.loadingData = false;
+        }
     }
 
     async onRemoveTourMember(memberId: number) {
@@ -201,7 +283,6 @@ export class TourMembersComponent {
         //     totalWeight: 0,
         //     things: [],
         // };
-
         // let totalWeight: number = 0;
         // if (memberData) {
         //     for (let thing in memberData.things) {

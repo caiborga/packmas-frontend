@@ -59,11 +59,11 @@
 </div>
 
 @for (thing of tourThings; track thing) {
-<!-- <progress
+<progress
     class="progress progress-success absolute top-12 left-0 w-full rounded-none"
-    value="{{ tourAssignments.things.size }}"
-    max="{{ things.ids.length }}"
-></progress> -->
+    value="{{ tourThings }}"
+    max="{{ tourThings.length }}"
+></progress>
 <details
     pDraggable
     (onDragStart)="onDragElement(thing)"
@@ -73,9 +73,14 @@
         <div class="flex justify-between">
             <!-- ICON -->
             <div class="flex justify-start space-x-2">
-                <app-icon [type]="'THING'" [name]="tourThingsData[thing.thing_id].name">
+                <app-icon
+                    [type]="'THING'"
+                    [name]="tourThingsData[thing.thing_id].name"
+                >
                 </app-icon>
-                <span class="text-sm">{{ tourThingsData[thing.thing_id].name }}</span>
+                <span class="text-sm">{{
+                    tourThingsData[thing.thing_id].name
+                }}</span>
                 <div class="divider divider-horizontal"></div>
                 <span class="text-sm">{{
                     tourThingsData[thing.thing_id].weight | weight
@@ -97,18 +102,20 @@
                         "
                         data-tip="Besitzt Zuweisungen"
                     > -->
-                        <button
-                            class="btn btn-secondary btn-circle btn-xs"
-                            (click)="onShowDeleteModal(tourThingsData[thing.thing_id])"
-                            [disabled]="hasAssignments(thing)"
-                        >
-                            <mat-icon
-                                aria-hidden="false"
-                                aria-label="Delete member"
-                                class="text-sm"
-                                fontIcon="delete"
-                            ></mat-icon>
-                        </button>
+                    <button
+                        class="btn btn-secondary btn-circle btn-xs"
+                        (click)="
+                            onShowDeleteModal(tourThingsData[thing.thing_id])
+                        "
+                        [disabled]="hasAssignments(thing)"
+                    >
+                        <mat-icon
+                            aria-hidden="false"
+                            aria-label="Delete member"
+                            class="text-sm"
+                            fontIcon="delete"
+                        ></mat-icon>
+                    </button>
                     <!-- </div> -->
                 </div>
             </div>
@@ -120,11 +127,19 @@
             <tbody>
                 <tr>
                     <td>Kategorie:</td>
-                    <!-- <td>{{ tourThingsCategories[tourThingsData[thing.id].category].value }}</td> -->
+                    <td>
+                        {{
+                            tourThingsCategories[
+                                tourThingsData[thing.thing_id].category
+                            ].value
+                        }}
+                    </td>
                 </tr>
                 <tr>
                     <td>Gewicht:</td>
-                    <!-- <td>{{ tourThingsData[thing.id].weight | weight }}</td> -->
+                    <td>
+                        {{ tourThingsData[thing.thing_id].weight | weight }}
+                    </td>
                 </tr>
             </tbody>
         </table>

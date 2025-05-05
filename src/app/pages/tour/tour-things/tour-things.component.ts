@@ -124,7 +124,7 @@ export class TourThingsComponent {
                 this.tourThings = response.tourThings;
                 this.tourThingsData = response.data.things;
                 this.tourThingsCategories = response.data.categories;
-                this.tourThingsCount.emit(this.tourThings.length)
+                this.tourThingsCount.emit(this.tourThings.length);
                 this.pagination = response.pagination;
                 console.log('getTourThings - success', response);
             })
@@ -195,7 +195,7 @@ export class TourThingsComponent {
 
     onDragElement(thing: TourThing) {
         const drag: dragObject = {
-            id: thing.id,
+            id: thing.thing_id,
             type: 'THING',
         };
         this.dragDropService.origin = drag;

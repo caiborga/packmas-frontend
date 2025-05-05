@@ -58,11 +58,11 @@
 </div>
 
 @for (car of tourCars; track car) {
-<details pDroppable (onDrop)="onAssignToCar(car.id)" class="collapse bg-base-200">
+<details pDroppable (onDrop)="onAssignMemberToCar(car.car_id)" class="collapse bg-base-200">
 
     <progress 
         class="progress progress-success absolute top-0 left-0 w-full"
-        value="{{ 2 }}" 
+        value="{{ getTourCarMembers(car.car_id).length }}" 
         max="{{ tourCarsData[car.car_id].seats }}">
     </progress>
 
@@ -81,15 +81,16 @@
 
                 <div class="divider divider-horizontal"></div>
 
-                <!-- <div class="avatar-group -space-x-6">
-                    @for ( passenger of renderPassengerArray(car); track passenger ) {
+                <!-- PASSENGER ICONS -->
+                <div class="avatar-group -space-x-6">
+                    @for ( member of getTourCarMembers(car.car_id); track member ) {
                     <app-icon
                         [type]="'MEMBER'"
-                        [avatarNumber]="passenger.avatar"
+                        [avatarNumber]="tourCarsMembersData[member].avatar"
                     >
                     </app-icon>
                     }
-                </div> -->
+                </div>
             </div>
 
             <!-- DELETE BUTTON -->
@@ -113,27 +114,27 @@
             </div>
         </div>
     </summary>
-    <!-- PASSENGERS -->
-    <!-- <div class="collapse-content">
+    <!-- CAR MEMBERS -->
+    <div class="collapse-content">
         
-        @for ( passenger of renderPassengerArray(car); track passenger ) {
+        @for ( member of getTourCarMembers(car.car_id); track member ) {
 
         <div class="card bg-white align-middle ms-24">
             <div class="flex justify-between m-3">
                 <div class="flex justify-start space-x-2">
                     <app-icon
                         [type]="'MEMBER'"
-                        [avatarNumber]="passenger.avatar"
+                        [avatarNumber]="tourCarsMembersData[member].avatar"
                     >
                     </app-icon>
-                    <span class="text-sm">{{ passenger.name }}</span>
+                    <span class="text-sm">{{ tourCarsMembersData[member].name }}</span>
                 </div>
                 
                 <div class="flex justify-end space-x-2">
 
                     <button
                         class="btn btn-secondary btn-circle btn-xs"
-                        (click)="removeCarAssignment(passenger.id)"
+                        (click)="onRemoveMemberFromCar(car.car_id, tourCarsMembersData[member].id)"
                     >
                         <mat-icon
                             aria-hidden="false"
@@ -146,7 +147,7 @@
             </div>
         </div>
         }
-    </div> -->
+    </div>
 </details>
 } @empty { Bisher wurde kein Auto hinzugefügt } } @else {
 <span class="loading loading-spinner text-secondary"></span>

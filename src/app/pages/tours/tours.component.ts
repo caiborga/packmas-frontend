@@ -246,10 +246,16 @@ export class ToursComponent {
             .toPromise()
             .then((response) => {
                 this.getTours();
-                console.log('Delete tour - success', response);
+                this.alertService.showAlertMessage({
+                    type: 'success',
+                    message: 'Tour erfolgreich gelöscht',
+                });
             })
             .catch((error) => {
-                console.error('Delete tour - error', error);
+                this.alertService.showAlertMessage({
+                    type: 'error',
+                    message: 'Da hat was nicht geklappt',
+                });
             });
     }
 
