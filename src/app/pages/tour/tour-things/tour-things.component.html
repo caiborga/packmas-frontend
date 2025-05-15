@@ -61,63 +61,69 @@
 @for (thing of tourThings; track thing) {
 <progress
     class="progress progress-success absolute top-12 left-0 w-full rounded-none"
-    value="{{ tourThings }}"
+    value="{{ tourThingAssignmentsCount }}"
     max="{{ tourThings.length }}"
 ></progress>
 <details
     pDraggable
     (onDragStart)="onDragElement(thing)"
+    (onDragEnd)="onDragEnd()"
     class="collapse bg-base-200"
 >
     <summary class="collapse-title text-xl font-medium">
-        <div class="flex justify-between">
-            <!-- ICON -->
-            <div class="flex justify-start space-x-2">
-                <app-icon
-                    [type]="'THING'"
-                    [name]="tourThingsData[thing.thing_id].name"
-                >
-                </app-icon>
-                <span class="text-sm">{{
-                    tourThingsData[thing.thing_id].name
-                }}</span>
-                <div class="divider divider-horizontal"></div>
-                <span class="text-sm">{{
-                    tourThingsData[thing.thing_id].weight | weight
-                }}</span>
-                <div class="divider divider-horizontal"></div>
-                <app-icon
-                    [type]="'MEMBER'"
-                    [avatarNumber]="getBearerAvatar(thing.thing_id)"
-                >
-                </app-icon>
-            </div>
-            <!-- DELETE BUTTON -->
-            <div class="flex justify-end space-x-1">
-                <div class="flex gap-1 relative z-10">
-                    <!-- <div
-                        class="flex gap-1 relative z-10"
-                        [ngClass]="
-                            hasAssignments(thing) ? 'tooltip tooltip-left' : ''
-                        "
-                        data-tip="Besitzt Zuweisungen"
-                    > -->
-                    <button
-                        class="btn btn-secondary btn-circle btn-xs"
-                        (click)="
-                            onShowDeleteModal(tourThingsData[thing.thing_id])
-                        "
-                        [disabled]="hasAssignments(thing)"
-                    >
-                        <mat-icon
-                            aria-hidden="false"
-                            aria-label="Delete member"
-                            class="text-sm"
-                            fontIcon="delete"
-                        ></mat-icon>
-                    </button>
-                    <!-- </div> -->
+        <div class="flex items-center justify-between w-full">
+            <!-- Linker Bereich: Drag-Icon + Inhalte -->
+            <div class="flex items-center gap-2">
+                <!-- Drag Handle -->
+                <mat-icon
+                    class="cursor-move text-gray-400 text-lg"
+                    fontIcon="drag_indicator"
+                    aria-label="drag handle"
+                ></mat-icon>
+
+                <!-- Inhalt -->
+                <div class="flex items-center gap-2">
+                    <app-icon
+                        [type]="'THING'"
+                        [name]="tourThingsData[thing.thing_id].name"
+                    ></app-icon>
+
+                    <span class="text-sm">
+                        {{ tourThingsData[thing.thing_id].name }}
+                    </span>
+
+                    <div class="divider divider-horizontal m-0"></div>
+
+                    <span class="text-sm">
+                        {{ tourThingsData[thing.thing_id].weight | weight }}
+                    </span>
+
+                    <div class="divider divider-horizontal m-0"></div>
+
+                    <app-icon
+                        [type]="'MEMBER'"
+                        [avatarNumber]="getBearerAvatar(thing.assignedMemberId)"
+                    ></app-icon>
                 </div>
+            </div>
+
+            <!-- Rechter Bereich: Delete Button -->
+            <div
+                class="flex items-center"
+                [ngClass]="thing.assignedMemberId ? 'tooltip tooltip-left' : ''"
+                data-tip="Besitzt Zuweisungen"
+            >
+                <button
+                    class="btn btn-secondary btn-circle btn-xs"
+                    (click)="onShowDeleteModal(tourThingsData[thing.thing_id])"
+                    [disabled]="thing.assignedMemberId"
+                >
+                    <mat-icon
+                        aria-label="Delete member"
+                        fontIcon="delete"
+                        class="text-sm"
+                    ></mat-icon>
+                </button>
             </div>
         </div>
     </summary>

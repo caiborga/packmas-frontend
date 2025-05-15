@@ -5,13 +5,13 @@ import { TopbarComponent } from './layout/topbar/topbar.component';
 import { FooterComponent } from './layout/footer/footer.component';
 import { slideTopbar, slideFooter } from './core/animations/layout';
 import { LayoutService, visibleState } from './core/services/layout.service';
-import { NgClass } from '@angular/common';
+import { NgClass, NgStyle } from '@angular/common';
 import { AlertComponent } from "./shared/alert/alert.component";
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterOutlet, TopbarComponent, FooterComponent, NgClass, AlertComponent],
+    imports: [RouterOutlet, TopbarComponent, FooterComponent, NgClass, NgStyle, AlertComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
     animations: [slideTopbar, slideFooter],
@@ -21,6 +21,7 @@ export class AppComponent {
     private footerStateSubscription: Subscription;
     private backgroundBlurredStateSubscription: Subscription;
     private backgroundSuccessStateSubscription: Subscription;
+    private backgroundLinkSubscription: Subscription;
 
     layoutService = inject(LayoutService);  
 
@@ -29,6 +30,7 @@ export class AppComponent {
     backgroundBlurred = false;
     topbarState = 'hidden';
     footerState = 'hidden';
+    backgroundLink = '/assets/mountains.png';
 
     constructor() {
         this.backgroundBlurredStateSubscription = this.layoutService.backgroundBlurred$.subscribe(
@@ -51,5 +53,10 @@ export class AppComponent {
                 this.footerState = newValue;
             }
         );
+        this.backgroundLinkSubscription = this.layoutService.view$.subscribe(
+            (newValue) => {
+                this.backgroundLink = newValue;
+            }
+        )
     }
 }

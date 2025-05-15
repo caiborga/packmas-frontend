@@ -22,7 +22,7 @@ import { TourCardComponent } from './tour-card/tour-card.component';
 import { LayoutService } from '../../core/services/layout.service';
 import { HeaderComponent } from '../../shared/header/header.component';
 import { tourCardsSlideIn } from '../../core/animations/layout';
-import { Tour, TourAssignments, initializeTour, initializeTourAssignments } from '../../core/models/tour';
+import { Tour, initializeTour } from '../../core/models/tour';
 import { Pagination } from '../../core/models/pagination';
 import { Member } from '../../core/models/member';
 import { AlertService } from '../../core/services/alert.service';
@@ -154,7 +154,7 @@ export class ToursComponent {
             .get('members')
             .toPromise()
             .then((response) => {
-                this.allMembers = response.participants;
+                this.allMembers = response.members;
                 this.loadingData = false;
                 console.log('getMmembers - success', this.allMembers);
             })
@@ -167,7 +167,7 @@ export class ToursComponent {
     getTours() {
         this.loadingData = true;
         this.tourService
-            .get('tours')
+            .get('tours', this.pagination)
             .toPromise()
             .then((response) => {
                 this.tours = response.tours;
@@ -182,8 +182,6 @@ export class ToursComponent {
 
     onNewTour() {
         this.loadingData = true;
-        // Insert new members into assignments
-        const tourAssignmentObject = initializeTourAssignments();
         
         // Collect start / end from form
         let range = this.tourForm.value.start
@@ -218,14 +216,6 @@ export class ToursComponent {
                 });
                 console.error('newTour - error', error);
             });
-    }
-
-    convertTourAssignmentsToJson(assignments: TourAssignments) {
-        return {
-            members: Object.fromEntries(assignments.members),
-            things: Object.fromEntries(assignments.things),
-            cars: Object.fromEntries(assignments.cars),
-        };
     }
 
     onSearchChange(event: Event): void {

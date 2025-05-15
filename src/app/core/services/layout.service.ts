@@ -12,11 +12,13 @@ export class LayoutService {
     private backGroundSuccess = new BehaviorSubject<boolean>(false);
     private topbarState = new BehaviorSubject<visibleState>('hidden');
     private footerState = new BehaviorSubject<visibleState>('hidden');
+    private view = new BehaviorSubject<string>('/assets/mountains.png');
 
     public backgroundBlurred$: Observable<boolean> = this.backgroundBlurred.asObservable();
     public backgroundSuccess$: Observable<boolean> = this.backgroundBlurred.asObservable();
     public topbarState$: Observable<string> = this.topbarState.asObservable();
     public footerState$: Observable<string> = this.footerState.asObservable();
+    public view$: Observable<string> = this.view.asObservable();
 
     constructor() {}
 
@@ -37,5 +39,9 @@ export class LayoutService {
 
     setFooterState(status: visibleState): void {
         this.footerState.next(status);
+    }
+
+    setView(link: string) {
+        this.view.next(link);
     }
 }

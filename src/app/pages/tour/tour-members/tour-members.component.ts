@@ -16,7 +16,6 @@ import { Avatar, AVATAR_LIST } from '../../../core/avatars/avatars';
 import { ToursService } from '../../../core/services/tours.service';
 import { AlertService } from '../../../core/services/alert.service';
 import { Pagination } from '../../../core/models/pagination';
-import { initializeTourAssignments, TourAssignments } from '../../../core/models/tour';
 import { IconComponent } from '../../../shared/icon/icon.component';
 import { Car } from '../../../core/models/car';
 import { WeightPipe } from '../../../core/pipes/customPipes';
@@ -24,7 +23,7 @@ import { WeightPipe } from '../../../core/pipes/customPipes';
 @Component({
     selector: 'app-tour-members',
     standalone: true,
-    imports: [AutoComplete, DragDropModule, InputGroup, InputGroupAddonModule, ReactiveFormsModule, MatIconModule, NgClass, IconComponent, WeightPipe],
+    imports: [AutoComplete, DragDropModule, InputGroupAddonModule, ReactiveFormsModule, MatIconModule, NgClass, IconComponent, WeightPipe],
     templateUrl: './tour-members.component.html',
     styleUrl: './tour-members.component.scss',
 })
@@ -75,7 +74,7 @@ export class TourMembersComponent {
             .get('members', this.pagination)
             .toPromise()
             .then((response) => {
-                this.searchedMembers = response.participants;
+                this.searchedMembers = response.members;
                 this.loadingData = false;
                 this.pagination = response.pagination;
                 // console.log('getMembers - success', this.members);
@@ -143,14 +142,13 @@ export class TourMembersComponent {
         return result;
     }
 
-    
-
     onDragElement(member: TourMember) {
         const drag: dragObject = {
             id: member.member_id,
             type: 'MEMBER',
         };
         this.dragDropService.origin = drag;
+        this.dragDropService.setDropType('MEMBER')
     }
 
     async onDropElement(memberId: number) {
@@ -168,9 +166,10 @@ export class TourMembersComponent {
             const response = await this.tourService.post('tourMemberThings', data).toPromise();
 
             await this.getTourMembersThings();
+            this.dragDropService.reloadData('THINGS');
             this.alertService.showAlertMessage({
                 type: 'success',
-                message: 'Thing erfolgreich hinzugefügt',
+                message: 'Gepäck erfolgreich zugewiesen',
             });
         } catch (error) {
             this.alertService.showAlertMessage({
@@ -179,7 +178,12 @@ export class TourMembersComponent {
             });
         } finally {
             this.loadingData = false;
+            this.dragDropService.setDropType('UNDEFINED')
         }
+    }
+
+    onDragEnd() {
+        this.dragDropService.setDropType('UNDEFINED')
     }
 
     async onRemoveThingFromMember(thingId: number, memberId: number) {
@@ -187,12 +191,11 @@ export class TourMembersComponent {
 
         try {
             const response = await this.tourService.delete(`tourMemberThings/${this.tourID}/${memberId}/${thingId}`).toPromise();
-
+            this.dragDropService.reloadData('THINGS');
             await this.getTourMembersThings();
-
             this.alertService.showAlertMessage({
                 type: 'success',
-                message: 'Thing erfolgreich entfernt',
+                message: 'Gepäck erfolgreich entfernt',
             });
         } catch (error) {
             this.alertService.showAlertMessage({
@@ -219,15 +222,6 @@ export class TourMembersComponent {
             console.error('onRemoveTourMember - error', error);
             return { success: false, error };
         }
-    }
-
-    getBurdenNumber(member: number) {
-        // const memberData = this.tourAssignments.members.get(member);
-        // if (memberData && memberData.things) {
-        //     return memberData.things.length;
-        // } else {
-        //     return 0;
-        // }
     }
 
     showDeleteModal(member: Member) {
@@ -275,33 +269,5 @@ export class TourMembersComponent {
     onSearchChange(event: Event): void {
         const input = event.target as HTMLInputElement;
         this.searchSubject.next(input.value);
-    }
-
-    renderBurdenArray(member: number) {
-        // const memberData = this.tourAssignments.members.get(member);
-        // let result: { totalWeight: number; things: Thing[] } = {
-        //     totalWeight: 0,
-        //     things: [],
-        // };
-        // let totalWeight: number = 0;
-        // if (memberData) {
-        //     for (let thing in memberData.things) {
-        //         // result.totalWeight += this.things.data[memberData.things[thing]].weight;
-        //         // result.things.push(this.things.data[memberData.things[thing]]);
-        //     }
-        // }
-        // return result;
-    }
-
-    removeThingAssignment(id: number, burden: number) {
-        this.dragDropService.unassignThingFromMember(burden);
-    }
-
-    hasAssignments(id: number) {
-        const check: dragObject = {
-            id: id,
-            type: 'MEMBER',
-        };
-        return this.dragDropService.hasAssignments(check);
     }
 }

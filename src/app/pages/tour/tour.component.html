@@ -5,184 +5,272 @@
 >
 </app-header>
 
-@if(!loading) {
-<div class="flex gap-2 flex-wrap">
-    <!-- TOUR OVERVIEW / PICTURE -->
-    <div
-        class="card bg-white shadow-lg transition-all duration-300"
-        [ngClass]="{
-            'order-first flex-grow': !isAnyCardOpen(),
-            'w-full mb-2': isAnyCardOpen()
-        }"
-    >
-        <div
-            class="card-header flex justify-between items-center p-2 bg-gray-200 rounded-t-2xl"
-        >
-            <span class="font-bold">Übersicht</span>
-            <button class="btn btn-sm btn-circle">
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Example home icon"
-                    class="text-xlg"
-                    [fontIcon]="'edit'"
-                ></mat-icon>
-            </button>
-        </div>
-        <div class="card-body p-4">
-            <div class="flex items-start gap-4">
-                <!-- Tabelle -->
-                <table class="table table-xs text-lg">
-                    <tbody>
-                        <!-- START -->
-                        <tr class="p-1">
-                            <td>Start:</td>
-                            <td>
-                                {{ tour.tourData.start | date : "dd.MM.yyyy" }}
-                            </td>
-                        </tr>
-                        <!-- END -->
-                        <tr class="p-1">
-                            <td>Ende:</td>
-                            <td>
-                                {{ tour.tourData.end | date : "dd.MM.yyyy" }}
-                            </td>
-                        </tr>
-                        <!-- MEMBERS -->
-                        <tr>
-                            <td>Teilnehmer:</td>
-                            <td>{{ tourMembersCount }}</td>
-                        </tr>
-                        <!-- CARS -->
-                        <tr>
-                            <td>Autos:</td>
-                            <td>{{ tourCarsCount }}</td>
-                        </tr>
-                        <!-- THINGS -->
-                        <tr>
-                            <td>Gepäck:</td>
-                            <td>{{ tourThingsCount }}</td>
-                        </tr>
-                        <!-- WEIGHT -->
-                        <tr>
-                            <td>Gewicht:</td>
-                            <td>{{ tour.tourData.tourThingsWeight | weight }}</td>
-                        </tr>
-                        
-                    </tbody>
-                </table>
-                <!-- Bild -->
-                <figure class="flex-shrink-0 h-36">
-                    <img
-                        src="https://www.swissflex.com/sites/default/files/blog/2018/02/Die-5-h%C3%B6chsten-Berge-der-Schweiz.png"
-                        alt="Berg"
-                        class="h-full object-cover rounded"
-                    />
-                </figure>
+<div class="drawer drawer-end">
+    <input
+        #editTourDrawer
+        id="editTourDrawer"
+        type="checkbox"
+        class="drawer-toggle"
+    />
+    <div class="drawer-content">
+        @if(!loading) {
+        <div class="flex gap-2 flex-wrap">
+            <!-- TOUR OVERVIEW / PICTURE -->
+            <div
+                class="card bg-white shadow-lg transition-all duration-300"
+                [ngClass]="{
+                    'order-first flex-grow': !isAnyCardOpen(),
+                    'w-full mb-2': isAnyCardOpen()
+                }"
+            >
+                <div
+                    class="card-header flex justify-between items-center p-2 bg-gray-200 rounded-t-2xl"
+                >
+                    <span class="font-bold">Übersicht</span>
+                    <button
+                        class="btn btn-sm btn-circle"
+                        (click)="onEditTour()"
+                    >
+                        <mat-icon
+                            aria-hidden="false"
+                            aria-label="Example home icon"
+                            class="text-xlg"
+                            [fontIcon]="'edit'"
+                        ></mat-icon>
+                    </button>
+                </div>
+                <div class="card-body p-4">
+                    <div class="flex items-start gap-4">
+                        <!-- Tabelle -->
+                        <table class="table table-xs text-lg">
+                            <tbody>
+                                <!-- START -->
+                                <tr class="p-1">
+                                    <td>Start:</td>
+                                    <td>
+                                        {{
+                                            tour.tourData.start
+                                                | date : "dd.MM.yyyy"
+                                        }}
+                                    </td>
+                                </tr>
+                                <!-- END -->
+                                <tr class="p-1">
+                                    <td>Ende:</td>
+                                    <td>
+                                        {{
+                                            tour.tourData.end
+                                                | date : "dd.MM.yyyy"
+                                        }}
+                                    </td>
+                                </tr>
+                                <!-- MEMBERS -->
+                                <tr>
+                                    <td>Teilnehmer:</td>
+                                    <td>{{ tourMembersCount }}</td>
+                                </tr>
+                                <!-- CARS -->
+                                <tr>
+                                    <td>Autos:</td>
+                                    <td>{{ tourCarsCount }}</td>
+                                </tr>
+                                <!-- THINGS -->
+                                <tr>
+                                    <td>Gepäck:</td>
+                                    <td>{{ tourThingsCount }}</td>
+                                </tr>
+                                <!-- WEIGHT -->
+                                <tr>
+                                    <td>Gewicht:</td>
+                                    <td>
+                                        {{ tourThingsWeight | weight }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- Bild -->
+                        <figure class="flex-shrink-0 h-36">
+                            <img
+                                src="https://www.swissflex.com/sites/default/files/blog/2018/02/Die-5-h%C3%B6chsten-Berge-der-Schweiz.png"
+                                alt="Berg"
+                                class="h-full object-cover rounded"
+                            />
+                        </figure>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- MEMBERS / THINGS / CARS-->
-    @for(card of cards; track card; let i = $index){
-    <div
-        class="card bg-white shadow-md transition-all duration-300"
-        [ngClass]="
-            collapsedCards[i] ? 'w-12 order-last flex-shrink-0' : 'flex-grow'
-        "
-    >
-        <!-- CARD HEADER -->
-        <div
-            class="card-header flex justify-between items-center p-2 bg-gray-200 rounded-t-2xl"
-        >
-            @if (!collapsedCards[i]) {
-            <div class="gap-2">
-                <!-- TITLE -->
-                <div class="flex justify-start space-x-2">
-                    <span class="font-bold">{{ card.title }}</span>
-                    <!-- ICON -->
-                    @switch (i) { @case (0) {
-                    <app-icon
-                        [type]="'NUMBER'"
-                        [number]="tourMembersCount"
+            <!-- MEMBERS / THINGS / CARS-->
+            @for(card of cards; track card; let i = $index){
+            <div
+                class="card bg-white shadow-md transition-all duration-300"
+                [ngClass]="{
+                    'w-12 order-last flex-shrink-0': collapsedCards[i],
+                    'flex-grow': !collapsedCards[i],
+                    'highlight-drop-target':
+                        (dropType === 'MEMBER' && i === 2) ||
+                        (dropType === 'THING' && i === 0)
+                }"
+            >
+                <!-- CARD HEADER -->
+                <div
+                    class="card-header flex justify-between items-center p-2 bg-gray-200 rounded-t-2xl"
+                >
+                    @if (!collapsedCards[i]) {
+                    <div class="gap-2">
+                        <!-- TITLE -->
+                        <div class="flex justify-start space-x-2">
+                            <span class="font-bold">{{ card.title }}</span>
+                            <!-- ICON -->
+                            @switch (i) { @case (0) {
+                            <app-icon
+                                [type]="'NUMBER'"
+                                [number]="tourMembersCount"
+                            >
+                            </app-icon>
+                            } @case (1) {
+                            <app-icon
+                                [type]="'NUMBER'"
+                                [number]="tourThingsCount"
+                            >
+                            </app-icon>
+                            <div class="divider divider-horizontal"></div>
+                            <span
+                                >{{ tourThingsWeight | weight }}
+                            </span>
+                            } @case (2) {
+                            <app-icon
+                                [type]="'NUMBER'"
+                                [number]="tourCarsCount"
+                            >
+                            </app-icon>
+                            } @default { Defaultcase. } }
+                        </div>
+                    </div>
+                    }
+
+                    <button
+                        class="btn btn-sm btn-circle"
+                        (click)="toggleCard(i)"
                     >
-                    </app-icon>
-                    } @case (1) {
-                    <app-icon
-                        [type]="'NUMBER'"
-                        [number]="tourThingsCount"
+                        <mat-icon
+                            aria-hidden="false"
+                            aria-label="Example home icon"
+                            class="text-xlg"
+                            [ngClass]="
+                                collapsedCards[i]
+                                    ? 'text-gray-500'
+                                    : 'text-primary'
+                            "
+                            [fontIcon]="card.icon"
+                        ></mat-icon>
+                    </button>
+                </div>
+                <!-- CARD BODY -->
+                <div class="card-body p-4">
+                    <div *ngIf="!collapsedCards[i]" class="card-body p-4">
+                        @switch (i) {
+                        <!-- MEMBERS -->
+                        @case (0) {
+                        <app-tour-members
+                            [tourID]="tour.id"
+                            (tourMembersCount)="
+                                onTourMembersCountChange($event)
+                            "
+                        ></app-tour-members>
+                        <!-- THINGS -->
+                        } @case (1) {
+                        <app-tour-things
+                            [tourID]="tour.id"
+                            (tourThingsCount)="onTourThingsCountChange($event)"
+                            (tourThingsWeight)="
+                                onTourThingsWeightChange($event)
+                            "
+                        ></app-tour-things>
+                        <!-- CARS -->
+                        } @case (2) {
+                        <app-tour-cars
+                            [tourID]="tour.id"
+                            (tourCarsCount)="onTourCarsCountChange($event)"
+                        ></app-tour-cars>
+                        } @default { Defaultcase. } }
+                    </div>
+                    <div
+                        *ngIf="collapsedCards[i]"
+                        class="card-body flex justify-center items-center p-2"
                     >
-                    </app-icon>
-                    <div class="divider divider-horizontal"></div>
-                    <span>{{ tour.tourData.tourThingsWeight | weight }} </span>
-                    } @case (2) {
-                    <app-icon
-                        [type]="'NUMBER'"
-                        [number]="tourCarsCount"
-                    >
-                    </app-icon>
-                    } @default { Defaultcase. } }
+                        @switch (i) { @case (0) {
+                        <div class="badge badge-primary">
+                            {{ tour.tourData.tourMembers.length }}
+                        </div>
+                        } @case (1) {
+                        <div class="badge badge-secondary">
+                            {{ tour.tourData.tourThings.length }}
+                        </div>
+                        } @case (2) {
+                        <div class="badge badge-accent">
+                            {{ tour.tourData.tourCars.length }}
+                        </div>
+                        } @default { Defaultcase. } }
+                    </div>
                 </div>
             </div>
             }
-
-            <button class="btn btn-sm btn-circle" (click)="toggleCard(i)">
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Example home icon"
-                    class="text-xlg"
-                    [ngClass]="
-                        collapsedCards[i] ? 'text-gray-500' : 'text-primary'
-                    "
-                    [fontIcon]="card.icon"
-                ></mat-icon>
-            </button>
         </div>
-        <!-- CARD BODY -->
-        <div class="card-body p-4">
-            <div *ngIf="!collapsedCards[i]" class="card-body p-4">
-                @switch (i) { 
-                    <!-- MEMBERS -->
-                    @case (0) {
-                    <app-tour-members
-                        [tourID]="tour.id"
-                        (tourMembersCount)="onTourMembersCountChange($event)"
-                    ></app-tour-members>
-                    <!-- THINGS -->
-                    } @case (1) {
-                    <app-tour-things
-                        [tourID]="tour.id"
-                        (tourThingsCount)="onTourThingsCountChange($event)"
-                    ></app-tour-things>
-                    <!-- CARS -->
-                    } @case (2) {
-                    <app-tour-cars
-                        [tourID]="tour.id"
-                        (tourCarsCount)="onTourCarsCountChange($event)"
-                    ></app-tour-cars>
-                    } @default { Defaultcase. } }
-            </div>
-            <div
-                *ngIf="collapsedCards[i]"
-                class="card-body flex justify-center items-center p-2"
-            >
-                @switch (i) { @case (0) {
-                <div class="badge badge-primary">
-                    {{ tour.tourData.tourMembers.length }}
-                </div>
-                } @case (1) {
-                <div class="badge badge-secondary">
-                    {{ tour.tourData.tourThings.length }}
-                </div>
-                } @case (2) {
-                <div class="badge badge-accent">
-                    {{ tour.tourData.tourCars.length }}
-                </div>
-                } @default { Defaultcase. } }
-            </div>
-        </div>
+        } @else {
+        <span class="loading loading-spinner text-secondary"></span>
+        }
     </div>
-    }
+    <div class="drawer-side">
+        <label
+            for="editTourDrawer"
+            aria-label="close sidebar"
+            class="drawer-overlay"
+        ></label>
+        <ul class="menu bg-white text-base-content min-h-full w-80 p-4 my-16">
+            <div class="text-2xl font-bold">
+                {{ this.tour.tourData.destination }}
+            </div>
+            <div class="text-sm mb-2">Auf ins nächste Abentuer</div>
+            <form [formGroup]="tourForm">
+                <!-- DESTINATION -->
+                <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                        <span class="font-bold text-base">Ziel</span>
+                    </div>
+                    <label class="input input-bordered flex items-center gap-2">
+                        <input
+                            formControlName="destination"
+                            type="text"
+                            class="grow"
+                        />
+                    </label>
+                </label>
+                <!-- DATE -->
+                <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                        <span class="font-bold text-base">Datum</span>
+                    </div>
+                    <p-datepicker
+                        formControlName="start"
+                        selectionMode="range"
+                        [readonlyInput]="true"
+                        dateFormat="dd.mm.yy"
+                    />
+                </label>
+            </form>
+            <!-- BUTTON -->
+            <div class="grid grid-cols-2 gap-2 mt-4">
+                <button class="btn btn-primary" (click)="onSaveTourData()">
+                    Erstellen
+                </button>
+                <button
+                    class="btn btn-secondary btn-outline"
+                    (click)="editTourDrawer.checked = false"
+                >
+                    Abbrechen
+                </button>
+            </div>
+        </ul>
+    </div>
 </div>
-} @else {
-<span class="loading loading-spinner text-secondary"></span>
-}

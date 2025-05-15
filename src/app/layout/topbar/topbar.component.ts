@@ -44,16 +44,14 @@ export class TopbarComponent {
             this.link = `${environment.frontendUrl}/#/home/${this.group.key}/`;
             this.getGroupName();
         }
-    
+
         this.authSubscription = this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
             this.isAuthenticated = isAuthenticated;
             if (this.isAuthenticated) {
                 // Sicherstellen, dass key nicht leer ist
-                if (!this.group.key) {
-                    this.group.key = this.localStorageService.getItem('key')!;
-                    this.link = `${environment.frontendUrl}/#/home/${this.group.key}/`;
-                    this.getGroupName();
-                }
+                this.group.key = this.localStorageService.getItem('key')!;
+                this.link = `${environment.frontendUrl}/#/home/${this.group.key}/`;
+                this.getGroupName();
             }
         });
     }

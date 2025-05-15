@@ -76,99 +76,111 @@
     class="collapse bg-base-200"
     (onDrag)="onDragElement(member)"
     (onDrop)="onDropElement(member.member_id)"
+    (onDragEnd)="onDragEnd()"
 >
     <!-- INFO -->
     <summary class="collapse-title text-xl font-medium">
-        <div class="flex justify-between">
-            <!-- AVATAR / NAME / BURDENs-->
-            <div class="flex justify-start space-x-2">
-                <app-icon
-                    [type]="'MEMBER'"
-                    [avatarNumber]="tourMembersData[member.member_id].avatar"
-                >
-                </app-icon>
-                <span class="text-sm">{{
-                    tourMembersData[member.member_id].name
-                }}</span>
-
-                <div class="divider divider-horizontal"></div>
-
-                <span class="text-sm">{{
-                    getTourMemberWeight(member.member_id) | weight
-                }}</span>
-
-                @if(getTourMemberThings(member.member_id).length > 0) {
-                    <div class="divider divider-horizontal"></div>
-
-                    <div class="avatar-group -space-x-6">
-                        @for ( burden of getTourMemberThings(member.member_id); track
-                        burden ) {
-                        <div class="avatar">
-                            <app-icon
-                                [type]="'THING'"
-                                [name]="tourMembersThingsData[burden].name"
-                            ></app-icon>
-                        </div>
-                        }
-                    </div>
+        <div class="flex items-center justify-between w-full">
+          <!-- LINKER BLOCK -->
+          <div class="flex items-center gap-2">
+            <!-- DRAG ICON -->
+            <mat-icon
+              class="cursor-move text-gray-400 text-lg"
+              fontIcon="drag_indicator"
+              aria-label="drag handle"
+            ></mat-icon>
+      
+            <!-- AVATAR -->
+            <app-icon
+              [type]="'MEMBER'"
+              [avatarNumber]="tourMembersData[member.member_id].avatar"
+            ></app-icon>
+      
+            <!-- NAME -->
+            <span class="text-sm">
+              {{ tourMembersData[member.member_id].name }}
+            </span>
+      
+            <div class="divider divider-horizontal m-0"></div>
+      
+            <!-- WEIGHT -->
+            <span class="badge badge-soft badge-primary text-sm font-bold">
+                {{ getTourMemberWeight(member.member_id) | weight }}
+            </span>
+      
+            <!-- BURDENS -->
+            @if (getTourMemberThings(member.member_id).length > 0) {
+              <div class="divider divider-horizontal m-0"></div>
+              <div class="avatar-group -space-x-3">
+                @for (burden of getTourMemberThings(member.member_id); track burden) {
+                  <app-icon
+                    [type]="'THING'"
+                    [name]="tourMembersThingsData[burden].name"
+                  ></app-icon>
                 }
-            </div>
-            <!-- BUTTONS -->
-            <!-- <div
-                class="flex gap-1 relative z-10"
-                [ngClass]="
-                    hasAssignments(member) ? 'tooltip tooltip-left' : ''
-                "
-                data-tip="Besitzt Zuweisungen"
-            > -->
+              </div>
+            }
+          </div>
+      
+          <!-- DELETE BUTTON -->
+          <div
+            class="flex items-center justify-end min-w-[2.5rem]"
+            [ngClass]="
+              getTourMemberThings(member.member_id).length > 0
+                ? 'tooltip tooltip-left'
+                : ''
+            "
+            data-tip="Besitzt Zuweisungen"
+          >
             <button
-                class="btn btn-secondary btn-circle btn-xs"
-                (click)="showDeleteModal(tourMembersData[member.member_id])"
+              class="btn btn-secondary btn-circle btn-xs"
+              (click)="showDeleteModal(tourMembersData[member.member_id])"
+              [disabled]="getTourMemberThings(member.member_id).length > 0"
             >
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Delete member"
-                    class="text-sm"
-                    fontIcon="delete"
-                ></mat-icon>
+              <mat-icon fontIcon="delete" class="text-sm"></mat-icon>
             </button>
-            <!-- </div> -->
+          </div>
         </div>
-    </summary>
+      </summary>
+      
+      
     <!-- BURDENS -->
     <div class="collapse-content">
-        @for ( burden of getTourMemberThings(member.member_id); track burden ) {
-        <div class="card bg-white align-middle ms-24">
-            <div class="flex justify-between m-3">
-
-                <div class="flex justify-start space-x-2">
-                    <app-icon [type]="'THING'" [name]="tourMembersThingsData[burden].name">
-                    </app-icon>
-                    <span class="text-sm">{{ tourMembersThingsData[burden].name }}</span>
-                    <div class="divider divider-horizontal"></div>
-                    <span class="text-sm">{{ tourMembersThingsData[burden].weight | weight }} </span>
-                </div>
-                
-                <div class="flex justify-end space-x-2">
-
-                    <button
-                        class="btn btn-secondary btn-circle btn-xs"
-                        (click)="onRemoveThingFromMember(burden, member.member_id)"
-                    >
-                        <mat-icon
-                            aria-hidden="false"
-                            aria-label="Delete member"
-                            class="text-sm"
-                            fontIcon="delete"
-                        ></mat-icon>
-                    </button>
-                </div>
+        @for (burden of getTourMemberThings(member.member_id); track burden) {
+          <div class="card bg-white ms-24">
+            <div class="flex items-center justify-between p-3">
+              <div class="flex items-center gap-2">
+                <span class="text-sm">
+                  {{ tourMembersThingsData[burden].name }}
+                </span>
+                <div class="divider divider-horizontal m-0"></div>
+                <span class="badge badge-soft badge-primary text-sm font-bold">
+                    {{ tourMembersThingsData[burden].weight | weight }}
+                  </span>
+                  
+                  
+              </div>
+      
+              <div class="flex items-center">
+                <button
+                  class="btn btn-secondary btn-circle btn-xs"
+                  (click)="onRemoveThingFromMember(burden, member.member_id)"
+                >
+                  <mat-icon
+                    aria-label="Delete thing"
+                    fontIcon="delete"
+                    class="text-sm"
+                  ></mat-icon>
+                </button>
+              </div>
             </div>
-        </div>
-        }@empty {
-            {{ tourMembersData[member.member_id].name }}'s Rucksack ist leer
+          </div>
         }
-    </div>
+        @empty {
+          {{ tourMembersData[member.member_id].name }}'s Rucksack ist leer
+        }
+      </div>
+      
 </details>
 
 } @empty { Bisher wurden keine Teilnehmer hinzugefügt }

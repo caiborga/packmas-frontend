@@ -13,12 +13,6 @@ export interface TourData {
     tourThingsWeight: number;
 }
 
-export interface TourAssignments {
-    members: Map<number, { car: number; things: number[] }>;
-    things: Map<number, { member: number }>;
-    cars: Map<number, { members: number[] }>;
-}
-
 export interface Tour {
     id: number;
     tourData: TourData;
@@ -38,17 +32,6 @@ export function initializeTour(overrides: Partial<Tour> = {}): Tour {
             tourThingsWeight: 0,
             ...overrides.tourData,
         }
-    };
-}
-
-export function initializeTourAssignments(
-    overrides: Partial<TourAssignments> = {}
-): TourAssignments {
-    return {
-        members: new Map<number, { car: number; things: number[] }>(),
-        things: new Map<number, { member: number }>(),
-        cars: new Map<number, { members: number[] }>(),
-        ...overrides,
     };
 }
 

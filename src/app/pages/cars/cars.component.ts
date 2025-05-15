@@ -147,7 +147,7 @@ export class CarsComponent {
             .then((response) => {
                 this.drivers = response.participants;
                 this.driverPagination = response.pagination;
-                console.log('getMembers(drivers) - success', this.drivers);
+                console.log('getMembers(drivers) - success', response);
             })
             .catch((error) => {
                 this.loadingData = false;

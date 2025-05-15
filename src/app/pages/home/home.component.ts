@@ -106,12 +106,11 @@ export class HomeComponent {
             .post('register', data)
             .toPromise()
             .then((response: any) => {
-                console.log('registerGroup - success', response.message);
+                console.log('registerGroup - success', response);
                 this.authService.login();
-                this.localStorageService.setItem('key', response.key);
-                // this.link = `https://caiborga.github.io/mtc-frontend/browser/#/home/${response.key}/`
+                this.localStorageService.setItem('key', response.groupKey);
                 // this.layoutService.setBackgroundSuccess();
-                this.router.navigate(['/', 'tours']); //,response.key
+                this.router.navigate(['/', 'tours']);
             })
             .catch((error) => {
                 console.error('registerGroup - error', error);

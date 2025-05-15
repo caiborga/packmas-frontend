@@ -36,7 +36,10 @@
         <div class="modal-action">
             <form method="dialog">
                 <div class="flex gap-1">
-                    <button class="btn btn-primary" (click)="onAddSetting(newValue.value)">
+                    <button
+                        class="btn btn-primary"
+                        (click)="onAddSetting(newValue.value)"
+                    >
                         Speichern
                     </button>
                     <button class="btn btn-secondary">Abbrechen</button>
@@ -125,6 +128,7 @@
         </div>
     </div>
 
+    @switch(controlType) { @case ('TABLE'){
     <!-- TABLE -->
     <div class="w-3/4">
         <p-table
@@ -166,11 +170,12 @@
                     >
                         <div class="flex items-center gap-3">
                             <input
+                                #inputRef
                                 type="text"
-                                placeholder="Type here"
-                                class="input input-xs w-full"
+                                placeholder="Darf nicht leer sein"
+                                class="input input-xs w-full hover:bg-blue-50 hover:border-blue-400"
                                 [value]="entry.value"
-                                (blur)="onEdit(entry)"
+                                (blur)="inputRef.value ? onEdit(entry, inputRef.value) : inputRef.value = entry.value"
                             />
                         </div>
                         <div class="flex gap-1 px-1">
@@ -201,4 +206,40 @@
             </ng-template>
         </p-table>
     </div>
+    } @case ('VIEW'){
+    <div class="w-3/4 grid grid-cols-3 gap-4">
+        @for (view of views; track view.name) {
+        <div>
+            <div class="card bg-base-100 shadow-sm h-[300px] flex flex-col">
+                <figure class="h-60 overflow-hidden">
+                    <img
+                        [src]="view.link"
+                        [alt]="view.name"
+                        class="object-cover w-full h-full"
+                    />
+                </figure>
+                <div
+                    class="card-body flex-grow flex flex-col justify-between gap-y-2"
+                >
+                    <h2
+                        class="card-title text-lg text-center justify-center text-base-content"
+                    >
+                        {{ view.name }}
+                    </h2>
+                    <div class="flex justify-center items-center">
+                        <input
+                            type="radio"
+                            name="radio-1"
+                            class="radio"
+                            checked="checked"
+                            (click)="setView(view)"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+
+    } }
 </div>

@@ -13,7 +13,8 @@
                         class="btn btn-primary"
                         (click)="deleteTour(tourToDelete.id)"
                     >
-                        {{ tourToDelete.tourData.destination }} hat kein Potenzial
+                        {{ tourToDelete.tourData.destination }} hat kein
+                        Potenzial
                     </button>
                     <button class="btn btn-secondary">Abbrechen</button>
                 </div>
@@ -32,12 +33,30 @@
 <div class="drawer drawer-end">
     <input #drawer id="my-drawer-4" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
+        <label class="input input-bordered rounded-2xl flex items-center mb-2">
+            <input
+                #searchBox
+                type="text"
+                class="grow"
+                placeholder="Tour suchen"
+                (input)="onSearchChange($event)"
+            />
+            @if(loadingData){
+            <span class="loading loading-ring loading-sm"></span>
+            } @else {
+            <mat-icon
+                aria-hidden="false"
+                aria-label="Example home icon"
+                fontIcon="search"
+            ></mat-icon>
+            }
+        </label>
         @if(loadingData){
         <span class="loading loading-spinner text-primary"></span>
-        } 
-        @else { 
-            @if(tours.length > 0) {
-            <!-- <div class="flex items-center gap-2">
+        } @else {
+        
+        @if(tours.length > 0) {
+        <!-- <div class="flex items-center gap-2">
                 <label
                     class="input input-bordered rounded-2xl flex items-center"
                 >
@@ -70,19 +89,17 @@
                     inputId="icondisplay"
                 />
             </div> -->
-            <div [@tourCardsAnimation] class="flex flex-wrap gap-4 m-4">
-                @for(tour of tours; track tour){
-                <app-tour-card
-                    [tour]="tour"
-                    (onDelete)="showDeleteModal($event)"
-                ></app-tour-card>
-                }
-            </div>
-            } 
-            @else {
-                <div class=" text-base text-white">Bisher wurde keine Tour erstellt</div>
+        <div [@tourCardsAnimation] class="flex flex-wrap gap-4 m-4">
+            @for(tour of tours; track tour){
+            <app-tour-card
+                [tour]="tour"
+                (onDelete)="showDeleteModal($event)"
+            ></app-tour-card>
             }
-        }
+        </div>
+        } @else {
+        <div class="text-base text-white">Bisher wurde keine Tour erstellt</div>
+        } }
 
         <div
             class="fixed bottom-16 left-1/2 transform -translate-x-1/2 z-10"
@@ -99,6 +116,7 @@
             ></mat-icon>
         </label>
     </div>
+    <!-- NEW TOUR -->
     <div class="drawer-side">
         <label
             for="my-drawer-4"
@@ -134,42 +152,11 @@
                         dateFormat="dd.mm.yy"
                     />
                 </label>
-                <!-- MEMEBERS -->
-                <label class="form-control w-full max-w-xs">
-                    <div class="label">
-                        <span class="font-bold text-base">Teilnehmer</span>
-                    </div>
-                    <p-multiselect
-                        [options]="allMembers"
-                        optionLabel="name"
-                        optionValue="id"
-                        display="chip"
-                        formControlName="members"
-                    >
-                        <ng-template let-member #item>
-                            <div class="flex items-left gap-2 w-full">
-                                <div class="avatar">
-                                    <div class="mask mask-squircle">
-                                        <img
-                                            [src]="
-                                                'assets/images/avatars/' +
-                                                member.avatar +
-                                                'thumbnail.jpg'
-                                            "
-                                            style="width: 18px"
-                                        />
-                                    </div>
-                                </div>
-                                <div>{{ member.name }}</div>
-                            </div>
-                        </ng-template>
-                    </p-multiselect>
-                </label>
             </form>
             <!-- BUTTON -->
             <div class="grid grid-cols-2 gap-2 mt-4">
                 <button class="btn btn-primary" (click)="onNewTour()">
-                    Erstellen
+                    Speichern
                 </button>
                 <button
                     class="btn btn-secondary btn-outline"

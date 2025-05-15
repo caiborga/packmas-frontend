@@ -39,7 +39,7 @@ export class AuthService {
 
         // this.loadingData = true;
         this.tourService
-            .get('group', data)
+            .get('group/' + key, data)
             .toPromise()
             .then((response) => {
                 console.log('getGroupName - success', response);

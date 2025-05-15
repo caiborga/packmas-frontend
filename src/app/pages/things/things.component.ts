@@ -150,7 +150,7 @@ export class ThingsComponent {
                 this.serverCategories = response.data.categories;
                 this.serverUnits = response.data.units;
                 this.loadingData = false;
-                console.log('getThings - success', this.things);
+                console.log('getThings - success', response);
             })
             .catch((error) => {
                 this.loadingData = false;

@@ -9,7 +9,7 @@ import { NgClass, NgStyle } from '@angular/common';
     styleUrl: './icon.component.scss',
 })
 export class IconComponent {
-    @Input() avatarNumber: string = '';
+    @Input() avatarNumber: string | undefined = undefined;
     @Input() name: string = '';
     @Input() number: number = 0;
     @Input() backGroundcolor: string = '';

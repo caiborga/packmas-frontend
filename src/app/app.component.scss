@@ -31,10 +31,9 @@
 
 /* Transparentes Bild als Overlay */
 .background-overlay {
-    background-image: url('/assets/mountains.png');
     background-position: center bottom;
     background-repeat: no-repeat;
-    background-size: 100% 60%; /* Breite 100%, Höhe 70% */
+    background-size: 100% 70%; /* Breite 100%, Höhe 70% */
     position: absolute;
     bottom: 0;
     left: 0;

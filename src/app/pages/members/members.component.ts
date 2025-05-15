@@ -89,7 +89,7 @@ export class MembersComponent {
             .get('members', this.pagination)
             .toPromise()
             .then((response) => {
-                this.members = response.participants;
+                this.members = response.members;
                 this.loadingData = false;
                 this.pagination = response.pagination;
                 console.log('getMembers - success', this.members);

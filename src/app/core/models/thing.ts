@@ -1,5 +1,3 @@
-import { Member } from "./member";
-
 export interface Thing {
     id: number,
     bearer?: number,
@@ -9,6 +7,7 @@ export interface Thing {
 }
 
 export interface TourThing {
+    assignedMemberId?: number,
     id: number,
     created_at: string,
     thing_id: number,

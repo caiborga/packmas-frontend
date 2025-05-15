@@ -1,7 +1,10 @@
 <!-- [ngClass]="{'background-success': backgroundBlurred} -->
 <div class="background">
     <app-topbar [@slideTopbar]="topbarState" class="z-10"></app-topbar>
-    <div class="background-overlay" [ngClass]="{'background-overlay-blur': backgroundBlurred}"></div>
+    <div class="background-overlay" 
+        [ngClass]="{'background-overlay-blur': backgroundBlurred}"
+        [ngStyle]="{'background-image': 'url(' + backgroundLink + ')'}">
+    </div>
     <div class="router-outlet">
         <app-alert></app-alert>
         <router-outlet></router-outlet>

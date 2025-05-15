@@ -15,7 +15,6 @@ import { AlertService } from '../../../core/services/alert.service';
 import { ToursService } from '../../../core/services/tours.service';
 import { initializeThing, Thing, TourThing } from '../../../core/models/thing';
 import { Member } from '../../../core/models/member';
-import { initializeTourAssignments, TourAssignments } from '../../../core/models/tour';
 import { IconComponent } from '../../../shared/icon/icon.component';
 import { WeightPipe } from '../../../core/pipes/customPipes';
 import { Setting } from '../../../core/models/setting';
@@ -30,6 +29,7 @@ import { Setting } from '../../../core/models/setting';
 export class TourThingsComponent {
     @Input() tourID: number = 0;
     @Output() tourThingsCount = new EventEmitter<number>();
+    @Output() tourThingsWeight = new EventEmitter<number>();
     @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
     @ViewChild('deleteModal') deleteModal!: ElementRef<HTMLDialogElement>;
 
@@ -40,6 +40,8 @@ export class TourThingsComponent {
     tourThings: TourThing[] = [];
     tourThingsData: Thing[] = [];
     tourThingsCategories: Setting[] = [];
+    tourThingsMembers: Member[] = [];
+    tourThingAssignmentsCount: number = 0;
     thingToDelete: Thing = initializeThing();
 
     thingForm = new FormGroup({
@@ -64,35 +66,26 @@ export class TourThingsComponent {
     }
 
     ngOnInit() {
+
+        this.dragDropService.callGetTourThingData$.subscribe(() => {
+            this.getTourThings();
+        });
+
         this.getTourThings();
     }
 
-    hasAssignments(thing: TourThing) {
-        const check: dragObject = {
-            id: thing.id,
-            type: 'THING',
-        };
-        return this.dragDropService.hasAssignments(check);
-    }
+    getBearerAvatar(assignedMemberId: number | undefined): string | undefined {
+        let resultAvatarId = '0';
 
-    getBearerAvatar(thing: number) {
-        // const thingData = this.tourAssignments.things.get(thing)
-        let result = '';
-        // if (thingData) {
-        //     const memberId = thingData.member
-        //     result = this.members.data[memberId].avatar
-        // }
-        return result;
+        if ( assignedMemberId ) {
+            resultAvatarId = this.tourThingsMembers[assignedMemberId].avatar;
+        }
+        
+        return resultAvatarId;
     }
 
     getBearerName(thing: number) {
-        // const thingData = this.tourAssignments.things.get(thing);
-        let result = 'Nicht zugewiesen';
-        // if (thingData) {
-        //     const memberId = thingData.member;
-        //     result = this.members.data[memberId].name;
-        // }
-        return result;
+        return '';
     }
 
     getThings() {
@@ -124,7 +117,10 @@ export class TourThingsComponent {
                 this.tourThings = response.tourThings;
                 this.tourThingsData = response.data.things;
                 this.tourThingsCategories = response.data.categories;
+                this.tourThingsMembers = response.data.members;
+                this.tourThingAssignmentsCount = response.data.thingAssignmentsCount;
                 this.tourThingsCount.emit(this.tourThings.length);
+                this.tourThingsWeight.emit(response.data.thingsWeight)
                 this.pagination = response.pagination;
                 console.log('getTourThings - success', response);
             })
@@ -199,6 +195,11 @@ export class TourThingsComponent {
             type: 'THING',
         };
         this.dragDropService.origin = drag;
+        this.dragDropService.setDropType('THING')
+    }
+
+    onDragEnd() {
+        this.dragDropService.setDropType('UNDEFINED')
     }
 
     async onDeleteTourThing(thing: Thing) {

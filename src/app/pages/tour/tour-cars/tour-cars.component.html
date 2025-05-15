@@ -58,7 +58,10 @@
 </div>
 
 @for (car of tourCars; track car) {
-<details pDroppable (onDrop)="onAssignMemberToCar(car.car_id)" class="collapse bg-base-200">
+<details 
+    pDroppable (onDrop)="onAssignMemberToCar(car.car_id)" 
+    class="collapse bg-base-200"
+    >
 
     <progress 
         class="progress progress-success absolute top-0 left-0 w-full"
@@ -96,13 +99,13 @@
             <!-- DELETE BUTTON -->
             <div
                 class="flex gap-1 relative z-10"
-                [ngClass]="hasAssignments(car) ? 'tooltip tooltip-left' : ''"
+                [ngClass]="getTourCarMembers(car.car_id).length > 0 ? 'tooltip tooltip-left' : ''"
                 data-tip="Besitzt Zuweisungen"
             >
                 <button
                     class="btn btn-secondary btn-circle btn-xs"
                     (click)="showDeleteModal(tourCarsData[car.car_id])"
-                    [disabled]="hasAssignments(car)"
+                    [disabled]="getTourCarMembers(car.car_id).length > 0"
                 >
                     <mat-icon
                         aria-hidden="false"

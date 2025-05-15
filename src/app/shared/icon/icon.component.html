@@ -1,65 +1,54 @@
-@switch (type) { 
-    
-    @case ('CAR') {
+@switch (type) { @case ('CAR') {
+<div
+    class="w-6 h-6 rounded-full bg-secondary grid place-items-center"
+    [ngStyle]="{ 'background-color': backGroundcolor }"
+>
     <div
-        class="w-6 h-6 rounded-full bg-secondary grid place-items-center"
-        [ngStyle]="{ 'background-color': backGroundcolor }"
+        class="text-xs font-bold"
+        [ngStyle]="{ color: getContrastColor(backGroundcolor) }"
     >
-        <div
-            class="text-xs font-bold"
-            [ngStyle]="{ color: getContrastColor(backGroundcolor) }"
-        >
-            {{ abbreviation }}
-        </div>
+        {{ abbreviation }}
     </div>
-    }
+</div>
+} @case ('THING') {
+<div class="w-6 h-6 rounded-full bg-primary grid place-items-center">
+    <div class="text-white text-xs font-bold">{{ abbreviation }}</div>
+</div>
+} @case ('MEMBER') {
+<div
+    class="w-6 h-6 rounded-full overflow-hidden grid place-items-center bg-gray-200"
+>
+    <img
+        class="w-full h-full object-cover"
+        [src]="
+            'assets/images/avatars/' +
+            (avatarNumber !== '0' ? avatarNumber + 'thumbnail' : 'default') +
+            '.jpg'
+        "
+        alt="Avatar"
+    />
+</div>
+} @case ('NUMBER') {
+<div class="w-6 h-6 rounded-full bg-primary grid place-items-center">
+    <div class="text-white text-xs font-bold">{{ number }}</div>
+</div>
+} @case ('LISTTHING') {
+<div
+    class="mask mask-squircle w-8 h-8 rounded-full bg-primary grid place-items-center"
+>
+    <div class="text-white text-xs font-bold">{{ abbreviation }}</div>
+</div>
 
-    @case ('THING') {
-        <div class="w-6 h-6 rounded-full bg-primary grid place-items-center">
-            <div class="text-white text-xs font-bold">{{ abbreviation }}</div>
-        </div>
-    } 
-    
-    @case ('MEMBER') {
-        <div class="avatar">
-            <div class="w-6 rounded-xl">
-                @if(avatarNumber) {
-                <img
-                    [src]="'assets/images/avatars/' + avatarNumber + 'thumbnail.jpg'"
-                    alt="Avatar"
-                />
-                } @else {
-                <img [src]="'assets/images/avatars/default.jpg'" alt="Avatar" />
-                }
-            </div>
-        </div>
-    }
-
-    @case ('NUMBER') {
-        <div class="w-6 h-6 rounded-full bg-primary grid place-items-center">
-            <div class="text-white text-xs font-bold">{{ number }}</div>
-        </div>
-    }
-
-    @case ('LISTTHING') {
-        <div class="mask mask-squircle w-8 h-8 rounded-full bg-primary grid place-items-center">
-            <div class="text-white text-xs font-bold">{{ abbreviation }}</div>
-        </div>
-      
-    }
-
-    @case ('LISTCAR') {
-        <div
-            class="w-8 h-8 rounded-full bg-secondary grid place-items-center"
-            [ngStyle]="{ 'background-color': backGroundcolor }"
-        >
-            <div
-                class="text-xs font-bold"
-                [ngStyle]="{ color: getContrastColor(backGroundcolor) }"
-            >
-                {{ abbreviation }}
-            </div>
-        </div>
-    }
-    
-    @default { Default case. } }
+} @case ('LISTCAR') {
+<div
+    class="w-8 h-8 rounded-full bg-secondary grid place-items-center"
+    [ngStyle]="{ 'background-color': backGroundcolor }"
+>
+    <div
+        class="text-xs font-bold"
+        [ngStyle]="{ color: getContrastColor(backGroundcolor) }"
+    >
+        {{ abbreviation }}
+    </div>
+</div>
+} @default { Default case. } }

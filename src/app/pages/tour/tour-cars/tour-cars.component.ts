@@ -6,9 +6,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { AutoComplete } from 'primeng/autocomplete';
 import { DragDropModule } from 'primeng/dragdrop';
 
-import { DragDropService, dragObject } from '../../../core/services/drag-drop.service';
+import { DragDropService } from '../../../core/services/drag-drop.service';
 import { Car, initializeCar, TourCar, TourCarMember } from '../../../core/models/car';
-import { initializeTourAssignments, TourAssignments } from '../../../core/models/tour';
 import { AlertService } from '../../../core/services/alert.service';
 import { ToursService } from '../../../core/services/tours.service';
 import { Pagination } from '../../../core/models/pagination';
@@ -18,7 +17,7 @@ import { IconComponent } from '../../../shared/icon/icon.component';
 @Component({
     selector: 'app-tour-cars',
     standalone: true,
-    imports: [AutoComplete, DragDropModule, JsonPipe, MatIconModule, NgClass, IconComponent],
+    imports: [AutoComplete, DragDropModule, MatIconModule, NgClass, IconComponent],
     templateUrl: './tour-cars.component.html',
     styleUrl: './tour-cars.component.scss',
 })
