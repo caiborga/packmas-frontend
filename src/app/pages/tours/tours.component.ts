@@ -218,6 +218,31 @@ export class ToursComponent {
             });
     }
 
+    onCopyTour(tour: Tour) {
+        this.loadingData = true;
+
+        this.tourService
+            .get('tours/' + tour.id + '/duplicate')
+            .toPromise()
+            .then((response) => {
+                this.loadingData = false;
+                this.getTours();
+                this.alertService.showAlertMessage({
+                    type: 'success',
+                    message: 'Tour erfolgreich dupliziert',
+                });
+                console.log('newTour - success', response);
+            })
+            .catch((error) => {
+                this.loadingData = false;
+                this.alertService.showAlertMessage({
+                    type: 'error',
+                    message: 'Da hat was nicht geklappt',
+                });
+                console.error('newTour - error', error);
+            });
+    }
+
     onSearchChange(event: Event): void {
         const input = event.target as HTMLInputElement;
         this.searchSubject.next(input.value);

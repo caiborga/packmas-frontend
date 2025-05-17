@@ -93,6 +93,7 @@
             @for(tour of tours; track tour){
             <app-tour-card
                 [tour]="tour"
+                (onCopy)="onCopyTour($event)"
                 (onDelete)="showDeleteModal($event)"
             ></app-tour-card>
             }

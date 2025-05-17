@@ -20,6 +20,7 @@ export class TourCardComponent {
     @Input() tour: Tour = initializeTour();
     @Input() loading: boolean = true;
     @Output() onDelete = new EventEmitter<Tour>();
+    @Output() onCopy = new EventEmitter<Tour>();
 
     ngOnInit() {
         console.log('TourCardComponent - tour', this.tour )

@@ -148,6 +148,7 @@
                             </button>
                             <button
                                 class="btn btn-secondary btn-circle btn-xs"
+                                [disabled]="thing.isUsed"
                                 (click)="showDeleteModal(thing)"
                             >
                                 <mat-icon

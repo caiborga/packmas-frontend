@@ -22,6 +22,7 @@ export class AppComponent {
     private backgroundBlurredStateSubscription: Subscription;
     private backgroundSuccessStateSubscription: Subscription;
     private backgroundLinkSubscription: Subscription;
+    private loadingSubscription: Subscription;
 
     layoutService = inject(LayoutService);  
 
@@ -31,6 +32,7 @@ export class AppComponent {
     topbarState = 'hidden';
     footerState = 'hidden';
     backgroundLink = '/assets/mountains.png';
+    loading = false;
 
     constructor() {
         this.backgroundBlurredStateSubscription = this.layoutService.backgroundBlurred$.subscribe(
@@ -58,5 +60,19 @@ export class AppComponent {
                 this.backgroundLink = newValue;
             }
         )
+        this.loadingSubscription = this.layoutService.loading$.subscribe(
+            (newValue) => {
+                this.loading = newValue;
+                this.isLoading();
+            }
+        )
+    }
+
+    isLoading() {
+        if(this.loading) {
+            this.layoutService.setBackgroundBlurred(false);
+        }else{
+            this.layoutService.setBackgroundBlurred(true);
+        }
     }
 }

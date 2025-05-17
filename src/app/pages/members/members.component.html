@@ -121,6 +121,7 @@
                             </button>
                             <button
                                 class="btn btn-secondary btn-circle btn-xs"
+                                [disabled]="member.isUsed"
                                 (click)="showDeleteModal(member)"
                             >
                                 <mat-icon

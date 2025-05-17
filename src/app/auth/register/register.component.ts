@@ -6,29 +6,23 @@ import { LocalStorageService } from '../../core/services/local-storage.service';
 import { FormsModule } from '@angular/forms';
 import { LayoutService } from '../../core/services/layout.service';
 import { ToursService } from '../../core/services/tours.service';
+import { AlertService } from '../../core/services/alert.service';
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [FormsModule, RouterModule],
-  templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+    selector: 'app-register',
+    standalone: true,
+    imports: [FormsModule, RouterModule],
+    templateUrl: './register.component.html',
+    styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
-
     layoutService = inject(LayoutService);
-    
+    alertService = inject(AlertService);
 
-    groupName: string = ''
-    link: string = ''
+    groupName: string = '';
+    link: string = '';
 
-    constructor(
-        private authService: AuthService,
-        // private clipboard: Clipboard,
-        private router: Router,
-        private tourService: ToursService,
-        private localStorage: LocalStorageService
-    ) {}
+    constructor(private authService: AuthService, private router: Router, private tourService: ToursService, private localStorage: LocalStorageService) {}
 
     ngOnInit() {
         this.layoutService.setTopbarState('hidden');
@@ -37,21 +31,27 @@ export class RegisterComponent {
     }
 
     registerGroup() {
-        let data = { 
-            name: this.groupName
-        }
-        this.tourService.post('register', data)
-        .toPromise()
-        .then((response: any) => {
-            console.log('registerGroup - success', response.message);
-            this.authService.login()
-            this.localStorage.setItem('key', response.key)
-            // this.link = `https://caiborga.github.io/mtc-frontend/browser/#/home/${response.key}/`
-            // this.layoutService.setBackgroundSuccess();
-            this.router.navigate(['/', 'tours']); //,response.key
-        })
-        .catch((error) => {
-            console.error('registerGroup - error', error);
-        });
+        this.layoutService.setLoading(true);
+        let data = {
+            name: this.groupName,
+        };
+        this.tourService
+            .post('register', data)
+            .toPromise()
+            .then((response: any) => {
+                console.log('registerGroup - success', response.message);
+                this.authService.login();
+                this.localStorage.setItem('key', response.key);
+                this.router.navigate(['/', 'tours']);
+                this.layoutService.setLoading(false);
+            })
+            .catch((error) => {
+                this.layoutService.setLoading(false);
+                this.alertService.showAlertMessage({
+                    type: 'error',
+                    message: 'Das hat leider nicht geklappt',
+                });
+                console.error('registerGroup - error', error);
+            });
     }
 }

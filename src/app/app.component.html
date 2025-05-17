@@ -1,14 +1,22 @@
 <!-- [ngClass]="{'background-success': backgroundBlurred} -->
 <div class="background">
     <app-topbar [@slideTopbar]="topbarState" class="z-10"></app-topbar>
-    <div class="background-overlay" 
-        [ngClass]="{'background-overlay-blur': backgroundBlurred}"
-        [ngStyle]="{'background-image': 'url(' + backgroundLink + ')'}">
-    </div>
+    <div
+        class="background-overlay"
+        [ngClass]="{ 'background-overlay-blur': backgroundBlurred }"
+        [ngStyle]="{ 'background-image': 'url(' + backgroundLink + ')' }"
+    ></div>
     <div class="router-outlet">
         <app-alert></app-alert>
+        @if(loading) {
+        <div
+            class="absolute inset-0 flex items-center justify-center z-20"
+        >
+            <span class="loading loading-spinner text-primary"></span>
+        </div>
+        } @else {
         <router-outlet></router-outlet>
+        }
     </div>
     <app-footer [@slideFooter]="footerState" class="z-10"></app-footer>
 </div>
-

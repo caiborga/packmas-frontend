@@ -10,14 +10,16 @@ export class LayoutService {
 
     private backgroundBlurred = new BehaviorSubject<boolean>(false);
     private backGroundSuccess = new BehaviorSubject<boolean>(false);
-    private topbarState = new BehaviorSubject<visibleState>('hidden');
     private footerState = new BehaviorSubject<visibleState>('hidden');
+    private loading = new BehaviorSubject<boolean>(false);
+    private topbarState = new BehaviorSubject<visibleState>('hidden');
     private view = new BehaviorSubject<string>('/assets/mountains.png');
 
     public backgroundBlurred$: Observable<boolean> = this.backgroundBlurred.asObservable();
     public backgroundSuccess$: Observable<boolean> = this.backgroundBlurred.asObservable();
-    public topbarState$: Observable<string> = this.topbarState.asObservable();
     public footerState$: Observable<string> = this.footerState.asObservable();
+    public loading$: Observable<boolean> = this.loading.asObservable();
+    public topbarState$: Observable<string> = this.topbarState.asObservable();
     public view$: Observable<string> = this.view.asObservable();
 
     constructor() {}
@@ -33,12 +35,16 @@ export class LayoutService {
         }, 1000);
     }
 
-    setTopbarState(status: visibleState): void {
-        this.topbarState.next(status);
-    }
-
     setFooterState(status: visibleState): void {
         this.footerState.next(status);
+    }
+
+    setLoading(status: boolean) {
+        this.loading.next(status);
+    }
+
+    setTopbarState(status: visibleState): void {
+        this.topbarState.next(status);
     }
 
     setView(link: string) {
