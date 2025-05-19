@@ -1,63 +1,93 @@
-<div class="navbar bg-base-100">
-    <div class="flex-1">
-        <div class="flex justify-center items-center">
+<div class="navbar bg-base-100 flex-wrap">
+    <!-- Navbar Start: Logo + Name + Mobile Dropdown -->
+    <div class="navbar-start">
+        <!-- Mobile Dropdown -->
+        <div class="dropdown">
+            <button tabindex="0" class="btn btn-ghost lg:hidden">
+                <mat-icon fontIcon="menu"></mat-icon>
+            </button>
+            <ul
+                tabindex="0"
+                class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+            >
+                <li><a [routerLink]="['/', 'tours']">Touren</a></li>
+                <li><a [routerLink]="['/', 'members']">Mitglieder</a></li>
+                <li><a [routerLink]="['/', 'things']">Gepäck</a></li>
+                <li><a [routerLink]="['/', 'cars']">Autos</a></li>
+            </ul>
+        </div>
+
+        <!-- Logo + App Name + Gruppenname -->
+        <div class="flex items-center">
             <img
                 src="/assets/packmas-icon.png"
                 alt="Logo"
                 class="w-10 h-auto"
             />
-        </div>
-        <a class="text-xl p-2">Pack Ma's</a>
-        <div class="divider divider-horizontal"></div>
-        <a class="text-xl font-bold p-2">{{ group.name ? group.name : "" }}</a>
-        <div class="tooltip tooltip-bottom" [attr.data-tip]="tooltipText">
-            <button
-                class="btn btn-circle btn-sm"
-                (click)="copyToClipboard()"
+            <a class="text-xl font-bold p-2">
+                {{ group.name ? group.name : "" }}
+            </a>
+
+            <!-- Copy Button mit Tooltip -->
+            <div
+                class="tooltip tooltip-bottom"
+                [attr.data-tip]="tooltipText"
             >
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Example home icon"
-                    class="text-base"
-                    fontIcon="content_copy"
-                ></mat-icon>
+                <button
+                    class="btn btn-circle btn-sm"
+                    (click)="copyToClipboard()"
+                >
+                    <mat-icon
+                        aria-hidden="false"
+                        aria-label="Copy group name"
+                        class="text-base"
+                        fontIcon="content_copy"
+                    ></mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="navbar-end">
+        <div class="hidden lg:flex">
+            <ul class="menu menu-horizontal px-1">
+                <li><a [routerLink]="['/', 'tours']">Touren</a></li>
+                <li><a [routerLink]="['/', 'members']">Mitglieder</a></li>
+                <li><a [routerLink]="['/', 'things']">Gepäck</a></li>
+                <li><a [routerLink]="['/', 'cars']">Autos</a></li>
+            </ul>
+        <div class="divider divider-horizontal"></div>
+
+        </div>
+
+
+        <div class="tooltip tooltip-bottom" data-tip="Einstellungen">
+            <button
+                class="btn btn-ghost btn-circle"
+                [routerLink]="['/', 'settings']"
+            >
+                <div class="indicator">
+                    <mat-icon
+                        aria-hidden="false"
+                        aria-label="Einstellungen"
+                        class="text-lg"
+                        fontIcon="settings"
+                    ></mat-icon>
+                </div>
             </button>
         </div>
-    </div>
-    <div class="flex-none">
-        <ul class="menu menu-horizontal px-1">
-            <li><a [routerLink]="['/', 'tours']">Touren</a></li>
-            <li><a [routerLink]="['/', 'members']">Mitglieder</a></li>
-            <li><a [routerLink]="['/', 'things']">Gepäck</a></li>
-            <li><a [routerLink]="['/', 'cars']">Autos</a></li>
-        </ul>
-    </div>
-    <div class="divider divider-horizontal"></div>
-    <div class="tooltip tooltip-bottom" data-tip="Einstellungen">
-        <button
-            class="btn btn-ghost btn-circle"
-            [routerLink]="['/', 'settings']"
-        >
-            <div class="indicator">
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Example home icon"
-                    class="text-lg"
-                    fontIcon="settings"
-                ></mat-icon>
-            </div>
-        </button>
-    </div>
-    <div class="tooltip tooltip-bottom" data-tip="Abmelden">
-        <button class="btn btn-ghost btn-circle" (click)="logout()">
-            <div class="indicator">
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Example home icon"
-                    class="text-lg text-red-600"
-                    fontIcon="logout"
-                ></mat-icon>
-            </div>
-        </button>
+
+        <div class="tooltip tooltip-bottom" data-tip="Abmelden">
+            <button class="btn btn-ghost btn-circle" (click)="logout()">
+                <div class="indicator">
+                    <mat-icon
+                        aria-hidden="false"
+                        aria-label="Abmelden"
+                        class="text-lg text-red-600"
+                        fontIcon="logout"
+                    ></mat-icon>
+                </div>
+            </button>
+        </div>
     </div>
 </div>
