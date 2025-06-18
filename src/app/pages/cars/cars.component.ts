@@ -15,7 +15,7 @@ import { Pagination } from '../../core/models/pagination';
 import { Subject } from 'rxjs';
 
 import { PaginatorModule } from 'primeng/paginator';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { Select, SelectChangeEvent } from 'primeng/select';
 import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
@@ -50,6 +50,7 @@ export class CarsComponent {
     serverBrands: Setting[] = [];
     editMode: boolean = false;
     loadingData: boolean = false;
+    loadingDrivers: boolean = false;
 
     brandPagination: Pagination = { limit: 10, offset: 0, page: 1, filter: '' };
     carsPagination: Pagination = { limit: 10, offset: 0, page: 1 };
@@ -110,8 +111,19 @@ export class CarsComponent {
             });
     }
 
-    getCars() {
+    getCars(event?: TableLazyLoadEvent) {
         this.loadingData = true;
+        if (event) {
+            const sortField = Array.isArray(event.sortField) ? event.sortField[0] : event.sortField;
+            const filter = this.carsPagination.filter ? this.carsPagination.filter : '';
+            this.carsPagination = {
+                page: (event.first ?? 0) / (event.rows ?? 10) + 1,
+                limit: event.rows ?? 10,
+                filter: filter,
+                sortField: sortField? sortField : '',
+                sortOrder: event.sortOrder === 1 ? 'asc' : 'desc',
+            };
+        }
         this.tourService
             .get('cars', this.carsPagination)
             .toPromise()
@@ -141,18 +153,28 @@ export class CarsComponent {
     }
 
     getMembers() {
+        this.loadingDrivers = true;
         this.tourService
             .get('members', this.driverPagination)
             .toPromise()
             .then((response) => {
-                this.drivers = response.participants;
+                this.drivers = response.members;
                 this.driverPagination = response.pagination;
+                this.loadingDrivers = false;
+
                 console.log('getMembers(drivers) - success', response);
             })
             .catch((error) => {
-                this.loadingData = false;
+                this.drivers = [];
+                this.loadingDrivers = false;
                 console.error('getMembers(drivers) - error', error);
             });
+    }
+
+    getDriverNameById(id: number): string {
+        const driver = this.drivers.find((d) => d.id === id);
+        debugger
+        return driver ? driver.name : '';
     }
 
     async onAddCar() {

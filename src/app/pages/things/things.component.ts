@@ -10,7 +10,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { LayoutService } from '../../core/services/layout.service';
 import { PaginatorModule } from 'primeng/paginator';
 import { Avatar, AVATAR_LIST } from '../../core/avatars/avatars';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Select, SelectChangeEvent } from 'primeng/select';
 import { ToursService } from '../../core/services/tours.service';
 import { HeaderComponent } from '../../shared/header/header.component';
@@ -140,8 +140,20 @@ export class ThingsComponent {
             });
     }
 
-    getThings() {
+    getThings(event?: TableLazyLoadEvent) {
         this.loadingData = true;
+
+        if (event) {
+            const sortField = Array.isArray(event.sortField) ? event.sortField[0] : event.sortField;
+            const filter = this.pagination.filter ? this.pagination.filter : '';
+            this.pagination = {
+                page: (event.first ?? 0) / (event.rows ?? 10) + 1,
+                limit: event.rows ?? 10,
+                filter: filter,
+                sortField: sortField? sortField : '',
+                sortOrder: event.sortOrder === 1 ? 'asc' : 'desc',
+            };
+        }
         this.tourService
             .get('things', this.pagination)
             .toPromise()
@@ -150,6 +162,7 @@ export class ThingsComponent {
                 this.serverCategories = response.data.categories;
                 this.serverUnits = response.data.units;
                 this.loadingData = false;
+                this.pagination = response.pagination;
                 console.log('getThings - success', response);
             })
             .catch((error) => {

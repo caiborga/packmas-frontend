@@ -54,33 +54,47 @@
         </label>
 
         <p-table
+            [@tableRowAnimation]
+            [first]="pagination.offset"
             [value]="things"
+            [lazy]="true"
             [loading]="loadingData"
             [paginator]="true"
-            [first]="pagination.offset"
-            [totalRecords]="pagination.total!"
+            [rows]="pagination.limit"
             [showCurrentPageReport]="true"
-            [rows]="5"
+            [totalRecords]="pagination.total || 0"
             [rowsPerPageOptions]="[5, 10, 20]"
-            [@tableRowAnimation]
+            (onLazyLoad)="getThings($event)"
             currentPageReportTemplate="Zeige {first} bis {last} von {totalRecords} Elementen"
         >
             <ng-template #header>
                 <tr>
-                    <th style="height: 70px; background-color: #f4f4f9">
-
-                    </th>
-                    <th style="height: 70px; background-color: #f4f4f9">
+                    <th style="height: 70px; background-color: #f4f4f9"></th>
+                    <th
+                        style="height: 70px; background-color: #f4f4f9"
+                        pSortableColumn="name"
+                    >
                         Name
+                        <p-sortIcon field="name"></p-sortIcon>
                     </th>
-                    <th style="height: 70px; background-color: #f4f4f9">
+                    <th
+                        style="height: 70px; background-color: #f4f4f9"
+                        pSortableColumn="category"
+                    >
                         Kategorie
                     </th>
-                    <th style="height: 70px; background-color: #f4f4f9">
+                    <th
+                        style="height: 70px; background-color: #f4f4f9"
+                        pSortableColumn="unit_id"
+                    >
                         Einheit
                     </th>
-                    <th style="height: 70px; background-color: #f4f4f9">
+                    <th
+                        style="height: 70px; background-color: #f4f4f9"
+                        pSortableColumn="weight"
+                    >
                         Gewicht
+                        <p-sortIcon field="weight"></p-sortIcon>
                     </th>
                     <th style="height: 70px; background-color: #f4f4f9"></th>
                 </tr>
@@ -94,11 +108,8 @@
                             background-color: #ffffff;
                         "
                     >
-                    <app-icon 
-                        [type]="'LISTTHING'" 
-                        [name]="thing.name">
-                    </app-icon>
-
+                        <app-icon [type]="'LISTTHING'" [name]="thing.name">
+                        </app-icon>
                     </td>
                     <!-- NAME -->
                     <td style="height: 60px; background-color: #ffffff">
@@ -182,13 +193,10 @@
         <!-- BUTTONS -->
         <div
             class="fixed bottom-16 flex justify-center gap-1 left-1/2 transform -translate-x-1/2"
+            (click)="onNewThing()"
         >
             <!-- ADIT MEMBER -->
-            <label
-                for="my-drawer-4"
-                class="button btn btn-circle btn-primary"
-                (click)="onNewThing()"
-            >
+            <label for="my-drawer-4" class="button btn btn-circle btn-primary">
                 <mat-icon
                     aria-hidden="false"
                     aria-label="Example home icon"
@@ -213,10 +221,7 @@
             <div class="text-sm mb-2">
                 Ein jeder hat sein Päckchen zu tragen
             </div>
-            <form
-                [formGroup]="thingForm"
-                class="w-full max-w-lg mx-auto flex flex-col gap-2"
-            >
+            <form [formGroup]="thingForm" class="w-100">
                 <!-- NAME -->
                 <div class="form-control">
                     <label class="label"
@@ -318,9 +323,11 @@
                 </div>
 
                 <!-- WEIGHT -->
-                <div class="form-control">
+                <div class="form-control mb-2">
                     <label class="label"
-                        ><span class="font-bold text-sm">Gewicht in Gramm</span></label
+                        ><span class="font-bold text-sm"
+                            >Gewicht in Gramm</span
+                        ></label
                     >
                     <label
                         class="input input-bordered flex items-center h-9 py-1"
@@ -338,11 +345,20 @@
             <!-- BUTTON -->
             <div class="grid grid-cols-2 gap-2">
                 @if ( !editMode ){
-                <button class="btn btn-primary" (click)="addThing()">
+
+                <button
+                    class="btn btn-primary"
+                    (click)="addThing()"
+                    [disabled]="thingForm.invalid"
+                >
                     Erstellen
                 </button>
                 } @else {
-                <button class="btn btn-primary" (click)="editThing()">
+                <button
+                    class="btn btn-primary"
+                    (click)="editThing()"
+                    [disabled]="thingForm.invalid"
+                >
                     Ändern
                 </button>
                 }

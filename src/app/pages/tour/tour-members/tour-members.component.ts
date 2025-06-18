@@ -32,6 +32,7 @@ export class TourMembersComponent {
     @Output() tourMembersCount = new EventEmitter<number>();
     @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
     @ViewChild('deleteModal') deleteModal!: ElementRef<HTMLDialogElement>;
+    @ViewChild('memberSearch') memberSearch!: ElementRef<HTMLDialogElement>;
 
     avatars: Avatar[] = AVATAR_LIST;
     editMode: boolean = false;
@@ -253,7 +254,7 @@ export class TourMembersComponent {
 
             this.alertService.showAlertMessage({
                 type: 'success',
-                message: 'Auto erfolgreich hinzugefügt',
+                message: 'Teilnehmer erfolgreich hinzugefügt',
             });
         } catch (error) {
             console.error('onAddMember - error', error);

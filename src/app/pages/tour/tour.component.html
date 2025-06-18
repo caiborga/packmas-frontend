@@ -89,11 +89,13 @@
                             </tbody>
                         </table>
                         <!-- Bild -->
-                        <figure class="flex-shrink-0 h-36">
+                        <figure
+                            class="w-full max-w-xs aspect-video rounded overflow-hidden"
+                        >
                             <img
                                 src="https://www.swissflex.com/sites/default/files/blog/2018/02/Die-5-h%C3%B6chsten-Berge-der-Schweiz.png"
                                 alt="Berg"
-                                class="h-full object-cover rounded"
+                                class="w-full h-full object-cover"
                             />
                         </figure>
                     </div>
@@ -135,9 +137,7 @@
                             >
                             </app-icon>
                             <div class="divider divider-horizontal"></div>
-                            <span
-                                >{{ tourThingsWeight | weight }}
-                            </span>
+                            <span>{{ tourThingsWeight | weight }} </span>
                             } @case (2) {
                             <app-icon
                                 [type]="'NUMBER'"

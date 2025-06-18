@@ -34,6 +34,7 @@
 <div class="drawer drawer-end">
     <input #drawer id="my-drawer-4" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
+        <!-- SEARCH BOX -->
         <label class="input input-bordered rounded-2xl flex items-center mb-2">
             <input
                 #searchBox
@@ -53,23 +54,30 @@
             }
         </label>
 
+        <!-- TABLE -->
         <p-table
+            [@tableRowAnimation]
+            [first]="pagination.offset"
             [value]="members"
+            [lazy]="true"
             [loading]="loadingData"
             [paginator]="true"
-            [first]="pagination.offset"
-            [totalRecords]="pagination.total!"
-            [showCurrentPageReport]="true"
-            [rows]="5"
+            [rows]="pagination.limit"
+            [totalRecords]="pagination.total || 0"
             [rowsPerPageOptions]="[5, 10, 20]"
-            [@tableRowAnimation]
+            [showCurrentPageReport]="true"
+            (onLazyLoad)="getMembers($event)"
             currentPageReportTemplate="Zeige {first} bis {last} von {totalRecords} Elementen"
         >
             <ng-template #header>
                 <tr>
                     <th style="height: 70px; background-color: #f4f4f9"></th>
-                    <th style="height: 70px; background-color: #f4f4f9">
+                    <th
+                        style="height: 70px; background-color: #f4f4f9"
+                        pSortableColumn="name"
+                    >
                         Name
+                        <p-sortIcon field="name"></p-sortIcon>
                     </th>
                 </tr>
             </ng-template>
@@ -155,12 +163,12 @@
         <!-- BUTTONS -->
         <div
             class="fixed bottom-16 flex justify-center gap-1 left-1/2 transform -translate-x-1/2"
+            (click)="onNewMember()"
         >
-            <!-- ADIT MEMBER -->
+            <!-- NEW MEMBER -->
             <label
                 for="my-drawer-4"
                 class="button btn btn-circle btn-primary"
-                (click)="onNewMember()"
             >
                 <mat-icon
                     aria-hidden="false"
@@ -255,18 +263,21 @@
             <!-- BUTTON -->
             <div class="grid grid-cols-2 gap-2">
                 @if ( !editMode ){
-                <div class="tooltip w-full" [attr.data-tip]="getErrorSummary()">
+                <div>
                     <button
                         class="btn btn-primary w-full"
                         [disabled]="memberForm.invalid"
                         (click)="addMember()"
                     >
-                        Erstellen
+                        @if(memberForm.invalid) { Fehlende Angaben } @else {
+                        Erstellen }
                     </button>
                 </div>
                 } @else {
-                <button class="btn btn-primary" (click)="editMember()">
-                    Ändern
+                        
+                <button class="btn btn-primary" (click)="editMember()" [disabled]="memberForm.invalid">
+                    @if(memberForm.invalid) { Fehlende Angaben } @else { Ändern
+                    }
                 </button>
                 }
 

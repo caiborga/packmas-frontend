@@ -36,7 +36,6 @@ export class HomeComponent {
         this.layoutService.setFooterState('hidden');
         this.layoutService.setBackgroundBlurred(false);
 
-        this.loadingData = true;
         let groupIsValid = false;
 
         // Get group ID from route params
@@ -99,6 +98,7 @@ export class HomeComponent {
     }
 
     registerGroup() {
+        this.loadingData = true;
         let data = {
             name: this.groupName,
         };
@@ -109,10 +109,16 @@ export class HomeComponent {
                 console.log('registerGroup - success', response);
                 this.authService.login();
                 this.localStorageService.setItem('key', response.groupKey);
+                this.loadingData = false;
                 // this.layoutService.setBackgroundSuccess();
                 this.router.navigate(['/', 'tours']);
             })
             .catch((error) => {
+                this.loadingData = false;
+                this.alertService.showAlertMessage({
+                        type: 'error',
+                        message: error.error,
+                    });
                 console.error('registerGroup - error', error);
             });
     }

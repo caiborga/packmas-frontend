@@ -5,6 +5,7 @@ module.exports = {
     daisyui: {
         themes: ["light", "dark", "cupcake", "nord", "corporate"],
     },
+    darkmode: false,
     theme: {
         extend: {
             keyframes: {

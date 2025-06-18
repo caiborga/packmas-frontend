@@ -1,10 +1,5 @@
 import { Component, inject, ElementRef, ViewChild } from '@angular/core';
-import {
-    FormGroup,
-    FormControl,
-    FormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormGroup, FormControl, FormsModule, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,7 +9,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { LayoutService } from '../../core/services/layout.service';
 import { PaginatorModule } from 'primeng/paginator';
 import { Avatar, AVATAR_LIST } from '../../core/avatars/avatars';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ToursService } from '../../core/services/tours.service';
 import { HeaderComponent } from '../../shared/header/header.component';
 import { AlertService } from '../../core/services/alert.service';
@@ -22,23 +17,15 @@ import { Member } from '../../core/models/member';
 import { Pagination } from '../../core/models/pagination';
 import { PaginatorComponent } from '../../shared/paginator/paginator.component';
 import { tableRowAnimation } from '../../core/animations/layout';
+import { LazyLoadEvent, SortMeta } from 'primeng/api';
 
 @Component({
     selector: 'app-members',
     standalone: true,
-    imports: [
-        FormsModule,
-        MatIconModule,
-        NgClass,
-        ReactiveFormsModule,
-        PaginatorModule,
-        TableModule,
-        HeaderComponent,
-        PaginatorComponent,
-    ],
+    imports: [FormsModule, MatIconModule, NgClass, ReactiveFormsModule, PaginatorModule, TableModule, HeaderComponent, PaginatorComponent],
     templateUrl: './members.component.html',
     styleUrl: './members.component.scss',
-    animations: [tableRowAnimation]
+    animations: [tableRowAnimation],
 })
 export class MembersComponent {
     @ViewChild('drawer') drawer!: ElementRef<HTMLInputElement>;
@@ -67,13 +54,11 @@ export class MembersComponent {
     private searchSubject = new Subject<string>();
 
     constructor() {
-        this.searchSubject
-            .pipe(debounceTime(300), distinctUntilChanged())
-            .subscribe((searchTerm) => {
-                this.loadingData = true;
-                this.pagination.filter = searchTerm;
-                this.getMembers();
-            });
+        this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe((searchTerm) => {
+            this.loadingData = true;
+            this.pagination.filter = searchTerm;
+            this.getMembers();
+        });
     }
 
     ngOnInit() {
@@ -83,7 +68,21 @@ export class MembersComponent {
         this.layoutService.setBackgroundBlurred(true);
     }
 
-    getMembers() {
+    getMembers(event?: TableLazyLoadEvent) {
+        if (event) {
+            const sortField = Array.isArray(event.sortField) ? event.sortField[0] : event.sortField;
+            const filter = this.pagination.filter ? this.pagination.filter : '';
+            this.pagination = {
+                page: (event.first ?? 0) / (event.rows ?? 10) + 1,
+                limit: event.rows ?? 10,
+                filter: filter,
+                sortField: sortField? sortField : '',
+                sortOrder: event.sortOrder === 1 ? 'asc' : 'desc',
+            };
+        }
+
+        console.log('getMembers - pagination', this.pagination)
+
         this.loadingData = true;
         this.tourService
             .get('members', this.pagination)
@@ -92,7 +91,7 @@ export class MembersComponent {
                 this.members = response.members;
                 this.loadingData = false;
                 this.pagination = response.pagination;
-                console.log('getMembers - success', this.members);
+                // console.log('getMembers - success', this.members);
             })
             .catch((error) => {
                 this.loadingData = false;
@@ -103,13 +102,13 @@ export class MembersComponent {
 
     getErrorSummary(): string {
         if (!this.memberForm || this.memberForm.valid) return '';
-    
+
         const errorMessages: string[] = [];
-    
+
         if (this.memberForm.get('name')?.hasError('required')) {
             errorMessages.push('Name ist erforderlich.');
         }
-    
+
         return errorMessages.length > 0 ? errorMessages.join(' | ') : 'Formular enthält Fehler.';
     }
 
@@ -185,9 +184,7 @@ export class MembersComponent {
     }
 
     onEditMember(member: Member) {
-        const avatar = AVATAR_LIST.find(
-            (avatar) => avatar.id === member.avatar
-        );
+        const avatar = AVATAR_LIST.find((avatar) => avatar.id === member.avatar);
         this.editMode = true;
         this.memberForm.patchValue(member);
         if (avatar) {
@@ -202,10 +199,7 @@ export class MembersComponent {
         this.memberForm.get('avatar')?.setValue(this.selectedAvatar.id);
         console.log(this.memberForm);
         this.tourService
-            .put(
-                'members/' + this.memberForm.get('id')!.value,
-                this.memberForm.value
-            )
+            .put('members/' + this.memberForm.get('id')!.value, this.memberForm.value)
             .toPromise()
             .then((response) => {
                 this.drawer.nativeElement.checked = false;

@@ -55,34 +55,48 @@
 
         <!-- TABLE -->
         <p-table
-            [value]="cars"
+            [@tableRowAnimation]
+            [first]="carsPagination.offset"
             [loading]="loadingData"
             [paginator]="true"
-            [first]="carsPagination.offset"
-            [totalRecords]="carsPagination.total!"
-            [showCurrentPageReport]="true"
             [rows]="5"
             [rowsPerPageOptions]="[5, 10, 20]"
-            [@tableRowAnimation]
+            [showCurrentPageReport]="true"
+            [totalRecords]="carsPagination.total!"
+            [value]="cars"
+            (onLazyLoad)="getCars($event)"
             currentPageReportTemplate="Zeige {first} bis {last} von {totalRecords} Elementen"
         >
             <ng-template #header>
                 <tr>
                     <th style="height: 70px; background-color: #f4f4f9"></th>
-                    <th style="height: 70px; background-color: #f4f4f9">
+                    <th
+                        style="height: 70px; background-color: #f4f4f9"
+                        pSortableColumn="name"
+                    >
                         Name
+                        <p-sortIcon field="name"></p-sortIcon>
+                    </th>
+
+                    <th style="height: 70px; background-color: #f4f4f9">
+                        Fahrer
                     </th>
                     <th style="height: 70px; background-color: #f4f4f9">
                         Marke
                     </th>
-                    <th style="height: 70px; background-color: #f4f4f9">
+                    <th
+                        style="height: 70px; background-color: #f4f4f9"
+                        pSortableColumn="model"
+                    >
                         Modell
+                        <p-sortIcon field="model"></p-sortIcon>
                     </th>
                     <!-- <th style="height: 70px; background-color: #f4f4f9">
                         Fahrer
                     </th> -->
-                    <th style="height: 70px; background-color: #f4f4f9">
+                    <th style="height: 70px; background-color: #f4f4f9" pSortableColumn="seats">
                         Plätze
+                        <p-sortIcon field="seats"></p-sortIcon>
                     </th>
                     <th style="height: 70px; background-color: #f4f4f9">
                         <!-- ACTIONS -->
@@ -115,24 +129,8 @@
                             {{ car.name }}
                         </div>
                     </td>
-                    <!-- BRAND -->
-                    <td>
-                        <div class="flex items-center gap-3">
-                            {{
-                                serverBrands[car.brand]
-                                    ? serverBrands[car.brand].value
-                                    : ""
-                            }}
-                        </div>
-                    </td>
-                    <!-- MODEL -->
-                    <td>
-                        <div class="flex items-center gap-3">
-                            {{ car.model }}
-                        </div>
-                    </td>
                     <!-- DRIVER -->
-                    <!-- <td>
+                    <td>
                         <div class="flex items-center gap-3">
                             <div class="avatar">
                                 <div class="mask mask-squircle w-8">
@@ -159,7 +157,23 @@
                                     : ""
                             }}
                         </div>
-                    </td> -->
+                    </td>
+                    <!-- BRAND -->
+                    <td>
+                        <div class="flex items-center gap-3">
+                            {{
+                                serverBrands[car.brand]
+                                    ? serverBrands[car.brand].value
+                                    : ""
+                            }}
+                        </div>
+                    </td>
+                    <!-- MODEL -->
+                    <td>
+                        <div class="flex items-center gap-3">
+                            {{ car.model }}
+                        </div>
+                    </td>
                     <!-- SEATS -->
                     <td>
                         <div class="flex items-center gap-3">
@@ -277,10 +291,10 @@
                         <p-autoComplete
                             formControlName="driver"
                             [suggestions]="drivers"
+                            optionLabel="name"
                             [forceSelection]="true"
                             (completeMethod)="onSearchDriverChange($event)"
                             (onSelect)="onSelectDriver($event)"
-                            field="name"
                             placeholder="Fahrer suchen"
                         >
                             <ng-template let-member #item>
@@ -301,6 +315,13 @@
                                         {{ member.name }}
                                     </div>
                                 </div>
+                            </ng-template>
+
+                            <!-- Selected-Item-Template für Anzeige im Input -->
+                            <ng-template let-id #selectedItem>
+                                <span>
+                                    {{ getDriverNameById(id) }}
+                                </span>
                             </ng-template>
                         </p-autoComplete>
                     </div>

@@ -25,13 +25,18 @@
                 />
             </div>
             <div class="form-control mt-1">
+                @if(loadingData) {
+                <span class="loading loading-spinner loading-sm"></span>
+
+                } @else {
                 <button
                     class="btn btn-primary"
                     (click)="registerGroup()"
                     [disabled]="!groupNameInput.value"
                 >
-                    Neue Gruppe erstellens
+                    Neue Gruppe erstellen
                 </button>
+                }
             </div>
         </form>
     </div>
